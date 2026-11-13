@@ -1,0 +1,56 @@
+---
+import { copy } from '../content/copy';
+import type { Lang } from '../content/copy';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = copy[lang].hero.panel;
+
+// Illustrative sample: 48 slots for the recording, two highlighted ranges.
+// Real screenshots replace this once the app exists.
+const slots = Array.from({ length: 48 }, (_, i) => i);
+const selected = new Set([9, 10, 11, 12, 26, 27]);
+---
+
+<div class="rounded-lg border border-line bg-surface p-5 sm:p-6">
+  <div class="mb-4 flex items-baseline justify-between gap-3 font-mono text-[10.5px] text-muted">
+    <span>{t.label}</span>
+    <span class="text-accent">{t.range}</span>
+  </div>
+
+  <div class="grid grid-cols-[repeat(48,minmax(0,1fr))] gap-[2px]" aria-hidden="true">
+    {
+      slots.map((i) => (
+        <span
+          class:list={[
+            'h-6 rounded-[2px]',
+            selected.has(i) ? 'bg-accent' : 'bg-white/[0.07]',
+          ]}
+        />
+      ))
+    }
+  </div>
+
+  <p class="mt-3 font-mono text-[10.5px] text-muted">{t.timelineNote}</p>
+
+  <ul class="mt-5 space-y-3 border-t border-line pt-5">
+    {
+      t.cues.map((cue) => (
+        <li class="grid grid-cols-[auto_1fr] gap-x-3">
+          <span class="font-mono text-[11px] leading-6 text-muted/80 tabular-nums">
+            {cue.time}
+          </span>
+          <span class="text-[14px] leading-6 text-text/85">{cue.text}</span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="mt-5 rounded-md border-l-2 border-accent bg-accent-dim px-3 py-2.5">
+    <div class="font-mono text-[10.5px] text-accent/80">{t.reasonLabel}</div>
+    <p class="mt-1 text-[13px] leading-5 text-text/85">{t.reason}</p>
+  </div>
+</div>

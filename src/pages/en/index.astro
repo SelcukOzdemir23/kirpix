@@ -1,0 +1,11 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Page from '../../components/Page.astro';
+import { copy } from '../../content/copy';
+
+const t = copy.en.meta;
+---
+
+<Layout lang="en" title={t.title} description={t.description}>
+  <Page lang="en" />
+</Layout>

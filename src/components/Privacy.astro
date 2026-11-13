@@ -1,0 +1,39 @@
+---
+import { copy } from '../content/copy';
+import type { Lang } from '../content/copy';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = copy[lang].privacy;
+---
+
+<section id="gizlilik" class="border-b border-line py-16 md:py-24">
+  <div class="mx-auto w-full max-w-[1180px] px-5 sm:px-8">
+    <h2
+      class="max-w-[22ch] text-[1.9rem] leading-[1.12] font-medium tracking-[-0.035em] text-balance sm:text-[2.6rem]"
+    >
+      {t.title}
+    </h2>
+    <p class="mt-5 max-w-[60ch] text-[16px] leading-relaxed text-muted">{t.body}</p>
+
+    <div class="mt-12 grid grid-cols-1 gap-3 md:grid-cols-2">
+      {
+        t.panels.map((panel) => (
+          <div class="rounded-lg border border-line bg-surface p-6">
+            <div class="font-mono text-[11px] text-muted">{panel.tag}</div>
+            <div class="mt-2 text-[17px] font-medium tracking-[-0.015em]">{panel.title}</div>
+            <p class="mt-2 text-[15px] leading-relaxed text-muted">{panel.text}</p>
+            <p class="mt-4 border-t border-line pt-3 text-[13px] leading-relaxed text-text/70">
+              {panel.note}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+
+    <p class="mt-6 max-w-[70ch] text-[14px] leading-relaxed text-text/70">{t.fallback}</p>
+  </div>
+</section>

@@ -1,0 +1,35 @@
+---
+import { copy } from '../content/copy';
+import type { Lang } from '../content/copy';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = copy[lang].footer;
+---
+
+<footer class="py-14 md:py-16">
+  <div
+    class="mx-auto flex w-full max-w-[1180px] flex-col gap-8 px-5 sm:px-8 md:flex-row md:items-start md:justify-between"
+  >
+    <div>
+      <div class="text-[18px] font-semibold tracking-[-0.035em]">kirpix</div>
+      <p class="mt-2 max-w-[36ch] text-[14px] leading-relaxed text-muted">{t.tagline}</p>
+    </div>
+
+    <div class="flex flex-col gap-2 md:items-end">
+      <a
+        href="https://github.com/SelcukOzdemir23/kirpix"
+        target="_blank"
+        rel="noreferrer"
+        class="text-[14px] text-text/85 transition-colors hover:text-text"
+      >
+        {t.github}
+      </a>
+      <span class="text-[13px] text-muted">{t.privacy}</span>
+      <span class="text-[13px] text-muted">{t.license}</span>
+    </div>
+  </div>
+</footer>

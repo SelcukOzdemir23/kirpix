@@ -1,14 +1,19 @@
 {
-  "name": "com-ez",
+  "name": "kirpix",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Privacy-first desktop app that finds the clips you want from a subtitled video and cuts them on your own machine.",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "preview": "astro preview"
   },
   "dependencies": {
-    "astro": "^5.16.0"
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
+    "@tailwindcss/postcss": "^4.3.5",
+    "astro": "^5.18.2",
+    "tailwindcss": "^4.3.5"
   }
 }

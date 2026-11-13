@@ -1,0 +1,47 @@
+---
+import { copy } from '../content/copy';
+import type { Lang } from '../content/copy';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = copy[lang].modes;
+
+// Explicit spans so the grid keeps its rhythm: 3+3, then 2+2+2.
+const spans = ['md:col-span-3', 'md:col-span-3', 'md:col-span-2', 'md:col-span-2', 'md:col-span-2'];
+---
+
+<section id="kriterler" class="border-b border-line py-16 md:py-24">
+  <div class="mx-auto w-full max-w-[1180px] px-5 sm:px-8">
+    <h2 class="max-w-[24ch] text-[1.7rem] leading-tight font-medium tracking-[-0.03em] sm:text-[2rem]">
+      {t.title}
+    </h2>
+    <p class="mt-4 max-w-[60ch] text-[16px] leading-relaxed text-muted">{t.body}</p>
+
+    <div class="mt-12 grid grid-cols-1 gap-3 md:grid-cols-6">
+      {
+        t.items.map((item, i) => (
+          <div
+            class:list={[
+              'rounded-lg border p-5 sm:p-6',
+              spans[i],
+              i === 3
+                ? 'border-accent/35 bg-accent-dim'
+                : i === 4
+                  ? 'border-line bg-surface-2'
+                  : 'border-line bg-surface',
+            ]}
+          >
+            <div class="text-[16px] font-medium tracking-[-0.01em]">{item.tag}</div>
+            <p class="mt-2 text-[15px] leading-relaxed text-muted">{item.text}</p>
+            <p class="mt-4 font-mono text-[11.5px] leading-relaxed text-text/60">
+              {item.example}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

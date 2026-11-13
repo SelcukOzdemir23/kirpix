@@ -1,0 +1,31 @@
+---
+import { copy } from '../content/copy';
+import type { Lang } from '../content/copy';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = copy[lang].how;
+---
+
+<section id="nasil" class="border-b border-line py-16 md:py-24">
+  <div class="mx-auto w-full max-w-[1180px] px-5 sm:px-8">
+    <h2 class="max-w-[24ch] text-[1.7rem] leading-tight font-medium tracking-[-0.03em] sm:text-[2rem]">
+      {t.title}
+    </h2>
+    <p class="mt-4 max-w-[60ch] text-[16px] leading-relaxed text-muted">{t.body}</p>
+
+    <ol class="mt-12 grid grid-cols-1 gap-x-8 gap-y-9 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        t.steps.map((step) => (
+          <li class="border-t border-line pt-5">
+            <h3 class="text-[17px] font-medium tracking-[-0.015em]">{step.name}</h3>
+            <p class="mt-2 text-[15px] leading-relaxed text-muted">{step.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

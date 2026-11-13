@@ -1,0 +1,29 @@
+---
+import Nav from './Nav.astro';
+import Hero from './Hero.astro';
+import HowItWorks from './HowItWorks.astro';
+import WhySubtitle from './WhySubtitle.astro';
+import Modes from './Modes.astro';
+import Privacy from './Privacy.astro';
+import Status from './Status.astro';
+import Footer from './Footer.astro';
+
+import type { Lang } from '../content/copy';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<Nav lang={lang} />
+<main>
+  <Hero lang={lang} />
+  <HowItWorks lang={lang} />
+  <WhySubtitle lang={lang} />
+  <Modes lang={lang} />
+  <Privacy lang={lang} />
+  <Status lang={lang} />
+</main>
+<Footer lang={lang} />
