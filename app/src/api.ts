@@ -59,6 +59,12 @@ export type CutResult = {
 
 export type ClipRequest = { startMs: number; endMs: number };
 
+export type ClipPreview = {
+  url: string;
+  durationMs: number;
+  truncated: boolean;
+};
+
 export type OffsetInfo = { offsetMs: number; clampedCues: number };
 
 export const api = {
@@ -79,6 +85,9 @@ export const api = {
 
   cueSample: (cueIndex: number, seconds: number) =>
     invoke<string>('cue_sample', { cueIndex, seconds }),
+
+  previewClip: (startMs: number, endMs: number) =>
+    invoke<ClipPreview>('preview_clip', { startMs, endMs }),
 
   cutClips: (clips: ClipRequest[], outDir: string) =>
     invoke<CutResult[]>('cut_clips', { clips, outDir }),

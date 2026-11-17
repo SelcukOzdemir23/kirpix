@@ -9,6 +9,8 @@ type Props = {
   candidate: Candidate;
   bounds: { startMs: number; endMs: number };
   active: boolean;
+  preview: { url: string; durationMs: number; truncated: boolean } | null;
+  previewing: boolean;
   lang: Lang;
   t: (typeof copy)['tr'];
   onBounds: (startMs: number, endMs: number) => void;
@@ -16,12 +18,15 @@ type Props = {
   onReject: () => void;
   onPlayCue: (cueIndex: number) => void;
   onActive: (id: number | null) => void;
+  onPreview: () => void;
 };
 
 export default function CandidateCard({
   candidate,
   bounds,
   active,
+  preview,
+  previewing,
   lang,
   t,
   onBounds,
@@ -29,6 +34,7 @@ export default function CandidateCard({
   onReject,
   onPlayCue,
   onActive,
+  onPreview,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [cues, setCues] = useState<Cue[] | null>(null);
@@ -139,6 +145,16 @@ export default function CandidateCard({
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={onPreview}
+            aria-pressed={preview !== null}
+            className={`rounded-[5px] px-2.5 py-1.5 text-[12.5px] transition-colors hover:bg-text/[0.07] ${
+              preview ? 'text-accent' : 'text-text/80 hover:text-text'
+            }`}
+          >
+            {previewing ? t.preparing : preview ? t.hide : t.show}
+          </button>
           {moved && (
             <button
               type="button"
@@ -164,6 +180,22 @@ export default function CandidateCard({
           </button>
         </div>
       </div>
+
+      {preview && (
+        <div className="border-t border-line px-4 py-3">
+          <video
+            src={preview.url}
+            controls
+            autoPlay
+            className="max-h-[320px] w-full rounded-[6px] bg-black"
+          />
+          {preview.truncated && (
+            <p className="mt-2 text-[12px] text-muted">
+              {t.firstSeconds(Math.round(preview.durationMs / 1000))}
+            </p>
+          )}
+        </div>
+      )}
 
       {open && (
         <div className="border-t border-line px-4 py-3">
