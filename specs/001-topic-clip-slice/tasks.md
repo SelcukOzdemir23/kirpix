@@ -166,11 +166,19 @@ Paths are relative to `app/` unless stated.
 
 ## Phase 6: Verification
 
-- [ ] **T015** Golden and determinism tests: search both recordings and assert
-  the 80 percent overlap against `eval/gold/` (SC-001), and byte-identical
-  candidate output across two runs (SC-004). Record the manual rows for SC-002
-  and SC-005 in the pull request, and flip `eval/gold/*.json` to `reviewed` once
-  a person has confirmed the ranges.
+- [ ] **T015** Verification. The automated half is done and passing; the manual
+  rows are not.
+  *Done*: SC-001, the search on the Turkish recording overlaps a recorded range
+  by 100 percent; SC-004, two runs produce byte-identical candidates; and the
+  duration half of SC-002, since a cut clip is measured at the length its card
+  showed, within 250 ms.
+  *Owed to a person with a desktop*: play one clip from each recording and
+  confirm it starts and ends where the card said (SC-002); run the whole flow
+  with the network interface down (SC-005); and flip `eval/gold/*.json` from
+  `proposed` to `reviewed` once the ranges have been read.
+  This box stays open until those three are done, because a spec that says
+  "verified" while half of it has not been looked at is worse than one that
+  says exactly what is left.
   *Depends on*: T008, T013
 
 ## Definition of done for the slice

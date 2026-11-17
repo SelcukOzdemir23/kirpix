@@ -442,6 +442,35 @@ mod tests {
     }
 
     #[test]
+    fn the_same_input_produces_the_same_answer() {
+        use crate::subtitle::{decode, parse_cues};
+        use std::path::Path;
+
+        let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../eval/fixtures/tr-tedx-kaygi.tr.vtt");
+        if !fixture.is_file() {
+            eprintln!("skipped: evaluation files are not present");
+            return;
+        }
+
+        let (text, _) = decode::read_file(&fixture).expect("fixture should decode");
+        let table = CueTable {
+            cues: parse_cues(&text),
+            encoding: "utf-8".to_string(),
+        };
+        let terms = vec!["kaygı".to_string(), "endişe".to_string()];
+
+        let first = find(&table, &terms, Bounds::default(), 877_650).expect("first run");
+        let second = find(&table, &terms, Bounds::default(), 877_650).expect("second run");
+
+        assert_eq!(
+            serde_json::to_string(&first).unwrap(),
+            serde_json::to_string(&second).unwrap(),
+            "two runs over the same input disagreed"
+        );
+    }
+
+    #[test]
     fn finds_the_recorded_ground_truth() {
         use crate::subtitle::{decode, parse_cues};
         use serde_json::Value;
