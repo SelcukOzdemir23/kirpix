@@ -9,6 +9,7 @@
 //! fake client and an in-memory key store implement both traits, so no test ever
 //! reaches a real server or the operating system's secret service.
 
+pub mod openai;
 pub mod prompt;
 pub mod shortlist;
 pub mod validate;
@@ -181,6 +182,8 @@ pub enum ProviderError {
     Unconfirmed,
     /// Cloud mode with no key stored.
     MissingKey { provider: CloudProvider },
+    /// The provider answered with a status this layer has no better name for.
+    Http { status: u16, message: String },
 }
 
 impl std::fmt::Display for ProviderError {
@@ -197,6 +200,9 @@ impl std::fmt::Display for ProviderError {
             }
             Self::Unconfirmed => write!(f, "nothing was sent: the payload changed after confirmation"),
             Self::MissingKey { provider } => write!(f, "no key is stored for {provider:?}"),
+            Self::Http { status, message } => {
+                write!(f, "the provider answered {status}: {message}")
+            }
         }
     }
 }
@@ -335,6 +341,10 @@ mod tests {
             ProviderError::Unconfirmed,
             ProviderError::MissingKey {
                 provider: CloudProvider::DeepSeek,
+            },
+            ProviderError::Http {
+                status: 418,
+                message: "teapot".into(),
             },
         ];
 
