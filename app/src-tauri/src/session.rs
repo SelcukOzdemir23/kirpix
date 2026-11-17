@@ -360,6 +360,36 @@ mod tests {
     }
 
     #[test]
+    fn the_shifted_fixture_is_corrected_by_the_inverse_offset() {
+        let video = eval("media/tr-tedx-kaygi.mp4");
+        let shifted = eval("fixtures/tr-tedx-kaygi-shifted.srt");
+        let original = eval("fixtures/tr-tedx-kaygi.srt");
+        if !video.is_file() || !shifted.is_file() || !original.is_file() {
+            eprintln!("skipped: evaluation files are not present");
+            return;
+        }
+
+        let mut session = open(&video, &shifted).expect("the shifted file should open");
+        session.offset_ms = -3_500;
+
+        let corrected = session.cues(1, 240);
+        let (text, encoding) = read_file(&original).expect("the original should read");
+        let reference = crate::subtitle::parse_table(&text, encoding.as_str());
+
+        assert_eq!(corrected.len(), reference.len());
+        for (moved, expected) in corrected.iter().zip(reference.cues.iter()) {
+            assert!(
+                (moved.start_ms as i64 - expected.start_ms as i64).abs() <= 100,
+                "cue {} starts at {} ms, the original at {} ms",
+                moved.index,
+                moved.start_ms,
+                expected.start_ms
+            );
+            assert_eq!(moved.text, expected.text);
+        }
+    }
+
+    #[test]
     fn refuses_an_empty_subtitle_file() {
         let path = std::env::temp_dir().join("kirpix-empty.vtt");
         std::fs::write(&path, "WEBVTT\n\n").unwrap();

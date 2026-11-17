@@ -95,10 +95,18 @@ each.
 
 ## Phase 4: Verification
 
-- [ ] **T008** Close the acceptance criteria: SC-001 and SC-004 as tests,
-  SC-002 by applying minus 3.5 seconds to the shifted fixture and comparing with
-  the unshifted file, SC-003 and SC-005 as described in the spec, and SC-006 as
-  a manual row. Record what could not be automated.
+- [ ] **T008** Verification. Every automated criterion is met; three things need
+  a person at a desktop.
+  *Done*: **SC-001**, the embedded track and the sidecar file agree on all 239
+  cues; **SC-002**, the deliberately shifted fixture is brought back within
+  100 ms of the original by the inverse offset, on every line; **SC-003**, the
+  sample is 128 KB of PCM for four seconds; **SC-004**, a search moves by
+  exactly the offset; **SC-005**, the picture codecs are classified and refused
+  by rule.
+  *Owed to a person*: play a sample and confirm it lines up with the cue
+  (SC-003, the playback half); run the whole flow with the network down
+  (SC-006); and correct the shifted fixture by ear rather than by arithmetic.
+  This box stays open until those three are done.
   *Depends on*: T005, T006, T007
 
 ## Definition of done for the slice
