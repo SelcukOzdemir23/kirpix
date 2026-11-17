@@ -66,6 +66,23 @@ each.
   - Unverified, as before: a real window switching scheme live, and the pointer
     behaviour under a real mouse. Both are T002.
 
+- [x] **T004** Make the screen say what it does: one word per job, and one line
+  of plain text where the control's effect is not obvious from its object.
+  *Done when*: no two visible controls on the results screen share a label, and
+  every label names its object.
+  *Evidence*: `Göster` became `İzle` (`Watch`), so it no longer collides with
+  `Satırlar` (was `Satırları göster`) which expands the cues. The row's
+  `Sıfırla` became `Aralığı sıfırla` (`Reset range`) so it no longer shares a
+  word with the shift reset. `Değiştir` became `Dosya değiştir`, `gömülü` became
+  `gömülü altyazı`, and the shift section is `Kaydırma (sn)` with
+  `+0,5` beside it instead of six chips with no unit. The shift section gained
+  one line: `Altyazı sesin önünde ya da arkasında kalıyorsa buradan kaydır.`
+  Screenshots at 1100×760 and 880×600: the four row actions fit on one line at
+  the minimum width, and the clamped chip now wraps to two lines instead of
+  three.
+  *Honest limit*: the labels are checked by eye and by reading the copy file;
+  there is no interface test that asserts the rule.
+
 - [ ] **T002** Check the shell in a real window: drag the fixture MKV from the
   file manager onto the window, then the MKV together with the SRT, then an SRT
   alone onto an open session; hover a row and its mark; resize to 880×600.
