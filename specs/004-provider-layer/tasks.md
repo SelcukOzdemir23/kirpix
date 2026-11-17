@@ -83,6 +83,18 @@ open questions come first.
   *Done when*: a stub server on `127.0.0.1:0` drives the whole path, the
   recorded request body matches the prompt the builder produced, and a dead port
   produces `Unreachable` with the address.
+  *Evidence*: six tests against a real stub server on a random port, which
+  records every request. The ranked answer comes back through the same validator
+  T003 wrote. The recorded body carries the model, `temperature 0`, `top_p 1` and
+  the prompt with its `#41`-style line numbers. A port with nothing on it gives
+  `Unreachable` naming that address. A `429` with `Retry-After: 0` is retried
+  exactly once and the second answer is used; a `500` twice is retried once and
+  then fails with its status and the provider's last words; a `401` is not
+  retried at all. `/models` lists what the server serves.
+  *Deviation from the plan*: `ProviderError::Http { status, message }` was added
+  for a status the layer has no better name for. The plan's table stopped at 429
+  and 5xx, and folding "418" into `MalformedAnswer` would have said the answer
+  was broken when the server was.
   *Depends on*: T002, T003.
 
 - [ ] **T005** Point the same client at DeepSeek: fixed address, key from the
@@ -90,6 +102,15 @@ open questions come first.
   *Done when*: the stub sees the DeepSeek address, the key travels as a bearer
   header, and the recorded body is byte-identical to the local request for the
   same shortlist.
+  *Evidence*: one test sends the same shortlist to a local client and to a cloud
+  client and compares what the two stubs received: **the bodies are identical**,
+  and the only difference is `Authorization: Bearer sk-test` on the cloud one.
+  The three addresses the interface will offer are named in one place —
+  `OLLAMA_BASE`, `LM_STUDIO_BASE`, `DEEPSEEK_BASE` — and a test holds them to
+  their shape, so T008 reads them instead of writing them again.
+  *What this does not cover yet*: the key is passed to `OpenAiClient::cloud` by
+  the caller. Reading it from the keychain is T006, and the confirmation gate is
+  T007; until then nothing in the application calls this client.
   *Depends on*: T004.
 
 - [ ] **T005b** *(later slice, not this one)* The Anthropic messages shape and
@@ -101,6 +122,19 @@ open questions come first.
   *Done when*: the in-memory store covers the tests; an authentication failure
   whose message contains the key produces an error without it; a test asserts
   the key is absent from `Debug` output and from the error payload.
+  *Evidence*: `KeychainStore` is one entry per provider under the service name
+  `dev.kirpix.app`, with `apple-native`, `windows-native` and
+  `sync-secret-service` behind it; a missing entry reads as `None` and deleting
+  an absent key is not an error. `redact` replaces the key with `[redacted]`, and
+  it is applied to every provider message on its way into an error. Two tests
+  hold the client to it: a `401` whose body repeats `sk-test` comes back as an
+  error containing `[redacted]` and not the key, and `format!("{client:?}")`
+  prints `[redacted]` because `OpenAiClient` has a hand-written `Debug` instead
+  of a derived one.
+  *Honest limit*: no test touches the real keychain — that is the point of the
+  trait, and it means the `KeychainStore` path is reviewed, not exercised. A
+  person with a desktop session should store a key, restart, and confirm it is
+  still there; that goes with T009.
   *Depends on*: T001.
 
 ## Phase 3: The gate and the screen
@@ -110,6 +144,14 @@ open questions come first.
   count, and refuses with `Unconfirmed` when they differ.
   *Done when*: a test confirms one payload and sends a different one, and
   nothing reaches the stub.
+  *Evidence*: `Confirmation::of(mode, shortlist)` is what the dialog will state,
+  and `rank_confirmed` is the only path a call may take: it checks first, then
+  calls the client. Five tests: the confirmed payload goes through and the client
+  is called once; a payload whose character count changed after the dialog is
+  `Unconfirmed` and the counting client records **zero** calls; a changed cue
+  count, a changed model and a changed address are each refused, because a
+  confirmation that still passes after the mode changed would be a dialog the
+  user agreed to about something else.
   *Depends on*: T004.
 
 - [ ] **T008** Build the interface: the model section in the rail, the mode
