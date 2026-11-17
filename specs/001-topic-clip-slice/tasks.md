@@ -119,18 +119,26 @@ Paths are relative to `app/` unless stated.
 
 ## Phase 4: Interface
 
-- [ ] **T010** Search form: terms, minimum and maximum duration, search disabled
+- [x] **T010** Search form: terms, minimum and maximum duration, search disabled
   while the term list is empty, plus the candidate list. Turkish and English
   strings in `i18n/copy.ts`.
+  *Evidence*: the screen was rendered from seeded data and inspected at
+  1100x900: form, three cards, the running total and the duration badge. The
+  dialog and the command round trip still need a desktop run.
   *Depends on*: T009
 
-- [ ] **T011** Candidate card: range, duration, reason, and an expandable list of
+- [x] **T011** Candidate card: range, duration, reason, and an expandable list of
   its cues with their own timecodes. Reject action. A card with no evidence is
   not rendered.
+  *Note*: the reason sentence is composed from `matchedTerms` in the interface,
+  per T009, so it exists in both languages without a second source of truth.
   *Depends on*: T010
 
-- [ ] **T012** Boundary adjustment by one second and by one cue, with reset, kept
+- [x] **T012** Boundary adjustment by one second and by one cue, with reset, kept
   in view state until the cut.
+  *Note*: cue moves are computed from the loaded cue list, which includes one
+  cue beyond each edge. Choosing by timestamp rather than by position means the
+  buttons still behave after a one second move has already shifted the edge.
   *Depends on*: T011
 
 ## Phase 5: Cutting
