@@ -43,10 +43,14 @@ Paths are relative to `app/` unless stated.
   *Evidence*: four decoding tests pass, covering UTF-8, a stripped byte order
   mark, Windows-1254 and CRLF normalisation.
 
-- [ ] **T004** VTT parser that implements FR-003 step by step, tested against
+- [x] **T004** VTT parser that implements FR-003 step by step, tested against
   `eval/fixtures/en-single-story.en.vtt`: exactly 357 cues, the repeated block
   collapsed, the run-on timestamp split, and cue 38 text starting "Because all I
   had read were books".
+  *Evidence*: the English fixture parses to 357 cues and the Turkish one to 239,
+  matching the counts in `eval/manifest.json` that were produced by an
+  independent reference parser. Two implementations agreeing on both files is
+  the check that the rule is written clearly enough to be followed.
   *Depends on*: T003
 
 - [ ] **T005** SRT parser with the same cue model, tested on a small fixture
