@@ -88,10 +88,16 @@ export default function App() {
   const dropReady = useDropZone((paths) => void acceptDropped(paths));
 
   useEffect(() => {
+    // The mode comes from the settings file, so a choice made yesterday is the
+    // engine that runs today. A failure here is stated rather than swallowed:
+    // the fallback is heuristic, and the screen says the request did not land.
     void api
-      .getMode()
-      .then(setMode)
-      .catch(() => setMode({ mode: 'heuristic' }));
+      .getSettings()
+      .then((report) => setMode(report.mode))
+      .catch((err) => {
+        setMode({ mode: 'heuristic' });
+        setError(errorMessage(err, lang));
+      });
   }, []);
 
   // Escape dismisses whatever is on top. Today that is the error bar.

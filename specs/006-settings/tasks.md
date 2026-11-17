@@ -53,12 +53,26 @@ done, never before.
 
 ## Phase 3: The file
 
-- [ ] **T003** Add `settings.rs`: the settings file, its load and its atomic
+- [x] **T003** Add `settings.rs`: the settings file, its load and its atomic
   save, wired to the provider state, with `get_settings` and `set_mode`
   persisting. The mode, address, model and provider survive a restart.
   *Done when*: a Rust test covers round trip, missing file and a missing field,
   and no test touches a real config directory.
-  *Evidence*: …
+  *Evidence*: `settings.rs` holds `Settings { mode }` and a `Store` that reads,
+  writes through a temporary neighbour and renames. Nine tests, 111 in the crate
+  (was 102): round trip, first run, corrupt file naming itself and left
+  untouched, a field an older build did not write, a field a later build added,
+  and three on the state — a chosen mode is there after a restart, a first run
+  starts heuristic, an unreadable file is kept and cleared by a write, and a
+  state with no store refuses to pretend it saved. Every test uses
+  `std::env::temp_dir()`; none reads the real config directory.
+  `set_mode` now writes before it adopts: a mode that could not be written is not
+  a mode that was chosen, and the failure comes back as
+  `ProviderError::Settings`. `get_mode` became `get_settings`, which answers with
+  the mode, the file's path and the reason the file could not be read, so a
+  screen cannot show the default without the reason for it.
+  *Not checked here*: the real file on a real machine — the path comes from
+  Tauri's config directory, which only exists in a desktop session.
 
 - [ ] **T004** State an unreadable settings file instead of silently starting on
   defaults.

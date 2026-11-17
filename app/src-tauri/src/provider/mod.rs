@@ -225,6 +225,8 @@ pub enum ProviderError {
     Heuristic,
     /// A model was asked about before any video was opened.
     NoSession,
+    /// The settings file could not be read or written.
+    Settings { detail: String },
 }
 
 impl std::fmt::Display for ProviderError {
@@ -247,6 +249,7 @@ impl std::fmt::Display for ProviderError {
             Self::Keyring { detail } => write!(f, "the keychain could not help: {detail}"),
             Self::Heuristic => write!(f, "the heuristic mode asks no model"),
             Self::NoSession => write!(f, "no video has been opened yet"),
+            Self::Settings { detail } => write!(f, "the settings could not be kept: {detail}"),
         }
     }
 }
