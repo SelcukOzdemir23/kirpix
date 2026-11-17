@@ -74,10 +74,43 @@
           ],
           "index_note": "cue count under the canonical rule in spec FR-003",
           "provenance": "rendered from tr-tedx-kaygi.tr.vtt with ffmpeg, so the SRT path is exercised on real timings rather than invented text"
+        },
+        {
+          "path": "eval/fixtures/tr-tedx-kaygi-shifted.srt",
+          "lang": "tr",
+          "cues": 239,
+          "first_cue": "00:00:03.500",
+          "last_cue_end": "00:14:33.376",
+          "bytes": 21859,
+          "sha256": "b8d150ff458994fa9d3c2d6dae21dd20ba21fbe7a4abd5c8a4a5ef74219f92b2",
+          "quirks": [
+            "every timestamp carries a deliberate 3.5 s forward shift"
+          ],
+          "index_note": "cue count under the canonical rule in spec 001 FR-003",
+          "provenance": "generated from tr-tedx-kaygi.srt by adding 3.5 s to every timestamp; the shift is the point"
         }
       ],
       "duration_seconds": 877.65,
-      "gold": "eval/gold/tr-tedx-kaygi.json"
+      "gold": "eval/gold/tr-tedx-kaygi.json",
+      "embedded": {
+        "path": "eval/media/tr-tedx-kaygi.mkv",
+        "note": "the same recording remuxed with two text subtitle tracks; video stays AV1 and audio stays Opus, which is what the source shipped",
+        "subtitle_streams": [
+          {
+            "index": 2,
+            "codec": "subrip",
+            "language": "tur",
+            "title": "Metin"
+          },
+          {
+            "index": 3,
+            "codec": "ass",
+            "language": "tur",
+            "title": "ASS"
+          }
+        ],
+        "bytes": 29929595
+      }
     }
   ],
   "gold_note": "Ground truth is recorded against the VTT files, whose cue numbering the gold files use. The SRT render of the same talk has different boundaries."
