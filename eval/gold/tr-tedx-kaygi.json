@@ -1,0 +1,41 @@
+{
+  "id": "tr-tedx-kaygi",
+  "status": "proposed",
+  "reviewed_by": null,
+  "criterion": {
+    "mode": "topic",
+    "terms": [
+      "kaygı",
+      "endişe"
+    ]
+  },
+  "fixture": "eval/fixtures/tr-tedx-kaygi.tr.vtt",
+  "canonical_cue_count": 239,
+  "expected": [
+    {
+      "start_cue": 59,
+      "end_cue": 70,
+      "note": "Fear turning into anxiety, and the thoughts that explain it. The talk is making its central move here.",
+      "start": "00:03:34.156",
+      "end": "00:04:15.036"
+    },
+    {
+      "start_cue": 227,
+      "end_cue": 232,
+      "note": "Avoidance keeps the anxiety alive; facing the situation reduces it. The practical conclusion.",
+      "start": "00:13:41.356",
+      "end": "00:14:05.556"
+    }
+  ],
+  "incidental": [
+    {
+      "start_cue": 96,
+      "note": "the word appears inside a description of avoidance behaviour, two lines"
+    },
+    {
+      "start_cue": 203,
+      "note": "the word appears as a label on an example, one line"
+    }
+  ],
+  "note": "Expected means a candidate here is a correct answer. Incidental mentions are legitimate but are not required; a search that only returns those has not found the topic."
+}

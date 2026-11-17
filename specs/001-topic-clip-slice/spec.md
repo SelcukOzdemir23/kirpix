@@ -117,6 +117,11 @@ in the output folder with names that identify their ranges.
 - **Whitespace-only or empty cues.** Ignored, not shown as matches.
 - **Subtitle file with zero usable cues.** Reported as an unreadable subtitle
   file, not as "no matches".
+- **A cue's text runs into the next timestamp.** The next timestamp starts a new
+  cue and the previous one ends before it. The English recording in `eval/` does
+  this.
+- **The same cue appears twice in a row.** Counted once. Both the behaviour and
+  the index count depend on this, so it is a rule, not a tolerance.
 - **The same term twice.** Does not double the score of a candidate.
 
 ## Requirements *(mandatory)*
@@ -127,11 +132,19 @@ in the output folder with names that identify their ranges.
   a subtitle file (srt, vtt) from disk.
 - **FR-002**: The application MUST parse both SRT and VTT into a single cue table
   of index, start, end and text.
-- **FR-003**: Cue indices MUST be 1-based, stable for a given file, and the same
-  numbering MUST be used in the interface, in imported ground truth and in any
-  output the criterion produces.
+- **FR-003**: Cue indices MUST be 1-based, assigned in file order, and produced by
+  exactly this extraction rule, because the index is the product's unit of
+  meaning and two implementations have to agree on it:
+  1. a line that begins with a timestamp range starts a cue;
+  2. a cue's text runs until the next timestamp line, the next blank line, or the
+     end of the file, whichever comes first;
+  3. inline markup is stripped, whitespace is collapsed, and a cue whose text is
+     empty after that is dropped;
+  4. a cue identical to the one immediately before it in start, end and text is
+     dropped, because files in the wild repeat blocks.
 - **FR-004**: Parsing MUST tolerate a byte order mark, CRLF line endings, inline
-  markup, empty cues and overlapping cues.
+  markup, empty cues, overlapping cues, a cue whose text runs into the next
+  timestamp without a blank line, and a cue repeated verbatim.
 - **FR-005**: Users MUST be able to enter one or more topic terms, and removing
   all of them MUST disable the search rather than search for nothing.
 - **FR-006**: The application MUST normalize cue text and terms identically
@@ -215,4 +228,6 @@ in the output folder with names that identify their ranges.
   lines, and it must therefore read as a statement of fact, not a judgement.
 - The interface strings for this feature ship in Turkish and English.
 - Ground truth is recorded in `eval/gold/<id>.json` before this feature is
-  considered done, because SC-001 and SC-006 cannot be checked without it.
+  considered done, because SC-001 and SC-006 cannot be checked without it. Both
+  files exist as proposals, recorded against the canonical indices of FR-003
+  rather than against timestamps.

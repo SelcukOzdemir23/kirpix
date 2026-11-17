@@ -14,22 +14,32 @@
       "subtitles": [
         {
           "path": "eval/fixtures/en-single-story.en.vtt",
-          "cues": 390,
+          "cues": 357,
           "first_cue": "00:00:00.000",
           "last_cue_end": "00:18:22.841",
           "bytes": 29679,
-          "sha256": "2334ba5054868941c7d54d1b11e972eb53a1943bfb45afff57dceff3979ccc3f"
+          "sha256": "2334ba5054868941c7d54d1b11e972eb53a1943bfb45afff57dceff3979ccc3f",
+          "quirks": [
+            "cue text runs into the next timestamp without a blank line in places",
+            "several cues are repeated verbatim, immediately after themselves"
+          ],
+          "index_note": "cue count under the canonical rule in spec FR-003; raw timestamp pairs in the file differ"
         },
         {
           "path": "eval/fixtures/en-single-story.tr.vtt",
-          "cues": 441,
+          "cues": 391,
           "first_cue": "00:00:00.000",
           "last_cue_end": "00:18:28.000",
           "bytes": 33430,
-          "sha256": "adf45dec552be9ae8ec85e4b67b4acf44d12ecb8a6031b3b152e4ca6220712cd"
+          "sha256": "adf45dec552be9ae8ec85e4b67b4acf44d12ecb8a6031b3b152e4ca6220712cd",
+          "quirks": [
+            "adjacent duplicate cues"
+          ],
+          "index_note": "cue count under the canonical rule in spec FR-003; raw timestamp pairs in the file differ"
         }
       ],
-      "duration_seconds": 1112.28
+      "duration_seconds": 1112.28,
+      "gold": "eval/gold/en-single-story.json"
     },
     {
       "id": "tr-tedx-kaygi",
@@ -46,10 +56,13 @@
           "first_cue": "00:00:00.000",
           "last_cue_end": "00:14:29.876",
           "bytes": 21047,
-          "sha256": "c5145d211071129a2435104fa7a5e4bc2a3357912b29e0399f1459a60c34f5cc"
+          "sha256": "c5145d211071129a2435104fa7a5e4bc2a3357912b29e0399f1459a60c34f5cc",
+          "quirks": [],
+          "index_note": "cue count under the canonical rule in spec FR-003; raw timestamp pairs in the file differ"
         }
       ],
-      "duration_seconds": 877.65
+      "duration_seconds": 877.65,
+      "gold": "eval/gold/tr-tedx-kaygi.json"
     }
   ]
 }
