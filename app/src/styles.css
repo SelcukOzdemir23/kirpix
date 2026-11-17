@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+/* Same palette as the project site: near black surfaces, one violet accent. */
+@theme {
+  --color-ink: #0a0a0d;
+  --color-surface: #101015;
+  --color-line: rgba(255, 255, 255, 0.09);
+  --color-text: #f2f0f7;
+  --color-muted: #a8a5b6;
+  --color-accent: #8b7cf8;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-ink);
+    color: var(--color-text);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "id": "en-single-story",
+  "status": "proposed",
+  "reviewed_by": null,
+  "criterion": {
+    "mode": "topic",
+    "terms": [
+      "books"
+    ]
+  },
+  "fixture": "eval/fixtures/en-single-story.en.vtt",
+  "canonical_cue_count": 357,
+  "expected": [
+    {
+      "start_cue": 38,
+      "end_cue": 58,
+      "note": "The passage where reading only foreign books shaped her idea of what a book can be, and African writers broke it. Starts at the first mention inside the argument, ends at the sentence that names the single story of books.",
+      "start": "00:01:41.639",
+      "end": "00:02:45.877"
+    }
+  ],
+  "incidental": [
+    {
+      "start_cue": 8,
+      "note": "first mention, introduction only"
+    },
+    {
+      "start_cue": 27,
+      "note": "first mention, introduction only"
+    },
+    {
+      "start_cue": 334,
+      "note": "closing callback, one line"
+    }
+  ],
+  "note": "Expected means a candidate here is a correct answer. Incidental mentions are legitimate but are not required; a search that only returns those has not found the topic.",
+  "recorded_against": "eval/fixtures/en-single-story.en.vtt"
+}

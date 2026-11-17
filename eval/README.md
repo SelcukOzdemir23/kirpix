@@ -49,6 +49,26 @@ and token-budget work starts; it is deliberately not invented here.
 
 Both are used for local, non-commercial testing only. Files are unmodified.
 
+## Two formats, two numberings
+
+`tr-tedx-kaygi` has both a VTT and an SRT render (`ffmpeg -i ...srt`). They hold
+the same 239 cues but not the same boundaries: the SRT carries the transcriber
+credit as its first cue and shifts everything by one. Neither is wrong; they are
+different renderings of one recording, and it means a cue index only means
+something alongside the file it belongs to. Every gold file records its fixture
+in `recorded_against`, and the gold files use the VTT numbering.
+
+## Cue indices
+
+Indices come from the extraction rule in feature 001, FR-003, not from counting
+timestamps in the file. The two differ: `en-single-story.en.vtt` contains 390
+timestamp pairs but 357 cues, because some blocks repeat and some cues run into
+the next timestamp without a blank line. `manifest.json` records the canonical
+count and lists the quirks of each file.
+
+Ground truth is expressed in these indices, so a change to the rule changes
+every gold file. That is intended: the rule is the contract.
+
 ## Ground truth
 
 Expected clips live in `gold/<id>.json`, one file per recording, written by hand
@@ -57,11 +77,25 @@ and reviewed once, then treated as data:
 ```json
 {
   "id": "tr-tedx-kaygi",
+  "status": "proposed",
   "criterion": { "mode": "topic", "terms": ["kaygı", "endişe"] },
+  "canonical_cue_count": 239,
   "expected": [
-    { "start_cue": 12, "end_cue": 58, "note": "why this range is the right answer" }
+    {
+      "start_cue": 59,
+      "end_cue": 70,
+      "start": "00:03:34.156",
+      "end": "00:04:15.036",
+      "note": "why this range is the right answer"
+    }
+  ],
+  "incidental": [
+    { "start_cue": 96, "note": "the word appears in passing; not required" }
   ]
 }
 ```
 
-Cue indices, never timestamps, for the same reason the product uses them.
+`status` is `proposed` until a person has reviewed the ranges. `expected` means a
+candidate there is a correct answer; `incidental` means a mention the search may
+legitimately return but is not required to find. The timestamps are derived from
+the cue table for convenience and are not the source of truth.
