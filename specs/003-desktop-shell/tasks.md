@@ -83,6 +83,35 @@ each.
   *Honest limit*: the labels are checked by eye and by reading the copy file;
   there is no interface test that asserts the rule.
 
+- [x] **T005** Make the screen legible and make its controls look like controls:
+  one step up on the whole scale, a boundary or permanent underline on anything
+  clickable, and stronger secondary text.
+  *Done when*: body 15px and timecodes 16px, nothing below 12px, every clickable
+  thing drawn as a control, and the row's actions still fit on one line at
+  880×600.
+  *Evidence*: measured from the built source — the scale moved one step
+  everywhere (list content 14→15, timecodes 15→16, labels 11→12), and the
+  smallest size in the tree is 12px. Secondary text darkened in light
+  (`#5e5e6d`→`#4c4c5c`) and lightened in dark (`#adabb9`→`#bcbac9`).
+  Every row action is now a bounded chip with a hover; `Dosya değiştir` and the
+  shift reset carry a permanent underline instead of appearing only on hover.
+  The clamped note moved from the headline row to the evidence line, which is
+  what let the four actions stay on one line at 880×600 — verified by screenshot
+  at that size.
+  *SC-011 checked by enumeration*: every `<button>`, `<a>` and `<label>` in
+  `App.tsx` and `components/` was listed with the affordance it carries. Three
+  failed: the alert's `×` (no boundary), `Adaylara dön` (underline on hover
+  only), and the model rows (bare text in an unbounded list). All three were
+  fixed — the `×` gained a danger border, `Adaylara dön` a permanent underline,
+  the model list a bounded group. The mode chips and the TR/EN switch pass by
+  sitting in a bordered group.
+  *What the owner said first, and why it changed*: "yazılar çok küçük … butonların
+  tıklanabilirliği belli olmuyor". FR-016's native rule (no hover tint on push
+  buttons) is what made them look like labels; FR-018 now says the opposite.
+  *Honest limit*: the sizes are fixed, not a setting. If a 15px body is still
+  small on that display, the next step is a text-size control, which is its own
+  slice — the owner asked where to change it and there is nowhere, yet.
+
 - [ ] **T002** Check the shell in a real window: drag the fixture MKV from the
   file manager onto the window, then the MKV together with the SRT, then an SRT
   alone onto an open session; hover a row and its mark; resize to 880×600.

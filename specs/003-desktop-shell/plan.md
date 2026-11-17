@@ -68,17 +68,22 @@ Revised after the first pass read small on a desktop display.
 
 | Role | Face | Size |
 | --- | --- | --- |
-| Pane heading | Familjen Grotesk 500 | 20px |
-| Wordmark | Familjen Grotesk 600 | 15.5px |
-| Lead sentence | Familjen Grotesk 400 | 15px |
-| List content, names | Familjen Grotesk 400 | 14px |
-| Secondary, reasons | Familjen Grotesk 400 | 12.5–13px |
-| Section labels | JetBrains Mono 400, caps, 0.12em | 11px |
-| Timecodes | JetBrains Mono 400, `tabular-nums` | 15px |
-| Paths, counts, chip text | JetBrains Mono 400, `tabular-nums` | 11–13px |
+| Pane heading | Familjen Grotesk 500 | 21px |
+| Wordmark | Familjen Grotesk 600 | 16.5px |
+| Lead sentence | Familjen Grotesk 400 | 16px |
+| List content, names | Familjen Grotesk 400 | 15px |
+| Secondary, reasons | Familjen Grotesk 400 | 13–14.5px |
+| Section labels | JetBrains Mono 400, caps, 0.13em | 12px |
+| Timecodes | JetBrains Mono 400, `tabular-nums` | 16px |
+| Paths, counts, chip text | JetBrains Mono 400, `tabular-nums` | 12–14px |
 
-Nothing goes below 11px. A timecode is one of the three things a person reads
-on this screen, so it is the largest mono on it.
+Nothing goes below 12px. A timecode is one of the three things a person reads on
+this screen, so it is the largest mono on it.
+
+**Controls look like controls.** Every clickable thing carries a boundary or a
+permanent underline and answers hover and press. The first pass followed the
+native convention of no hover tint on push buttons; on a webview that is
+indistinguishable from a label, so the rule is now its opposite.
 
 Rule of thumb: mono is for values that come from data; the moment a label is
 prose it is sans. Section labels are the only caps.
