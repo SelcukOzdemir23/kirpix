@@ -393,7 +393,7 @@ export default function App() {
             type="button"
             aria-label={t.dismiss}
             onClick={() => setError(null)}
-            className="rounded-[4px] px-1.5 text-[16px] leading-5 text-danger/70 transition-colors hover:text-danger"
+            className="rounded-[4px] border border-danger/30 px-1.5 text-[16px] leading-5 text-danger/70 transition-colors hover:border-danger/60 hover:text-danger"
           >
             ×
           </button>
@@ -733,7 +733,7 @@ function WrittenFiles({
         <button
           type="button"
           onClick={onBack}
-          className="text-[13.5px] text-muted underline-offset-4 transition-colors hover:text-text hover:underline"
+          className="text-[13.5px] text-muted underline decoration-line underline-offset-4 transition-colors hover:text-text hover:decoration-text"
         >
           {t.backToCandidates}
         </button>

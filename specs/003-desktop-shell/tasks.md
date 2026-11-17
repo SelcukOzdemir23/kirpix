@@ -98,6 +98,13 @@ each.
   The clamped note moved from the headline row to the evidence line, which is
   what let the four actions stay on one line at 880×600 — verified by screenshot
   at that size.
+  *SC-011 checked by enumeration*: every `<button>`, `<a>` and `<label>` in
+  `App.tsx` and `components/` was listed with the affordance it carries. Three
+  failed: the alert's `×` (no boundary), `Adaylara dön` (underline on hover
+  only), and the model rows (bare text in an unbounded list). All three were
+  fixed — the `×` gained a danger border, `Adaylara dön` a permanent underline,
+  the model list a bounded group. The mode chips and the TR/EN switch pass by
+  sitting in a bordered group.
   *What the owner said first, and why it changed*: "yazılar çok küçük … butonların
   tıklanabilirliği belli olmuyor". FR-016's native rule (no hover tint on push
   buttons) is what made them look like labels; FR-018 now says the opposite.

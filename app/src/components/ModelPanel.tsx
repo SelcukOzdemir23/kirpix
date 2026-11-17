@@ -152,7 +152,7 @@ export default function ModelPanel({ t, mode, onMode, onError }: Props) {
           )}
 
           {models !== null && models.length > 0 && (
-            <ul className="flex max-h-[132px] flex-col gap-0.5 overflow-y-auto">
+            <ul className="flex max-h-[132px] flex-col gap-0.5 overflow-y-auto rounded-[6px] border border-line p-0.5">
               {models.map((model) => (
                 <li key={model}>
                   <button

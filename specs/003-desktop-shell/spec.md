@@ -152,11 +152,16 @@ that file.
   offering a light and a dark appearance from one set of tokens, and MUST switch
   when the system switches without a relaunch.
 - **FR-015**: Body text MUST be legible at arm's length on a desktop display:
-  14px for list content, 15px for timecodes, 12.5px for secondary text, and no
-  interface text below 11px.
+  15px for list content, 16px for timecodes, 13–14.5px for secondary text, and
+  no interface text below 12px.
 - **FR-016**: The interface MUST avoid the tell-tales of a web page in a
   window: no pointer cursor on buttons or rows, no text selection on chrome,
-  no hover tint on ordinary push buttons, and system-drawn scrollbars.
+  and system-drawn scrollbars.
+- **FR-018**: Every clickable thing MUST look clickable: a control carries a
+  visible boundary or a permanent underline in its resting state, and answers
+  both hover and press. An unbounded text label MUST NOT be the only thing that
+  marks an action. Colour MUST encode function — state, selection, failure — and
+  MUST NOT be the sole difference between a control and a label.
 - **FR-017**: Every control MUST name the thing it acts on, and one word MUST
   NOT mean two things on the same screen. Where a control's effect is not
   obvious from its object, one line of plain text MUST say what it is for.
@@ -190,14 +195,18 @@ that file.
 - **SC-007**: With the system set to light and with it set to dark, every
   screen renders with a readable contrast: body text on its background is at
   least 7:1 and secondary text at least 4.5:1, measured from the token values.
-- **SC-008**: No interface text is below 11px and list content is at least
-  14px, checked by reading the built stylesheet.
+- **SC-008**: No interface text is below 12px and list content is at least
+  15px, checked by reading the built stylesheet.
 - **SC-009**: Switching the system scheme while the application is open changes
   the interface without a relaunch. Verified from the two rendered screenshots
   produced from the same build, one per scheme.
 - **SC-010**: On the results screen no two visible controls share a label, and
   every label names its object. Checked by listing the labels of that screen in
   both languages.
+- **SC-011**: Every clickable element on the results screen has a visible
+  resting affordance — a border, a background, or an underline — and a distinct
+  hover state. Checked by enumerating the interactive elements of that screen
+  and naming the affordance each one carries.
 
 ## Assumptions
 
@@ -210,6 +219,16 @@ that file.
   Grotesk, in the application and on the site together, because the old face is
   one of the retired defaults in current typography advice. The accent is
   unchanged; the mono is unchanged.
+- **Fourth revision, same day (FR-015, FR-016, FR-018)**: the owner read the
+  built screen and said the text was still small, that buttons did not look
+  clickable, and that the typography and colour did not say what anything did.
+  Two of those are one mistake. FR-016 had copied the native rule of no hover
+  tint on push buttons; on a webview that leaves every secondary action looking
+  exactly like a label. FR-018 reverses it and states the positive rule — a
+  control carries a boundary or a permanent underline and answers hover and
+  press — while FR-016 keeps the parts the owner confirmed (no hand cursor, no
+  selectable chrome). The scale moves one step again. The owner also expected to
+  find a text-size setting; there is none, and adding one is its own slice.
 - **Third revision, same day (FR-017)**: reading the built screen, three names
   were doing two jobs each — `Göster` played a clip beside `Satırları göster`
   which expanded text, two `Sıfırla` buttons reset different things, `Değiştir`
