@@ -41,6 +41,14 @@ each.
 
 ## Phase 2: What only a window can show
 
+- [ ] **T003** Take the shell's second pass: follow the system colour scheme
+  with one token set, raise the type scale so list content is 14px and
+  timecodes 15px, and apply the platform's own cursor, selection, scrollbar and
+  button conventions.
+  *Done when*: the same build renders in light and dark with no relaunch, no
+  interface text is under 11px, and the cursor and selection behave the way a
+  desktop window does.
+
 - [ ] **T002** Check the shell in a real window: drag the fixture MKV from the
   file manager onto the window, then the MKV together with the SRT, then an SRT
   alone onto an open session; hover a row and its mark; resize to 880×600.

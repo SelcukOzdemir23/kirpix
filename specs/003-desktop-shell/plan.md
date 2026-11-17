@@ -64,36 +64,61 @@ does not. The working pane is a column: the ruler (fixed), the subject
 ## Typography
 
 Budgets, not suggestions — they are what the screenshots were checked against.
+Revised after the first pass read small on a desktop display.
 
 | Role | Face | Size |
 | --- | --- | --- |
-| Wordmark | Space Grotesk 600 | 14.5px |
-| Pane heading | Space Grotesk 500 | 17px |
-| Lead sentence | Space Grotesk 400 | 13.5px |
-| Body, names | Space Grotesk 400 | 12.5–13px |
-| Secondary, reasons | Space Grotesk 400 | 11–11.5px |
-| Section labels | JetBrains Mono 400, caps, 0.12em | 10.5px |
-| Timecodes, paths, counts | JetBrains Mono 400, `tabular-nums` | 10–13px |
+| Pane heading | Space Grotesk 500 | 20px |
+| Wordmark | Space Grotesk 600 | 15.5px |
+| Lead sentence | Space Grotesk 400 | 15px |
+| List content, names | Space Grotesk 400 | 14px |
+| Secondary, reasons | Space Grotesk 400 | 12.5–13px |
+| Section labels | JetBrains Mono 400, caps, 0.12em | 11px |
+| Timecodes | JetBrains Mono 400, `tabular-nums` | 15px |
+| Paths, counts, chip text | JetBrains Mono 400, `tabular-nums` | 11–13px |
+
+Nothing goes below 11px. A timecode is one of the three things a person reads
+on this screen, so it is the largest mono on it.
 
 Rule of thumb: mono is for values that come from data; the moment a label is
 prose it is sans. Section labels are the only caps.
 
 ## Palette
 
-Unchanged from the site, plus two derived values the layout needs.
+Two appearances, one set of names. The tokens live in `:root` and are overridden
+under `prefers-color-scheme: dark`; `@theme inline` maps them to Tailwind
+utilities so a scheme switch is a variable change, not a rebuild.
 
-| Token | Value | Used for |
-| --- | --- | --- |
-| `ink` | `#0a0a0d` | window, inputs |
-| `surface` | `#101015` | cards, ruler |
-| `surface-2` | `#15151d` | hovered/active card, pressed toggle |
-| `line` | `rgba(255,255,255,0.09)` | every hairline |
-| `text` / `muted` | `#f2f0f7` / `#a8a5b6` | body / secondary |
-| `accent` | `#8b7cf8` | marks, focus ring, current value, step numbers |
-| `accent-dim` | `rgba(139,124,248,0.14)` | the base of a mark |
+| Token | Light | Dark | Used for |
+| --- | --- | --- | --- |
+| `ink` | `#ffffff` | `#0a0a0d` | window, inputs |
+| `surface` | `#f6f6f8` | `#101015` | cards, ruler |
+| `surface-2` | `#ececf1` | `#15151d` | hovered/active card, pressed toggle |
+| `line` | `rgba(0,0,0,.10)` | `rgba(255,255,255,.09)` | every hairline |
+| `text` | `#17171f` | `#f4f2f9` | body |
+| `muted` | `#5e5e6d` | `#adabb9` | secondary |
+| `accent` | `#6250da` | `#8b7cf8` | marks, focus ring, current value |
+| `danger` | `#a5122a` | `#fecaca` | the error bar only |
 
-Primary actions stay `bg-text text-ink` (white on near black). The accent is
-never a button fill, which keeps the site's rule: the accent means state.
+Primary actions stay `bg-text text-ink` — white on near black, near black on
+white — so the accent keeps meaning state and nothing else. The site keeps its
+single dark appearance; only the application follows the system.
+
+## Native conventions
+
+Taken from the platform's own behaviour, because a window that ignores them
+reads as a page no matter how it is painted:
+
+- `color-scheme: light dark` on the root, so form controls, scrollbars and the
+  caret are drawn by the system.
+- `cursor: default` on buttons and rows; the pointer cursor stays on links.
+- `user-select: none` on chrome, `text` on subtitle lines only.
+- No hover tint on ordinary push buttons; `:active` presses instead. Rows keep
+  their hover tint, which is what native lists do.
+- No custom scrollbar styling: the platform's overlay scrollbars are better
+  than anything painted here.
+- Escape dismisses whatever is on top: the error bar first, then the focused
+  control.
 
 ## Components
 

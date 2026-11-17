@@ -148,6 +148,15 @@ that file.
   component may hardcode a user-facing string.
 - **FR-013**: The slice MUST NOT add a video preview, a model call, or any
   network request.
+- **FR-014**: The interface MUST follow the operating system's colour scheme,
+  offering a light and a dark appearance from one set of tokens, and MUST switch
+  when the system switches without a relaunch.
+- **FR-015**: Body text MUST be legible at arm's length on a desktop display:
+  14px for list content, 15px for timecodes, 12.5px for secondary text, and no
+  interface text below 11px.
+- **FR-016**: The interface MUST avoid the tell-tales of a web page in a
+  window: no pointer cursor on buttons or rows, no text selection on chrome,
+  no hover tint on ordinary push buttons, and system-drawn scrollbars.
 
 ### Key Entities
 
@@ -175,8 +184,24 @@ that file.
   no request for a font. Checked in `dist`: font files are emitted, and no
   `@import` of a remote face remains.
 - **SC-006**: The application still builds and its tests still pass.
+- **SC-007**: With the system set to light and with it set to dark, every
+  screen renders with a readable contrast: body text on its background is at
+  least 7:1 and secondary text at least 4.5:1, measured from the token values.
+- **SC-008**: No interface text is below 11px and list content is at least
+  14px, checked by reading the built stylesheet.
+- **SC-009**: Switching the system scheme while the application is open changes
+  the interface without a relaunch. Verified from the two rendered screenshots
+  produced from the same build, one per scheme.
 
 ## Assumptions
+
+- **Revision, 2026-11-17**: the first pass took the site's near-black palette as
+  the only appearance and set a scale that reads small on a desktop display.
+  The product owner asked for three things at once: follow the system scheme,
+  bigger type, and a layout that stops looking like a page. FR-014 to FR-016
+  and the type scale in the plan are that revision. The accent and the two
+  typefaces stay: they are still the brand, and this slice does not reopen the
+  question of the face.
 
 - The visual identity continues the project site: same near-black palette, same
   one accent, same two typefaces. The app is not given a separate identity, and
