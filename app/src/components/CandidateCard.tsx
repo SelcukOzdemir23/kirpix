@@ -13,9 +13,19 @@ type Props = {
   onBounds: (startMs: number, endMs: number) => void;
   onReset: () => void;
   onReject: () => void;
+  onPlayCue: (cueIndex: number) => void;
 };
 
-export default function CandidateCard({ candidate, bounds, lang, t, onBounds, onReset, onReject }: Props) {
+export default function CandidateCard({
+  candidate,
+  bounds,
+  lang,
+  t,
+  onBounds,
+  onReset,
+  onReject,
+  onPlayCue,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [cues, setCues] = useState<Cue[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -149,13 +159,21 @@ export default function CandidateCard({ candidate, bounds, lang, t, onBounds, on
             {(cues ?? [])
               .filter((cue) => cue.index >= candidate.startCue && cue.index <= candidate.endCue)
               .map((cue) => (
-                <li key={cue.index} className="grid grid-cols-[auto_1fr] gap-x-3">
+                <li key={cue.index} className="grid grid-cols-[auto_1fr_auto] gap-x-3">
                   <span className="font-mono text-[11px] leading-5 text-muted/80 tabular-nums">
                     {timecode(cue.startMs)}
                   </span>
                   <span className="text-[13px] leading-5 text-text/85" lang={lang}>
                     {cue.text}
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => onPlayCue(cue.index)}
+                    title={t.listen}
+                    className="rounded px-1.5 text-[11.5px] text-muted transition-colors hover:bg-surface/80 hover:text-text"
+                  >
+                    {t.listen}
+                  </button>
                 </li>
               ))}
           </ol>

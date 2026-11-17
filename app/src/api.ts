@@ -59,6 +59,8 @@ export type CutResult = {
 
 export type ClipRequest = { startMs: number; endMs: number };
 
+export type OffsetInfo = { offsetMs: number; clampedCues: number };
+
 export const api = {
   openSession: (videoPath: string, subtitlePath: string) =>
     invoke<SessionInfo>('open_session', { videoPath, subtitlePath }),
@@ -72,6 +74,11 @@ export const api = {
 
   searchTopic: (terms: string[], minMs: number, maxMs: number) =>
     invoke<Candidate[]>('search_topic', { terms, minMs, maxMs }),
+
+  setOffset: (offsetMs: number) => invoke<OffsetInfo>('set_offset', { offsetMs }),
+
+  cueSample: (cueIndex: number, seconds: number) =>
+    invoke<string>('cue_sample', { cueIndex, seconds }),
 
   cutClips: (clips: ClipRequest[], outDir: string) =>
     invoke<CutResult[]>('cut_clips', { clips, outDir }),

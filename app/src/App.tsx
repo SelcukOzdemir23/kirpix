@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { listen } from '@tauri-apps/api/event';
 import { api, type Candidate, type CutResult, type SessionInfo, type SubtitleTrack } from './api';
@@ -6,6 +6,7 @@ import { copy, errorMessage, type Lang } from './i18n/copy';
 import { fileName, timecode } from './format';
 import CandidateCard from './components/CandidateCard';
 import CriteriaForm from './components/CriteriaForm';
+import OffsetControls from './components/OffsetControls';
 
 type Bounds = { startMs: number; endMs: number };
 
@@ -30,6 +31,9 @@ export default function App() {
   const [candidates, setCandidates] = useState<Candidate[] | null>(null);
   const [bounds, setBounds] = useState<Record<number, Bounds>>({});
   const [rejected, setRejected] = useState<number[]>([]);
+  const [offsetMs, setOffsetMs] = useState(0);
+  const [clampedCues, setClampedCues] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [cutting, setCutting] = useState(false);
   const [progress, setProgress] = useState<{ index: number; percent: number } | null>(null);
   const [results, setResults] = useState<CutResult[] | null>(null);
@@ -43,6 +47,34 @@ export default function App() {
     setRejected([]);
     setResults(null);
     setError(null);
+    setOffsetMs(info.offsetMs);
+    setClampedCues(0);
+  }
+
+  async function applyOffset(next: number) {
+    try {
+      const info = await api.setOffset(next);
+      setOffsetMs(info.offsetMs);
+      setClampedCues(info.clampedCues);
+      // The previous results were measured on the old times.
+      setCandidates(null);
+      setBounds({});
+      setResults(null);
+    } catch (err) {
+      setError(errorMessage(err, lang));
+    }
+  }
+
+  async function playCue(cueIndex: number) {
+    try {
+      const url = await api.cueSample(cueIndex, 4);
+      if (audioRef.current) {
+        audioRef.current.src = url;
+        await audioRef.current.play();
+      }
+    } catch (err) {
+      setError(errorMessage(err, lang));
+    }
   }
 
   async function pickVideo() {
@@ -153,6 +185,8 @@ export default function App() {
 
   return (
     <main className="mx-auto flex min-h-[100dvh] w-full max-w-[720px] flex-col gap-6 px-8 py-10">
+      <audio ref={audioRef} hidden />
+
       <header className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-[22px] font-semibold tracking-[-0.035em]">Kirpix</h1>
@@ -251,6 +285,13 @@ export default function App() {
             <dd>{session.encoding}</dd>
           </dl>
 
+          <OffsetControls
+            t={t}
+            offsetMs={offsetMs}
+            clampedCues={clampedCues}
+            onChange={applyOffset}
+          />
+
           {session.mediaSource === 'systemPath' && (
             <p className="mt-3 border-t border-line pt-2.5 text-[12px] leading-relaxed text-muted">
               {t.systemMedia}
@@ -326,6 +367,7 @@ export default function App() {
                   })
                 }
                 onReject={() => setRejected((current) => [...current, candidate.id])}
+                onPlayCue={playCue}
               />
             ))}
           </ul>

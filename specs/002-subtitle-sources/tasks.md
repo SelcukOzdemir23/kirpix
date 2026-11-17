@@ -80,10 +80,17 @@ each.
   desktop.
   *Depends on*: T004
 
-- [ ] **T007** Offset controls and a "hear this cue" action in the interface,
+- [x] **T007** Offset controls and a "hear this cue" action in the interface,
   with the clamped-cue count shown when it is not zero.
   *Done when*: the offset can be set in 0.1, 0.5 and 1 second steps, reset, and
   the search that follows uses the shifted times.
+  *Evidence*: the controls were rendered from seeded data and inspected: six
+  steps, the current shift in the accent colour, reset shown only when it is
+  not zero, and the clamped count underneath. Changing the offset discards the
+  previous results, because they were measured on the old times.
+  *Note*: each cue line in an opened card carries a play action, which asks for
+  a four second sample of the sound around it. The step labels go through the
+  language formatter, so Turkish reads 0,5 and English reads 0.5.
   *Depends on*: T005, T006
 
 ## Phase 4: Verification
