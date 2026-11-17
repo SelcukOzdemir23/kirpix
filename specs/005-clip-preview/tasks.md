@@ -5,12 +5,17 @@
 **Rule**: one task, one commit, and the application still builds and runs after
 each.
 
-- [ ] **T001** Add `media/preview.rs`: encode a range to a temp MP4, read it
+- [x] **T001** Add `media/preview.rs`: encode a range to a temp MP4, read it
   back, delete it, and report the covered duration and whether it was truncated.
   *Done when*: a twelve second range from the fixture yields an MP4 with real
   `ftyp`, `moov` and `mdat` boxes under four megabytes; a length over the limit
   yields exactly the limit and says it was truncated; an inverted range returns
   `EmptyRange`; and the temporary file is gone when the call returns.
+  *Evidence*: four tests, all passing. On the fixture, a twelve second range is
+  229 KB and takes 0.54 s wall clock; `ffprobe` reports `h264 640x360` and `aac`,
+  both 12.000 s. The tests assert the box structure, the size ceiling, the
+  truncation at the 20 s limit, the deletion of the temp file, and the refusal
+  of an empty or inverted range.
   *Depends on*: nothing.
 
 - [ ] **T002** Register `preview_clip` and allow the media sources it needs.
