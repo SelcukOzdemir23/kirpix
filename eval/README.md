@@ -64,4 +64,5 @@ and reviewed once, then treated as data:
 }
 ```
 
-Cue indices, never timestamps, for the same reason the product uses them.
+Cue indices are 1-based, the same numbering the interface shows and the
+specification uses. Never timestamps, for the same reason the product uses them.
