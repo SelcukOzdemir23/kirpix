@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "updated": "2026-11-17",
+  "purpose": "Fixed evaluation set for clip selection quality (constitution article X). Media is not committed; subtitles are, so parser tests run without the videos.",
+  "items": [
+    {
+      "id": "en-single-story",
+      "title": "The danger of a single story",
+      "speaker": "Chimamanda Ngozi Adichie",
+      "source": "https://www.ted.com/talks/chimamanda_ngozi_adichie_the_danger_of_a_single_story",
+      "license": "CC BY-NC-ND 4.0",
+      "spoken_language": "en",
+      "media": "eval/media/en-single-story.mp4",
+      "subtitles": [
+        {
+          "path": "eval/fixtures/en-single-story.en.vtt",
+          "cues": 390,
+          "first_cue": "00:00:00.000",
+          "last_cue_end": "00:18:22.841",
+          "bytes": 29679,
+          "sha256": "2334ba5054868941c7d54d1b11e972eb53a1943bfb45afff57dceff3979ccc3f"
+        },
+        {
+          "path": "eval/fixtures/en-single-story.tr.vtt",
+          "cues": 441,
+          "first_cue": "00:00:00.000",
+          "last_cue_end": "00:18:28.000",
+          "bytes": 33430,
+          "sha256": "adf45dec552be9ae8ec85e4b67b4acf44d12ecb8a6031b3b152e4ca6220712cd"
+        }
+      ],
+      "duration_seconds": 1112.28
+    },
+    {
+      "id": "tr-tedx-kaygi",
+      "title": "Korku, Kaygi ve Endise: Zihnimiz Bize Ne Anlatiyor?",
+      "speaker": "Hakan Turkcapar",
+      "source": "https://www.youtube.com/watch?v=xzo8DPcVRZw",
+      "license": "TEDx talk, CC BY-NC-ND 4.0",
+      "spoken_language": "tr",
+      "media": "eval/media/tr-tedx-kaygi.mp4",
+      "subtitles": [
+        {
+          "path": "eval/fixtures/tr-tedx-kaygi.tr.vtt",
+          "cues": 239,
+          "first_cue": "00:00:00.000",
+          "last_cue_end": "00:14:29.876",
+          "bytes": 21047,
+          "sha256": "c5145d211071129a2435104fa7a5e4bc2a3357912b29e0399f1459a60c34f5cc"
+        }
+      ],
+      "duration_seconds": 877.65
+    }
+  ]
+}

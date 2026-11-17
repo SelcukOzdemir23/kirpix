@@ -1,60 +1,66 @@
 # Kirpix
 
-A desktop app that finds the moments you are looking for in a subtitled video and cuts them on your own machine.
+A desktop application that finds the clips you are looking for in a subtitled
+recording and cuts them on your own machine.
 
-You drop in a video and its subtitles, say what you want (a total duration, a topic, one complete arc, a strong hook, or your own sentence in plain language), and Kirpix returns candidate clips as cards. Each card carries a timecode, the subtitle lines it was built from, and a reason. You keep the ones you want, adjust the boundaries, and cut.
+You drop in a video and its subtitles, say what you want (a total duration, a
+topic, one complete arc, a strong hook, or your own sentence in plain language),
+and Kirpix returns candidate clips as cards. Each card carries a timecode, the
+subtitle lines it was built from, and a reason. You keep the ones you want,
+adjust the boundaries, and cut.
 
-**Status: in development.** This repository currently holds the project site and the written decisions behind the app. The application itself is not published yet. See [Where it stands](https://github.com/SelcukOzdemir23/kirpix) on the site for the current list.
+**Status: in development.** The project site is live and the decisions are
+written down. The application is being built; nothing is released yet.
 
-## Why subtitles, not frames
-
-Meaning in a talk lives in the words, not the picture. Reading a transcript takes seconds, needs no GPU, and lets the app tell you why each clip was chosen. Reading video frames is slow, expensive and hard to explain.
-
-Three consequences shape the architecture:
-
-- **Local first.** Video never leaves the machine. Cutting runs on a bundled FFmpeg. The app works with the network off.
-- **Explainable.** Every clip maps back to subtitle lines, so the reason is a fact rather than a claim.
-- **Criterion based.** The app does not decide what "the best moment" is. You state the criterion.
-
-## Principles
-
-- **You pick the model.** A local model through Ollama or LM Studio, or a cloud API (DeepSeek, OpenAI, Claude). With a cloud provider only the subtitle text is sent, and the app says so before it happens. No account, no telemetry, no cookies.
-- **AI is optional.** A heuristic mode works from audio energy and sentence boundaries when no model is configured.
-- **Spend tokens on decisions, not reading.** Parsing, alignment, segmentation and shortlisting are deterministic. The model only ranks shortlisted candidates, so a one hour recording sends a few thousand tokens instead of the whole transcript.
-
-## This repository
+## Repository layout
 
 ```
-src/
-  content/copy.ts        every string on the site, Turkish and English
-  components/            page sections (Astro, no client JS)
-  layouts/Layout.astro   document head, fonts, language alternates
-  pages/index.astro      Turkish (default)
-  pages/en/index.astro   English
-  styles/global.css      design tokens and base styles
-public/                  favicon and logo
+site/          the project site (Astro, static, Turkish and English)
+app/           the desktop application (Tauri 2 + React), not scaffolded yet
+specs/         one folder per feature, written before the code
+eval/          fixed evaluation recordings, fixtures and ground truth
+.specify/      Spec Kit templates, scripts and the constitution
+AGENTS.md      how to work in this repository
 ```
 
-Static site, no backend and no server runtime. Tailwind runs through PostCSS.
+## The constitution
 
-## Commands
+`.specify/memory/constitution.md` holds ten articles that every spec, plan, task
+and line of code must satisfy. Two are non-negotiable:
+
+- **Local by default.** Video, audio, frames and cut output never leave the
+  device. The only data that may leave is subtitle text, to a provider the user
+  configured, after an explicit confirmation.
+- **The device works alone.** No telemetry, no accounts, no background network
+  requests. With a local model or heuristic mode, the whole flow must complete
+  with the network down.
+
+The rest cover optional AI, evidence behind every clip, line indices instead of
+model timestamps, a token budget that excludes reading, determinism, small
+runnable slices, visible failures, and an evaluation set as the definition of
+quality.
+
+## Working on the site
 
 ```sh
+cd site
 npm install
 npm run dev       # http://localhost:4321
-npm run build     # -> dist/
-npm run preview
+npm run build     # -> site/dist
 ```
 
-Deployment is a static upload of `dist/` (Cloudflare Pages, Netlify, GitHub Pages). No CI workflow is included on purpose; the site needs a build step, not a pipeline.
+Static output, no backend, no runtime. Deploy by uploading `site/dist`.
 
-## Roadmap
+## Working on the application
 
-1. Subtitle reading, extraction from the container, and alignment against the video.
-2. The four criteria and candidate selection, with reasons.
-3. Cutting with FFmpeg, preview and export.
-4. Whisper, for videos that ship without subtitles.
+Not started. The order is set by `specs/`: subtitle ingest and alignment first,
+then the criteria engine, then the provider layer, then Whisper.
+
+Requirements for a build: Rust (stable), Node 20+, and the Tauri Linux
+dependencies (`webkit2gtk-4.1`, `javascriptcoregtk-4.1`, `gtk+-3.0`). FFmpeg is
+bundled with the app, so no system FFmpeg is needed at runtime.
 
 ## License
 
-MIT
+MIT. The evaluation recordings in `eval/` are licensed separately; see
+`eval/README.md`.
