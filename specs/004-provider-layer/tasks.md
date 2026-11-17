@@ -56,11 +56,22 @@ open questions come first.
   is left out.
   *Depends on*: T001.
 
-- [ ] **T003** Validate the answer: strict parse, unknown fields refused, every
+- [x] **T003** Validate the answer: strict parse, unknown fields refused, every
   cue index inside the candidate it explains, reasons bounded and non-empty.
   *Done when*: tests cover a valid answer, an out-of-range index, an unknown
   candidate id, a missing field, a reason longer than the limit, and prose
   instead of JSON — each producing its own named failure.
+  *Evidence*: nine tests, 84 in the crate. A grounded answer is read in the
+  order it arrived. A cue the candidate does not contain is `InvalidIndex`
+  naming both. An answer for a candidate that was never sent is dropped while
+  the real rankings survive, as the spec's edge case says. Prose instead of
+  JSON, an unknown field, an empty reason, a 241 character reason and a ranking
+  with no cited line are each a named `MalformedAnswer`. An empty answer fails;
+  a partial one is kept, because throwing away grounded sentences to punish a
+  missing one helps nobody.
+  *Decisions taken here*: `WireAnswer`/`WireRanking` use `deny_unknown_fields`,
+  so a model that adds `"score"` is refused rather than half-read. A repeated
+  candidate keeps its first ranking.
   *Depends on*: T001.
 
 ## Phase 2: Talking to a model

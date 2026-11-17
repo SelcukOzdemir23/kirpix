@@ -11,6 +11,7 @@
 
 pub mod prompt;
 pub mod shortlist;
+pub mod validate;
 
 use std::collections::HashMap;
 
