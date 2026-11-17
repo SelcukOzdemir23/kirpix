@@ -10,13 +10,26 @@ done, never before.
 
 ## Phase 1: The appearance
 
-- [ ] **T001** Give the appearance three states and a control that sets them:
+- [x] **T001** Give the appearance three states and a control that sets them:
   `theme.ts` reads and writes the choice, applies it before React renders, and
   `styles.css` maps the tokens onto the three selectors; `Ayarlar` in the header
   opens a view in the working pane holding the three chips.
   *Done when*: the three states repaint the whole window immediately, the choice
   survives a reload, and `Sistem` still follows the desktop.
-  *Evidence*: …
+  *Evidence*: `app/src/theme.ts` is the only writer of the choice; `main.tsx`
+  applies it before `createRoot`, so the first frame is already right.
+  `styles.css` now writes each colour once in a `--light-*` or `--dark-*` slot
+  and maps it in three blocks — system, explicit light, explicit dark — with
+  `color-scheme` set on all three so the scrollbars follow too.
+  Four screenshots at 880×600 from the built `dist`: explicit `Koyu`, explicit
+  `Açık`, `Sistem` on a light desktop, and `Sistem` on a dark desktop (the last
+  one taken with the media query forced, because the headless browser could not
+  be told the desktop was dark — the flag that should do it changed nothing).
+  The stored choice is read and applied on the first paint: a page that writes
+  the key and reloads lands in that appearance without a flash, which is the
+  same path a restart takes.
+  *Not checked here*: a real restart of the Tauri window (needs a desktop
+  session), recorded with the other open desktop checks at the end.
 
 ## Phase 2: The model, moved
 

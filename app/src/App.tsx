@@ -17,9 +17,12 @@ import CandidateCard from './components/CandidateCard';
 import ConfirmDialog from './components/ConfirmDialog';
 import ModelPanel from './components/ModelPanel';
 import CriteriaForm from './components/CriteriaForm';
+import SectionLabel from './components/SectionLabel';
+import SettingsView from './components/SettingsView';
 import OffsetControls from './components/OffsetControls';
 import TimelineStrip, { type Bounds } from './components/TimelineStrip';
 import TrackChooser from './components/TrackChooser';
+import { readAppearance, saveAppearance, type Appearance } from './theme';
 import { useDropZone } from './useDropZone';
 
 const VIDEO_FILTERS = [{ name: 'Video', extensions: ['mp4', 'mkv', 'mov', 'webm'] }];
@@ -36,6 +39,9 @@ const SUBTITLE_EXT = /\.(srt|vtt)$/i;
 export default function App() {
   const [lang, setLang] = useState<Lang>('tr');
   const t = copy[lang];
+
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [appearance, setAppearance] = useState<Appearance>(() => readAppearance());
 
   const [session, setSession] = useState<SessionInfo | null>(null);
   const [busy, setBusy] = useState(false);
@@ -68,6 +74,11 @@ export default function App() {
   const [preview, setPreview] = useState<(ClipPreview & { candidateId: number }) | null>(null);
   const [previewingId, setPreviewingId] = useState<number | null>(null);
   const previewSeq = useRef(0);
+
+  function chooseAppearance(next: Appearance) {
+    setAppearance(next);
+    saveAppearance(next);
+  }
 
   const dropReady = useDropZone((paths) => void acceptDropped(paths));
 
@@ -365,6 +376,18 @@ export default function App() {
 
         <div className="flex shrink-0 items-center gap-3">
           {busy && <span className="font-mono text-[13px] text-muted">{t.opening}</span>}
+          <button
+            type="button"
+            onClick={() => setSettingsOpen((open) => !open)}
+            aria-pressed={settingsOpen}
+            className={`rounded-[6px] border px-3 py-1.5 text-[13.5px] transition-colors ${
+              settingsOpen
+                ? 'border-accent/40 bg-accent/10 text-accent'
+                : 'border-line text-text/85 hover:border-text/25 hover:bg-surface-2'
+            }`}
+          >
+            {settingsOpen ? t.dismiss : t.settingsOpen}
+          </button>
           <div className="flex items-center gap-0.5 rounded-[6px] border border-line p-0.5">
             {(['tr', 'en'] as Lang[]).map((code) => (
               <button
@@ -519,7 +542,9 @@ export default function App() {
         </aside>
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-          {pendingVideo && tracks.length > 0 ? (
+          {settingsOpen ? (
+            <SettingsView t={t} appearance={appearance} onAppearance={chooseAppearance} />
+          ) : pendingVideo && tracks.length > 0 ? (
             <div className="min-h-0 flex-1 overflow-y-auto">
               <TrackChooser
                 t={t}
@@ -666,12 +691,6 @@ function modeLabel(mode: Mode): string {
   if (mode.mode === 'local') return mode.model || mode.address;
   if (mode.mode === 'cloud') return mode.model;
   return '';
-}
-
-function SectionLabel({ children }: { children: ReactNode }) {
-  return (
-    <span className="font-mono text-[12px] tracking-[0.13em] text-muted uppercase">{children}</span>
-  );
 }
 
 function RailSection({ children }: { children: ReactNode }) {
