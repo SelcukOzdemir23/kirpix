@@ -49,7 +49,7 @@
   --color-accent-dim: var(--app-accent-fill);
   --color-danger: var(--app-danger);
 
-  --font-sans: 'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Familjen Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
 }
 

@@ -199,9 +199,11 @@ that file.
   the only appearance and set a scale that reads small on a desktop display.
   The product owner asked for three things at once: follow the system scheme,
   bigger type, and a layout that stops looking like a page. FR-014 to FR-016
-  and the type scale in the plan are that revision. The accent and the two
-  typefaces stay: they are still the brand, and this slice does not reopen the
-  question of the face.
+  and the type scale in the plan are that revision.
+- **Second revision, same day**: the sans changes from Space Grotesk to Familjen
+  Grotesk, in the application and on the site together, because the old face is
+  one of the retired defaults in current typography advice. The accent is
+  unchanged; the mono is unchanged.
 
 - The visual identity continues the project site: same near-black palette, same
   one accent, same two typefaces. The app is not given a separate identity, and

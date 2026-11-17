@@ -68,11 +68,11 @@ Revised after the first pass read small on a desktop display.
 
 | Role | Face | Size |
 | --- | --- | --- |
-| Pane heading | Space Grotesk 500 | 20px |
-| Wordmark | Space Grotesk 600 | 15.5px |
-| Lead sentence | Space Grotesk 400 | 15px |
-| List content, names | Space Grotesk 400 | 14px |
-| Secondary, reasons | Space Grotesk 400 | 12.5–13px |
+| Pane heading | Familjen Grotesk 500 | 20px |
+| Wordmark | Familjen Grotesk 600 | 15.5px |
+| Lead sentence | Familjen Grotesk 400 | 15px |
+| List content, names | Familjen Grotesk 400 | 14px |
+| Secondary, reasons | Familjen Grotesk 400 | 12.5–13px |
 | Section labels | JetBrains Mono 400, caps, 0.12em | 11px |
 | Timecodes | JetBrains Mono 400, `tabular-nums` | 15px |
 | Paths, counts, chip text | JetBrains Mono 400, `tabular-nums` | 11–13px |
@@ -82,6 +82,15 @@ on this screen, so it is the largest mono on it.
 
 Rule of thumb: mono is for values that come from data; the moment a label is
 prose it is sans. Section labels are the only caps.
+
+**The sans changed.** The first pass used Space Grotesk everywhere, the site's
+face. A typography review retired it as one of the exhausted defaults — it is
+the face of every 2021-onwards landing page — so the app, and the site with it,
+moved to Familjen Grotesk: a grotesk with the same voice, real character in the
+`a`, `g` and `k`, and full Turkish coverage in its latin-ext subset. The mono
+stays JetBrains Mono, which is a tool face rather than a fashion one. One face
+plus one mono, on the site and in the window, so the product is still one
+thing.
 
 ## Palette
 
