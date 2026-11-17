@@ -76,14 +76,15 @@ shown read-only, so a key is never posted to a stray host by a typo.
 
 ## Milestones
 
-**M1 — the offline core (T001–T003).** Everything the model layer needs that can
+**M1 — the offline core (T001–T003). Reached.** Everything the model layer needs that can
 be tested without a socket: the two traits, the budget and the trim, the prompt,
 and the validator. At M1 no code touches a network or a keychain, and the whole
 of it runs in `cargo test`. It is the point at which the shape of the feature is
 settled and only transport, storage and screens remain.
 
-**M2 — a real answer (T004–T007).** A stub server drives the client, the keychain
-holds a key, and the confirmation gate refuses a payload that changed.
+**M2 — a real answer (T004–T007). Reached.** A stub server drives the client, the keychain
+holds a key, and the confirmation gate refuses a payload that changed. At M2 the
+application can make a request; it still has no screen that would cause one.
 
 **M3 — a person can use it (T008–T009).** The mode panel, the badge, the dialog,
 the reasons in the rows, and the verification pass.
