@@ -18,11 +18,17 @@ Paths are relative to `app/` unless stated.
   applied. The window was not launched in the development environment, so the
   first `npm run tauri dev` on a desktop is still owed by the user.
 
-- [ ] **T002** Bundle FFmpeg and FFprobe as `externalBin`, with a Rust module
-  that resolves them at runtime and probes a path given on the command line.
-  *Done when*: a window action prints `{ duration_ms, width, height, has_audio }`
-  for `eval/media/tr-tedx-kaygi.mp4` and reports a readable error when the file
-  is missing.
+- [x] **T002** Resolve the media binaries and probe a file. Resolution order:
+  beside the executable, then `src-tauri/binaries`, then a system install, with
+  the source returned so a system fallback is never silent.
+  *Refined during the task*: bundling as `externalBin` moves to the release
+  feature. The system FFmpeg here is 424 KB and dynamically linked against
+  libav*, so copying it into the bundle would ship a binary that only works on
+  this machine. Releases need static builds, and they belong with packaging,
+  where the size budget in the constitution is measured.
+  *Evidence*: `cargo test` probes `eval/media/tr-tedx-kaygi.mp4` at 877,650 ms
+  with audio and video streams present; a missing path returns
+  `MediaUnreadable`; both binaries resolve.
   *Depends on*: T001
 
 ## Phase 2: Subtitle core

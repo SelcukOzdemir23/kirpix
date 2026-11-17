@@ -178,8 +178,11 @@ checks and the media tests, not for the golden test.
 
 ## Risks
 
-- **Bundled FFmpeg size.** Two binaries per platform. Measured against the
-  150 MB installer budget in the constitution before packaging work starts.
+- **Bundled FFmpeg size and linkage.** Two binaries per platform, and they have
+  to be static builds: the system FFmpeg on the development machine is
+  dynamically linked against seven libav libraries, so shipping it would work
+  only where those libraries already exist. Measured against the 150 MB
+  installer budget in the constitution before packaging work starts.
 - **Windows and macOS binary handling.** Out of scope here, but the
   `externalBin` layout is chosen now so it does not have to change later.
 - **No preview means the user cuts blind.** Accepted for this slice; the cue
