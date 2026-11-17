@@ -17,6 +17,8 @@ pub enum KirpixError {
     SubtitleEmpty { path: String },
     /// A command was called before any session was opened.
     NoSession,
+    /// The search ran with no usable term.
+    EmptyTerms,
 }
 
 impl fmt::Display for KirpixError {
@@ -38,6 +40,7 @@ impl fmt::Display for KirpixError {
                 write!(f, "{path} holds no usable subtitle line")
             }
             Self::NoSession => write!(f, "no video has been opened yet"),
+            Self::EmptyTerms => write!(f, "at least one term is needed to search"),
         }
     }
 }

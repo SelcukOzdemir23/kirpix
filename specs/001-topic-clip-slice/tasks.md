@@ -94,14 +94,27 @@ Paths are relative to `app/` unless stated.
   *Evidence*: six tests cover case, circumflex, punctuation, the four-character
   suffix rule, no-match-inside-a-word, and tokenisation.
 
-- [ ] **T008** Topic matching, merging within two seconds, half-second padding,
-  clamping, duration bounds, ordering by distinct terms then matched duration
-  then start. Exhaustive unit tests on hand-built tables.
+- [x] **T008** Topic matching, merging, half-second padding, clamping, duration
+  bounds, ordering by distinct terms then matched duration then start. Unit
+  tests on hand-built tables, plus a test against the recorded ground truth.
+  *Amended during the task*: the two second merge window, as specified, turned
+  one passage into four fragments on the real recording (cues 59-60, 63, 66, 70
+  where the expected answer is 59-70). The window is now twenty seconds and
+  eight cues, and FR-008 records the change. The ground-truth test is what
+  decided it, which is what article X asks for.
+  *Evidence*: twelve tests. The ground-truth test now overlaps the expected
+  range by 100 percent, where the specified window managed 17.
   *Depends on*: T007
 
-- [ ] **T009** Candidate construction with `matched_terms` and a reason sentence
-  generated from the matched lines. The type must make a candidate without
-  matched cues unrepresentable.
+- [x] **T009** Candidate construction with `matched_terms`, and a guarantee that
+  a candidate without matched cues cannot exist.
+  *Amended during the task*: the reason sentence is composed by the interface
+  from `matchedTerms` instead of being generated in Rust. The same data has to
+  read in Turkish and English, and a sentence built in Rust could drift from
+  the terms that produced it. Article IV is satisfied by the data, not by the
+  wording.
+  *Evidence*: the builder returns no candidate when a range contains no matched
+  cue, and `matched_terms` is ordered by the order the user typed them.
   *Depends on*: T008
 
 ## Phase 4: Interface

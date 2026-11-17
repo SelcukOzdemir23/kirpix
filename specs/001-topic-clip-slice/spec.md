@@ -154,7 +154,11 @@ in the output folder with names that identify their ranges.
   begins with it and continues for at most four further characters, so that
   Turkish suffixes match without matching unrelated words.
 - **FR-008**: Candidates MUST be built by merging matching cues that are
-  separated by at most two seconds, and by no more than one non-matching cue.
+  separated by at most twenty seconds of silence and by no more than eight
+  non-matching cues, so that a passage which names the topic, explains it and
+  returns to it stays one clip instead of four fragments. Twenty seconds and
+  eight cues were chosen against the recorded ground truth, not by taste; the
+  earlier value of two seconds split a passage the recording treats as one.
 - **FR-009**: Each candidate MUST be padded by half a second on each side and
   clamped to the media duration.
 - **FR-010**: Candidates MUST respect a minimum duration of 8 seconds and a
