@@ -6,12 +6,16 @@ import {
   type Candidate,
   type ClipPreview,
   type CutResult,
+  type Mode,
+  type RequestPlan,
   type SessionInfo,
   type SubtitleTrack,
 } from './api';
 import { copy, errorMessage, type Lang } from './i18n/copy';
 import { fileName, folderOf, timecode } from './format';
 import CandidateCard from './components/CandidateCard';
+import ConfirmDialog from './components/ConfirmDialog';
+import ModelPanel from './components/ModelPanel';
 import CriteriaForm from './components/CriteriaForm';
 import OffsetControls from './components/OffsetControls';
 import TimelineStrip, { type Bounds } from './components/TimelineStrip';
@@ -55,11 +59,24 @@ export default function App() {
   const [progress, setProgress] = useState<{ index: number; percent: number } | null>(null);
   const [results, setResults] = useState<CutResult[] | null>(null);
   const [writtenOpen, setWrittenOpen] = useState(false);
+  const [mode, setMode] = useState<Mode>({ mode: 'heuristic' });
+  const [plan, setPlan] = useState<RequestPlan | null>(null);
+  const [ranking, setRanking] = useState<{ order: number[]; reasons: Record<number, string> } | null>(
+    null,
+  );
+  const [rankingBusy, setRankingBusy] = useState(false);
   const [preview, setPreview] = useState<(ClipPreview & { candidateId: number }) | null>(null);
   const [previewingId, setPreviewingId] = useState<number | null>(null);
   const previewSeq = useRef(0);
 
   const dropReady = useDropZone((paths) => void acceptDropped(paths));
+
+  useEffect(() => {
+    void api
+      .getMode()
+      .then(setMode)
+      .catch(() => setMode({ mode: 'heuristic' }));
+  }, []);
 
   // Escape dismisses whatever is on top. Today that is the error bar.
   useEffect(() => {
@@ -242,14 +259,50 @@ export default function App() {
       setResults(null);
       setWrittenOpen(false);
       setActiveId(null);
+      setRanking(null);
       previewSeq.current += 1;
       setPreview(null);
       setPreviewingId(null);
+
+      if (mode.mode !== 'heuristic') {
+        // What would leave, stated before it leaves. The dialog's numbers come
+        // from the payload the backend actually built.
+        setPlan(await api.planRequest(parsed, minSec * 1000, maxSec * 1000));
+      }
     } catch (err) {
       setCandidates(null);
       setError(errorMessage(err, lang));
     } finally {
       setSearching(false);
+    }
+  }
+
+  /** Send the payload the dialog described, then order the list by the answer. */
+  async function sendToModel() {
+    if (!plan) return;
+    const parsed = terms
+      .split(',')
+      .map((term) => term.trim())
+      .filter(Boolean);
+
+    setRankingBusy(true);
+    try {
+      const answer = await api.rankCandidates(parsed, minSec * 1000, maxSec * 1000, {
+        mode: plan.mode,
+        cueCount: plan.cueCount,
+        charCount: plan.charCount,
+      });
+
+      setRanking({
+        order: answer.map((entry) => entry.candidate),
+        reasons: Object.fromEntries(answer.map((entry) => [entry.candidate, entry.reason])),
+      });
+      setPlan(null);
+    } catch (err) {
+      setError(errorMessage(err, lang));
+      setPlan(null);
+    } finally {
+      setRankingBusy(false);
     }
   }
 
@@ -284,7 +337,20 @@ export default function App() {
     }
   }
 
-  const visible = (candidates ?? []).filter((candidate) => !rejected.includes(candidate.id));
+  const visible = (candidates ?? [])
+    .filter((candidate) => !rejected.includes(candidate.id))
+    .slice()
+    .sort((left, right) => {
+      if (!ranking) return 0;
+      const a = ranking.order.indexOf(left.id);
+      const b = ranking.order.indexOf(right.id);
+      // Candidates the model did not rank keep their deterministic order, after
+      // the ones it did.
+      if (a === -1 && b === -1) return 0;
+      if (a === -1) return 1;
+      if (b === -1) return -1;
+      return a - b;
+    });
   const keptDuration = visible.reduce((total, candidate) => {
     const current = bounds[candidate.id] ?? candidate;
     return total + (current.endMs - current.startMs);
@@ -399,6 +465,22 @@ export default function App() {
 
             {session && (
               <RailSection>
+                <SectionLabel>{t.modelSection}</SectionLabel>
+                <ModelPanel
+                  t={t}
+                  mode={mode}
+                  onMode={(next) => {
+                    setMode(next);
+                    setRanking(null);
+                    void api.setMode(next).catch((err) => setError(errorMessage(err, lang)));
+                  }}
+                  onError={(err) => setError(errorMessage(err, lang))}
+                />
+              </RailSection>
+            )}
+
+            {session && (
+              <RailSection>
                 <OffsetControls
                   t={t}
                   offsetMs={offsetMs}
@@ -474,7 +556,16 @@ export default function App() {
                     ) : (
                       <>
                         <div className="flex items-baseline justify-between gap-4 pb-3">
-                          <h2 className="text-[13.5px] text-text/90">{t.found(visible.length)}</h2>
+                          <h2 className="flex items-baseline gap-2 text-[13.5px] text-text/90">
+                            {t.found(visible.length)}
+                            <span className="font-mono text-[11px] text-muted">
+                              {mode.mode === 'heuristic'
+                                ? t.heuristicBadge
+                                : ranking
+                                  ? t.rankedBy(modeLabel(mode))
+                                  : modeLabel(mode)}
+                            </span>
+                          </h2>
                           <span className="font-mono text-[12.5px] tabular-nums text-muted">
                             {timecode(keptDuration)}
                           </span>
@@ -492,6 +583,7 @@ export default function App() {
                                 }
                               }
                               active={activeId === candidate.id}
+                              reason={ranking?.reasons[candidate.id] ?? null}
                               preview={
                                 preview?.candidateId === candidate.id ? preview : null
                               }
@@ -550,8 +642,30 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {plan && (
+        <ConfirmDialog
+          t={t}
+          plan={plan}
+          onCancel={() => setPlan(null)}
+          onSend={() => void sendToModel()}
+        />
+      )}
+
+      {rankingBusy && (
+        <span className="pointer-events-none fixed bottom-4 left-1/2 -translate-x-1/2 rounded-[6px] border border-line bg-surface px-3 py-1.5 font-mono text-[11.5px] text-muted">
+          {t.ranking}
+        </span>
+      )}
     </div>
   );
+}
+
+/** The name the badge shows for a mode: the model, not the transport. */
+function modeLabel(mode: Mode): string {
+  if (mode.mode === 'local') return mode.model || mode.address;
+  if (mode.mode === 'cloud') return mode.model;
+  return '';
 }
 
 function SectionLabel({ children }: { children: ReactNode }) {

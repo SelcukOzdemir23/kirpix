@@ -67,6 +67,29 @@ export type ClipPreview = {
 
 export type OffsetInfo = { offsetMs: number; clampedCues: number };
 
+export type CloudProvider = 'deepSeek';
+
+export type Mode =
+  | { mode: 'heuristic' }
+  | { mode: 'local'; address: string; model: string }
+  | { mode: 'cloud'; provider: CloudProvider; model: string };
+
+/** What the confirmation dialog states: facts that came from the payload itself. */
+export type RequestPlan = {
+  mode: Mode;
+  model: string;
+  address: string;
+  candidateCount: number;
+  cueCount: number;
+  charCount: number;
+  leftOut: number;
+  shortened: number;
+};
+
+export type Confirmation = { mode: Mode; cueCount: number; charCount: number };
+
+export type RankedCandidate = { candidate: number; reason: string; cues: number[] };
+
 export const api = {
   openSession: (videoPath: string, subtitlePath: string) =>
     invoke<SessionInfo>('open_session', { videoPath, subtitlePath }),
@@ -88,6 +111,24 @@ export const api = {
 
   previewClip: (startMs: number, endMs: number) =>
     invoke<ClipPreview>('preview_clip', { startMs, endMs }),
+
+  getMode: () => invoke<Mode>('get_mode'),
+
+  setMode: (mode: Mode) => invoke<void>('set_mode', { mode }),
+
+  listModels: (address: string) => invoke<string[]>('list_models', { address }),
+
+  hasKey: (provider: CloudProvider) => invoke<boolean>('has_key', { provider }),
+
+  setKey: (provider: CloudProvider, key: string) => invoke<void>('set_key', { provider, key }),
+
+  clearKey: (provider: CloudProvider) => invoke<void>('clear_key', { provider }),
+
+  planRequest: (terms: string[], minMs: number, maxMs: number) =>
+    invoke<RequestPlan>('plan_request', { terms, minMs, maxMs }),
+
+  rankCandidates: (terms: string[], minMs: number, maxMs: number, confirmation: Confirmation) =>
+    invoke<RankedCandidate[]>('rank_candidates', { terms, minMs, maxMs, confirmation }),
 
   cutClips: (clips: ClipRequest[], outDir: string) =>
     invoke<CutResult[]>('cut_clips', { clips, outDir }),

@@ -14,6 +14,7 @@ pub mod keychain;
 pub mod openai;
 pub mod prompt;
 pub mod shortlist;
+pub mod state;
 pub mod validate;
 
 use std::collections::HashMap;
@@ -126,6 +127,38 @@ pub trait ModelClient {
     fn rank(&self, shortlist: &Shortlist) -> Result<Answer, ProviderError>;
 }
 
+/// The address a cloud provider is reached at. Fixed, and shown read-only in
+/// the interface, so a key is never posted to a stray host by a typo.
+pub fn cloud_address(provider: CloudProvider) -> &'static str {
+    match provider {
+        CloudProvider::DeepSeek => openai::DEEPSEEK_BASE,
+    }
+}
+
+/// Build the client a mode describes, taking the key from the store when the
+/// mode needs one.
+pub fn client_for(mode: &Mode, keys: &dyn KeyStore) -> Result<openai::OpenAiClient, ProviderError> {
+    match mode {
+        Mode::Heuristic => Err(ProviderError::Heuristic),
+        Mode::Local(config) => Ok(openai::OpenAiClient::local(
+            config.address.clone(),
+            config.model.clone(),
+        )),
+        Mode::Cloud(config) => {
+            let key = keys
+                .get(config.provider)?
+                .ok_or(ProviderError::MissingKey {
+                    provider: config.provider,
+                })?;
+            Ok(openai::OpenAiClient::cloud(
+                cloud_address(config.provider),
+                config.model.clone(),
+                key,
+            ))
+        }
+    }
+}
+
 /// Where a key comes from. A trait so that no test depends on a running secret
 /// service, and so that the production path is the only one that touches it.
 pub trait KeyStore {
@@ -188,6 +221,10 @@ pub enum ProviderError {
     Http { status: u16, message: String },
     /// The operating system's keychain could not be read or written.
     Keyring { detail: String },
+    /// The chosen mode uses no model, so there is nothing to ask.
+    Heuristic,
+    /// A model was asked about before any video was opened.
+    NoSession,
 }
 
 impl std::fmt::Display for ProviderError {
@@ -208,6 +245,8 @@ impl std::fmt::Display for ProviderError {
                 write!(f, "the provider answered {status}: {message}")
             }
             Self::Keyring { detail } => write!(f, "the keychain could not help: {detail}"),
+            Self::Heuristic => write!(f, "the heuristic mode asks no model"),
+            Self::NoSession => write!(f, "no video has been opened yet"),
         }
     }
 }
@@ -354,6 +393,8 @@ mod tests {
             ProviderError::Keyring {
                 detail: "no secret service".into(),
             },
+            ProviderError::Heuristic,
+            ProviderError::NoSession,
         ];
 
         for error in cases {

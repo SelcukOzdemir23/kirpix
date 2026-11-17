@@ -46,6 +46,35 @@ const tr = {
   cues: 'Satır',
   systemMedia:
     'Medya araçları uygulamayla birlikte gelmedi, bu makinedeki FFmpeg kullanılıyor.',
+  modelSection: 'Model',
+  modeHeuristic: 'Sezgisel',
+  modeLocal: 'Yerel',
+  modeCloud: 'Bulut',
+  modeHint: 'Sezgisel mod model kullanmaz: kesitler kelime eşleşmesiyle bulunur.',
+  modelAddress: 'Adres',
+  findModels: 'Modelleri bul',
+  modelsFound: (count: number) => `${count} model bulundu`,
+  noModels: 'Sunucu model listesi vermedi.',
+  modelProvider: 'Sağlayıcı',
+  modelName: 'Model',
+  modelKey: 'API anahtarı',
+  saveKey: 'Kaydet',
+  clearKey: 'Sil',
+  keyStored: 'anahtar kayıtlı',
+  keyMissing: 'anahtar yok',
+  rank: 'Modelle sırala',
+  ranking: 'Sıralanıyor…',
+  confirmTitle: 'Bu metin gönderilecek',
+  confirmAmount: 'Gönderilecek',
+  confirmBody: 'Video değil, yalnızca altyazı satırları.',
+  confirmCancel: 'Vazgeç',
+  confirmSend: 'Gönder',
+  confirmLines: (cues: number, chars: number) =>
+    `${cues} satır · ${chars.toLocaleString('tr-TR')} karakter`,
+  confirmLeftOut: (count: number) => `${count} aday bütçeye sığmadı`,
+  confirmShortened: (count: number) => `${count} adayın satırları kısaltıldı`,
+  rankedBy: (model: string) => `${model} sıraladı`,
+  heuristicBadge: 'sezgisel',
   terms: 'Kelimeler',
   termsHint: 'Virgülle ayır.',
   termsExample: 'kaygı, endişe',
@@ -90,6 +119,17 @@ const tr = {
     subtitleEmpty: (path?: string) => `${path} içinde kullanılabilir altyazı satırı yok.`,
     noSession: () => 'Önce bir video ve altyazı seç.',
     emptyTerms: () => 'Aramak için en az bir kelime yaz.',
+    providerUnreachable: (address?: string) => `${address ?? 'Sunucu'} cevap vermedi.`,
+    providerAuth: (message?: string) => `Anahtar reddedildi: ${message ?? 'sebep bildirilmedi'}`,
+    providerBusy: (ms?: string) => `Sağlayıcı meşguldü; ${ms ?? ''} ms beklendi.`,
+    providerMalformed: (detail?: string) => `Modelin cevabı kullanılamadı: ${detail ?? 'biçim bozuk'}`,
+    providerInvalidIndex: (candidate?: string, index?: string) =>
+      `${candidate} numaralı adayda ${index} satırı yok.`,
+    unconfirmed: () => 'Hiçbir şey gönderilmedi: yük onaydan sonra değişti.',
+    missingKey: () => 'Önce bir API anahtarı kaydet.',
+    keyringFailed: (detail?: string) => `Anahtar kasası kullanılamadı: ${detail ?? 'sebep bildirilmedi'}`,
+    heuristicMode: () => 'Sezgisel mod model kullanmaz.',
+    providerHttp: (status?: string, message?: string) => `Sağlayıcı ${status} döndü: ${message ?? ''}`,
     unknown: () => 'Beklenmeyen bir hata oluştu.',
   },
 };
@@ -139,6 +179,35 @@ const en: typeof tr = {
   listen: 'play',
   cues: 'Lines',
   systemMedia: 'The media tools were not bundled, so the FFmpeg on this machine is used.',
+  modelSection: 'Model',
+  modeHeuristic: 'Heuristic',
+  modeLocal: 'Local',
+  modeCloud: 'Cloud',
+  modeHint: 'Heuristic mode asks no model: clips are found by matching words.',
+  modelAddress: 'Address',
+  findModels: 'Find models',
+  modelsFound: (count: number) => `${count} models found`,
+  noModels: 'The server did not list any model.',
+  modelProvider: 'Provider',
+  modelName: 'Model',
+  modelKey: 'API key',
+  saveKey: 'Save',
+  clearKey: 'Delete',
+  keyStored: 'key stored',
+  keyMissing: 'no key',
+  rank: 'Rank with the model',
+  ranking: 'Ranking…',
+  confirmTitle: 'This text will be sent',
+  confirmAmount: 'To send',
+  confirmBody: 'Not the video: only the subtitle lines.',
+  confirmCancel: 'Cancel',
+  confirmSend: 'Send',
+  confirmLines: (cues: number, chars: number) =>
+    `${cues} lines · ${chars.toLocaleString('en-US')} characters`,
+  confirmLeftOut: (count: number) => `${count} candidates did not fit the budget`,
+  confirmShortened: (count: number) => `${count} candidates had their lines shortened`,
+  rankedBy: (model: string) => `ranked by ${model}`,
+  heuristicBadge: 'heuristic',
   terms: 'Words',
   termsHint: 'Separate with commas.',
   termsExample: 'grief, worry',
@@ -184,6 +253,17 @@ const en: typeof tr = {
     subtitleEmpty: (path?: string) => `${path} holds no usable subtitle line.`,
     noSession: () => 'Choose a video and its subtitles first.',
     emptyTerms: () => 'Type at least one word to search for.',
+    providerUnreachable: (address?: string) => `${address ?? 'The server'} did not answer.`,
+    providerAuth: (message?: string) => `The key was refused: ${message ?? 'no reason given'}`,
+    providerBusy: (ms?: string) => `The provider was busy; waited ${ms ?? ''} ms.`,
+    providerMalformed: (detail?: string) => `The model's answer was not usable: ${detail ?? 'malformed'}`,
+    providerInvalidIndex: (candidate?: string, index?: string) =>
+      `Candidate ${candidate} has no line ${index}.`,
+    unconfirmed: () => 'Nothing was sent: the payload changed after confirmation.',
+    missingKey: () => 'Store an API key first.',
+    keyringFailed: (detail?: string) => `The keychain could not help: ${detail ?? 'no reason given'}`,
+    heuristicMode: () => 'Heuristic mode asks no model.',
+    providerHttp: (status?: string, message?: string) => `The provider answered ${status}: ${message ?? ''}`,
     unknown: () => 'Something unexpected went wrong.',
   },
 };
@@ -209,6 +289,26 @@ export function errorMessage(payload: unknown, lang: Lang): string {
       return text.noSession();
     case 'emptyTerms':
       return text.emptyTerms();
+    case 'unreachable':
+      return text.providerUnreachable(error?.address);
+    case 'auth':
+      return text.providerAuth(error?.message);
+    case 'busy':
+      return text.providerBusy(error?.retryAfterMs);
+    case 'malformedAnswer':
+      return text.providerMalformed(error?.detail);
+    case 'invalidIndex':
+      return text.providerInvalidIndex(error?.candidate, error?.index);
+    case 'unconfirmed':
+      return text.unconfirmed();
+    case 'missingKey':
+      return text.missingKey();
+    case 'keyring':
+      return text.keyringFailed(error?.detail);
+    case 'heuristic':
+      return text.heuristicMode();
+    case 'http':
+      return text.providerHttp(error?.status, error?.message);
     default:
       return text.unknown();
   }

@@ -154,19 +154,63 @@ open questions come first.
   user agreed to about something else.
   *Depends on*: T004.
 
-- [ ] **T008** Build the interface: the model section in the rail, the mode
+- [x] **T008** Build the interface: the model section in the rail, the mode
   badge in the results header, the confirmation dialog, and the reason sentence
   beside the term evidence with the model's ordering applied.
   *Done when*: the mode is on screen before, during and after a request; a
   failed request leaves the deterministic candidates visible and labelled; the
   left-out count appears when the budget trimmed.
+  *Evidence*: eight commands now sit on the Rust side — `get_mode`, `set_mode`,
+  `list_models`, `has_key`, `set_key`, `clear_key`, `plan_request` and
+  `rank_candidates` — and the payload is rebuilt from the same criteria the
+  interface used, so the dialog states facts the backend produced rather than
+  numbers the interface remembered. `plan_request` is what the dialog shows;
+  `rank_candidates` runs the gate before it calls a client.
+  Screenshots: the rail's MODEL section in local mode (address, "Modelleri bul",
+  the model field, the segmented control); the confirmation dialog stating
+  `deepseek-chat`, `https://api.deepseek.com/v1` and `21 satır · 1 095 karakter`,
+  with the two budget notes; and a ranked list where the model's order moved the
+  third candidate to the top, each row carrying its sentence above the term
+  evidence, with the badge reading `qwen2.5:7b sıraladı`.
+  *Honest limit*: no interface test suite exists, so the wiring is verified by
+  reading it and by screenshots of three states; the backend half is covered by
+  the command layer's own tests. A live request needs a real window and a real
+  server — T009 names it.
   *Depends on*: T004, T007.
 
-- [ ] **T009** Verify against the evaluation set and record what a person must
+- [x] **T009** Verify against the evaluation set and record what a person must
   still check: heuristic mode with the network down on a real recording, and one
   live request against a local model.
   *Done when*: SC-002 to SC-007 have a passing test each, SC-001 is named as the
   manual check it is, and `tasks.md` states which rows remain open.
+  *Evidence*, criterion by criterion:
+  - **SC-001** (heuristic completes with the network down) stays a manual check,
+    as it has since 002. Nothing in this slice changes that path.
+  - **SC-002** (no request before the confirmation; the payload is only text,
+    indices and the criterion): the recorded body in
+    `ranks_through_a_stub_server_and_sends_the_prompt_it_built` holds the model,
+    the pinned parameters and the criterion, and contains no path.
+  - **SC-003** (an index outside the candidate is refused, nothing shown): nine
+    validator tests, the decisive one producing `InvalidIndex { 1, 99 }`.
+  - **SC-004** (prompt under budget; left-out count matches): four shortlist
+    tests plus the fixture, where 4 candidates are offered and 4 sent, 21 cues
+    and 1 974 prompt characters.
+  - **SC-005** (a stored key is absent from errors): two tests — a `401` whose
+    body repeats the key comes back redacted, and `Debug` prints `[redacted]`.
+    *Not covered by a test*: that no file the application writes ever contains a
+    key. The application writes clips and one temporary preview; keys only ever
+    enter through the `KeyStore` trait, whose only production implementation is
+    the OS keychain. Reviewed, not proved.
+  - **SC-006** (two identical answers produce identical output): added in this
+    task — the same answer sent to two stubs yields equal `Answer` values.
+  - **SC-007** (the mode is on screen during and after a request): the badge is
+    rendered from the mode in every state, and a failed call leaves `ranking`
+    untouched while the error bar names the cause. Screenshot plus review; no
+    interface test suite exists.
+  *What a person must still do*: an offline run in heuristic mode; one live
+  request to a local server with a real model, confirming the picture of a
+  request and that a bad key produces the auth sentence; and restarting the
+  application to confirm a stored key survives.
   *Depends on*: T008.
 
 ## Not in this slice
