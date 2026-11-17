@@ -42,6 +42,14 @@ export type Candidate = {
   clamped: boolean;
 };
 
+export type SettingsReport = {
+  mode: Mode;
+  /** Absolute path of the settings file, when the machine gave one. */
+  path: string | null;
+  /** Why the file could not be read at start-up, if it could not. */
+  loadError: string | null;
+};
+
 export type ErrorPayload = {
   kind: string;
   path?: string;
@@ -112,7 +120,8 @@ export const api = {
   previewClip: (startMs: number, endMs: number) =>
     invoke<ClipPreview>('preview_clip', { startMs, endMs }),
 
-  getMode: () => invoke<Mode>('get_mode'),
+  /** What settings are in force, where they live, and why they could not be read. */
+  getSettings: () => invoke<SettingsReport>('get_settings'),
 
   setMode: (mode: Mode) => invoke<void>('set_mode', { mode }),
 

@@ -196,14 +196,40 @@ pub struct RankedCandidate {
     cues: Vec<usize>,
 }
 
-#[tauri::command]
-pub fn get_mode(state: ProviderStateRef<'_>) -> Mode {
-    state.lock().expect("provider lock").mode.clone()
+/// What settings are in force, where they are kept, and why they could not be
+/// read if they could not. One command, because a screen that shows the mode
+/// without the reason it is the default would be hiding the interesting half.
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SettingsReport {
+    pub mode: Mode,
+    pub path: Option<String>,
+    pub load_error: Option<String>,
 }
 
 #[tauri::command]
-pub fn set_mode(state: ProviderStateRef<'_>, mode: Mode) {
-    state.lock().expect("provider lock").mode = mode;
+pub fn get_settings(state: ProviderStateRef<'_>) -> SettingsReport {
+    let state = state.lock().expect("provider lock");
+    SettingsReport {
+        mode: state.mode.clone(),
+        path: state
+            .store
+            .as_ref()
+            .map(|store| store.path().display().to_string()),
+        load_error: state.load_error.clone(),
+    }
+}
+
+/// Change the engine and remember it. The mode is only adopted if it was written:
+/// a choice that silently fails to persist is the fallback the constitution
+/// forbids.
+#[tauri::command]
+pub fn set_mode(state: ProviderStateRef<'_>, mode: Mode) -> Result<(), ProviderError> {
+    state
+        .lock()
+        .expect("provider lock")
+        .remember_mode(mode)
+        .map_err(|detail| ProviderError::Settings { detail })
 }
 
 #[tauri::command]

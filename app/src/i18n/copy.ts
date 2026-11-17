@@ -47,6 +47,18 @@ const tr = {
   systemMedia:
     'Medya araçları uygulamayla birlikte gelmedi, bu makinedeki FFmpeg kullanılıyor.',
   modelSection: 'Model',
+  settingsOpen: 'Ayarlar',
+  settingsClose: 'Ayarlar\'ı kapat',
+  settingsLead: 'Görünüm ve model buradan seçilir.',
+  appearanceSection: 'Görünüm',
+  appearanceSystem: 'Sistem',
+  appearanceLight: 'Açık',
+  appearanceDark: 'Koyu',
+  appearanceHint: 'Sistem, masaüstünün temasını izler.',
+  engineSection: 'Motor',
+  settingsUnreadable: (detail: string) =>
+    `Ayarlar okunamadı, varsayılanlarla başlandı: ${detail}`,
+  settingsFile: 'Dosya',
   modeHeuristic: 'Sezgisel',
   modeLocal: 'Yerel',
   modeCloud: 'Bulut',
@@ -128,6 +140,7 @@ const tr = {
     unconfirmed: () => 'Hiçbir şey gönderilmedi: yük onaydan sonra değişti.',
     missingKey: () => 'Önce bir API anahtarı kaydet.',
     keyringFailed: (detail?: string) => `Anahtar kasası kullanılamadı: ${detail ?? 'sebep bildirilmedi'}`,
+    settingsWrite: (detail?: string) => `Ayar yazılamadı: ${detail ?? 'sebep bildirilmedi'}`,
     heuristicMode: () => 'Sezgisel mod model kullanmaz.',
     providerHttp: (status?: string, message?: string) => `Sağlayıcı ${status} döndü: ${message ?? ''}`,
     unknown: () => 'Beklenmeyen bir hata oluştu.',
@@ -180,6 +193,18 @@ const en: typeof tr = {
   cues: 'Lines',
   systemMedia: 'The media tools were not bundled, so the FFmpeg on this machine is used.',
   modelSection: 'Model',
+  settingsOpen: 'Settings',
+  settingsClose: 'Close settings',
+  settingsLead: 'The appearance and the model are chosen here.',
+  appearanceSection: 'Appearance',
+  appearanceSystem: 'System',
+  appearanceLight: 'Light',
+  appearanceDark: 'Dark',
+  appearanceHint: 'System follows the desktop theme.',
+  engineSection: 'Engine',
+  settingsUnreadable: (detail: string) =>
+    `The settings could not be read, so the defaults are in force: ${detail}`,
+  settingsFile: 'File',
   modeHeuristic: 'Heuristic',
   modeLocal: 'Local',
   modeCloud: 'Cloud',
@@ -262,6 +287,7 @@ const en: typeof tr = {
     unconfirmed: () => 'Nothing was sent: the payload changed after confirmation.',
     missingKey: () => 'Store an API key first.',
     keyringFailed: (detail?: string) => `The keychain could not help: ${detail ?? 'no reason given'}`,
+    settingsWrite: (detail?: string) => `The settings could not be kept: ${detail ?? 'no reason given'}`,
     heuristicMode: () => 'Heuristic mode asks no model.',
     providerHttp: (status?: string, message?: string) => `The provider answered ${status}: ${message ?? ''}`,
     unknown: () => 'Something unexpected went wrong.',
@@ -305,6 +331,8 @@ export function errorMessage(payload: unknown, lang: Lang): string {
       return text.missingKey();
     case 'keyring':
       return text.keyringFailed(error?.detail);
+    case 'settings':
+      return text.settingsWrite(error?.detail);
     case 'heuristic':
       return text.heuristicMode();
     case 'http':

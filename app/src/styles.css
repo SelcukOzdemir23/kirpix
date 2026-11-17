@@ -1,41 +1,94 @@
 @import 'tailwindcss';
 
 /*
-  Two appearances, one set of token names.
+  Two appearances, one set of token names, three ways to arrive at them.
 
-  The root values are the light theme; the dark block overrides them and nothing
-  else in the application knows which one is active. `@theme inline` maps them
-  onto Tailwind utilities, so following the system scheme is a variable change
-  rather than a rebuild.
+  Each colour is written once, in a `--light-*` or `--dark-*` slot. The three
+  blocks below it are the same mechanical mapping from slots to the names the
+  application uses: the system when nothing is chosen, and one block per
+  explicit choice. The attribute wins over the media query on specificity, so a
+  person who picks an appearance is not overruled by their desktop.
 */
 :root {
   color-scheme: light dark;
 
-  --app-ink: #ffffff;
-  --app-surface: #f6f6f8;
-  --app-surface-2: #ececf1;
-  --app-line: rgba(0, 0, 0, 0.1);
-  --app-text: #17171f;
-  --app-muted: #4c4c5c;
-  --app-accent: #6250da;
-  --app-accent-fill: rgba(98, 80, 218, 0.14);
-  --app-danger: #a5122a;
-  --app-selection: rgba(98, 80, 218, 0.22);
+  --light-ink: #ffffff;
+  --light-surface: #f6f6f8;
+  --light-surface-2: #ececf1;
+  --light-line: rgba(0, 0, 0, 0.1);
+  --light-text: #17171f;
+  --light-muted: #4c4c5c;
+  --light-accent: #6250da;
+  --light-accent-fill: rgba(98, 80, 218, 0.14);
+  --light-danger: #a5122a;
+  --light-selection: rgba(98, 80, 218, 0.22);
+
+  --dark-ink: #0a0a0d;
+  --dark-surface: #101015;
+  --dark-surface-2: #15151d;
+  --dark-line: rgba(255, 255, 255, 0.09);
+  --dark-text: #f4f2f9;
+  --dark-muted: #bcbac9;
+  --dark-accent: #8b7cf8;
+  --dark-accent-fill: rgba(139, 124, 248, 0.14);
+  --dark-danger: #ffc9c9;
+  --dark-selection: rgba(139, 124, 248, 0.28);
+
+  --app-ink: var(--light-ink);
+  --app-surface: var(--light-surface);
+  --app-surface-2: var(--light-surface-2);
+  --app-line: var(--light-line);
+  --app-text: var(--light-text);
+  --app-muted: var(--light-muted);
+  --app-accent: var(--light-accent);
+  --app-accent-fill: var(--light-accent-fill);
+  --app-danger: var(--light-danger);
+  --app-selection: var(--light-selection);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --app-ink: #0a0a0d;
-    --app-surface: #101015;
-    --app-surface-2: #15151d;
-    --app-line: rgba(255, 255, 255, 0.09);
-    --app-text: #f4f2f9;
-    --app-muted: #bcbac9;
-    --app-accent: #8b7cf8;
-    --app-accent-fill: rgba(139, 124, 248, 0.14);
-    --app-danger: #ffc9c9;
-    --app-selection: rgba(139, 124, 248, 0.28);
+    --app-ink: var(--dark-ink);
+    --app-surface: var(--dark-surface);
+    --app-surface-2: var(--dark-surface-2);
+    --app-line: var(--dark-line);
+    --app-text: var(--dark-text);
+    --app-muted: var(--dark-muted);
+    --app-accent: var(--dark-accent);
+    --app-accent-fill: var(--dark-accent-fill);
+    --app-danger: var(--dark-danger);
+    --app-selection: var(--dark-selection);
   }
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --app-ink: var(--light-ink);
+  --app-surface: var(--light-surface);
+  --app-surface-2: var(--light-surface-2);
+  --app-line: var(--light-line);
+  --app-text: var(--light-text);
+  --app-muted: var(--light-muted);
+  --app-accent: var(--light-accent);
+  --app-accent-fill: var(--light-accent-fill);
+  --app-danger: var(--light-danger);
+  --app-selection: var(--light-selection);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --app-ink: var(--dark-ink);
+  --app-surface: var(--dark-surface);
+  --app-surface-2: var(--dark-surface-2);
+  --app-line: var(--dark-line);
+  --app-text: var(--dark-text);
+  --app-muted: var(--dark-muted);
+  --app-accent: var(--dark-accent);
+  --app-accent-fill: var(--dark-accent-fill);
+  --app-danger: var(--dark-danger);
+  --app-selection: var(--dark-selection);
 }
 
 @theme inline {
