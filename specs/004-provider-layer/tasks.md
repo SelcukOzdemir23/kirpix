@@ -32,12 +32,28 @@ open questions come first.
   removes a struct that would only ever have held the same two fields.
   *Depends on*: nothing.
 
-- [ ] **T002** Build the shortlist and the prompt: cap at twenty candidates and
+- [x] **T002** Build the shortlist and the prompt: cap at twenty candidates and
   sixty cues each, estimate characters, record how many were left out, and build
   the one prompt from the plan.
   *Done when*: the fixture recording's search produces a prompt under the cap,
   the left-out count matches what was dropped, and the prompt contains no
   timecode and no path.
+  *Evidence*: seven tests, 75 in the crate. On the fixture, `kaygı, endişe`
+  offers **4 candidates and keeps all 4**, 21 cues, 1 095 characters of cue text;
+  the built prompt is **1 974 characters, about 494 estimated tokens** — an eighth
+  of the 16 000-character ceiling, so the ceiling is not doing any work on a
+  fourteen minute recording. The trim keeps the deterministic order, leaves out
+  and counts a candidate that does not fit, shortens a candidate past sixty cues
+  and records which, and stops on characters before it stops on the candidate cap
+  when the cues are large. The prompt is scanned for `h:mm` patterns and for path
+  separators, and contains neither.
+  *Deviation from the plan*: `Shortlist` carries a `truncated: Vec<u64>` beyond
+  the shape in the plan, because shortening a candidate's cue list without
+  recording it would be exactly the sort of quiet reduction this project keeps
+  designing against.
+  *For the open budget question*: at 494 tokens for the fixture, the proposed
+  ceiling leaves room for a recording around thirty times longer before anything
+  is left out.
   *Depends on*: T001.
 
 - [ ] **T003** Validate the answer: strict parse, unknown fields refused, every

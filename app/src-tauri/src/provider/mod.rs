@@ -9,7 +9,14 @@
 //! fake client and an in-memory key store implement both traits, so no test ever
 //! reaches a real server or the operating system's secret service.
 
+pub mod prompt;
+pub mod shortlist;
+
 use std::collections::HashMap;
+
+/// The prompt ceiling, re-exported so the prompt's own test can hold the budget
+/// to the same number the trim uses.
+pub const MAX_PROMPT_CHARS_FOR_TEST: usize = shortlist::MAX_PROMPT_CHARS;
 
 /// Which way results are produced. Heuristic is the default and is the only mode
 /// that cannot degrade: it needs no model, no key and no network.
@@ -68,6 +75,9 @@ pub struct Shortlist {
     /// How many candidates the deterministic trim left out. Stated in the
     /// interface, never dropped quietly.
     pub left_out: usize,
+    /// Candidates whose cue list was shortened to fit the per-candidate cap.
+    /// Recorded for the same reason: a shortened candidate ranks on less text.
+    pub truncated: Vec<u64>,
 }
 
 impl Shortlist {
@@ -237,6 +247,7 @@ mod tests {
                 },
             ],
             left_out: 3,
+            truncated: vec![],
         }
     }
 
