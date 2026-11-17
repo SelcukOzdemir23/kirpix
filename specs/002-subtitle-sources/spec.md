@@ -143,8 +143,10 @@ when the cue says it is.
 - **SC-004**: With an offset of plus or minus three seconds, every candidate
   returned by a search differs from the unshifted result by exactly that
   amount.
-- **SC-005**: A picture-based track produces a named error within one second,
-  and no empty candidate list.
+- **SC-005**: A track whose codec stores pictures is classified as such before
+  it can be chosen, and choosing one produces a named error. Verified by unit
+  test on the real codec names, because the fixture cannot carry one: see the
+  assumption below.
 - **SC-006**: The whole flow completes with the network interface down.
 
 ## Assumptions
@@ -156,6 +158,12 @@ when the cue says it is.
 - Estimating the offset automatically from the audio is out of scope. This
   feature makes the adjustment possible and checkable; guessing it comes later,
   if at all.
-- The fixture set grows by one MKV carrying both a text and a picture-based
-  subtitle track, recorded in `eval/manifest.json`. Media stays out of the
-  repository as before.
+- The fixture set grows by one MKV carrying two text subtitle tracks, and by a
+  copy of the Turkish SRT shifted by three and a half seconds. Media stays out
+  of the repository as before.
+- **No picture-based track can be produced here.** FFmpeg has encoders for both
+  DVD and DVB subtitles, and both refuse text input: "subtitle encoding
+  currently possible only from text to text or bitmap to bitmap". Synthesising
+  one would need a bitmap source that does not exist. So the picture path is
+  classified and refused by rule, and tested against the codec names rather
+  than against a file, and this line records why.
