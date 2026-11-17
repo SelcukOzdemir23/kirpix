@@ -1,4 +1,5 @@
 pub mod commands;
+pub mod criterion;
 pub mod error;
 pub mod media;
 pub mod session;

@@ -81,10 +81,18 @@ Paths are relative to `app/` unless stated.
 
 ## Phase 3: Matching
 
-- [ ] **T007** Normalization: Unicode NFC, Turkish case folding for dotted and
+- [x] **T007** Normalization: Unicode NFC, Turkish case folding for dotted and
   dotless i, punctuation to space, whitespace collapsed.
-  *Done when*: `KAYGI` matches `kaygı`, `İstanbul` and `ıstanbul` normalize the
-  same way, and `endişe` matches `endişesi` under the four-character rule.
+  *Done when*: `KAYGI` matches `kaygı`, and `endişe` matches `endişesi` under the
+  four-character rule.
+  *Corrected during the task*: this task originally said `İstanbul` and
+  `ıstanbul` should normalize the same way. They must not: the first is
+  "istanbul" and the second is a different spelling, and folding the dotless i
+  into the dotted one would make the matcher wrong in the language it exists
+  for. The circumflex is folded instead, so `kâğıt` and `kağıt` agree, while
+  ç ğ ı ö ş ü stay distinct.
+  *Evidence*: six tests cover case, circumflex, punctuation, the four-character
+  suffix rule, no-match-inside-a-word, and tokenisation.
 
 - [ ] **T008** Topic matching, merging within two seconds, half-second padding,
   clamping, duration bounds, ordering by distinct terms then matched duration
