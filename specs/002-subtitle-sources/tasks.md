@@ -7,21 +7,24 @@ each.
 
 ## Phase 1: Fixtures
 
-- [ ] **T001** Add the fixtures and record them in `eval/manifest.json`: an MKV
+- [x] **T001** Add the fixtures and record them in `eval/manifest.json`: an MKV
   carrying the Turkish recording with two text subtitle tracks (one SubRip, one
   ASS, both tagged `tur` with different titles), and an SRT copy of the same
   recording shifted forward by 3.5 seconds.
   *Done when*: `ffprobe` reports both tracks with their languages and titles,
   and the shifted file's first cue starts at `00:00:03,500`.
   *Note*: this was already done while planning, because the plan depended on
-  whether the toolchain could produce the files at all.
+  whether the toolchain could produce the files at all. The manifest now lists
+  both subtitle files, the shifted one, and the two embedded streams.
 
 ## Phase 2: Sources
 
-- [ ] **T002** Probe subtitle tracks: index, codec, language, title, and whether
+- [x] **T002** Probe subtitle tracks: index, codec, language, title, and whether
   the codec stores text or pictures.
-  *Done when*: the classifier maps `hdmv_pgs_subtitle`, `dvd_subtitle` and
-  `dvb_subtitle` to pictures and the text codecs to text, by unit test.
+  *Evidence*: seven tests. The classifier covers the four picture codecs and
+  the common text ones, matching on real FFprobe codec names; the probe on the
+  MKV fixture returns both tracks with `tur` and `subrip`/`ass`, and both are
+  classified as text.
   *Depends on*: T001
 
 - [ ] **T003** Extract a chosen track to a cue table by reading FFmpeg's standard
