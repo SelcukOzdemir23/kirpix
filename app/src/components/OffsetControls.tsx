@@ -43,6 +43,8 @@ export default function OffsetControls({ t, offsetMs, clampedCues, onChange }: P
         </button>
       )}
 
+      <p className="text-[12px] leading-relaxed text-muted/80">{t.offsetHint}</p>
+
       {clampedCues > 0 && <p className="text-[12px] text-muted">{t.clampedCues(clampedCues)}</p>}
     </div>
   );

@@ -157,6 +157,9 @@ that file.
 - **FR-016**: The interface MUST avoid the tell-tales of a web page in a
   window: no pointer cursor on buttons or rows, no text selection on chrome,
   no hover tint on ordinary push buttons, and system-drawn scrollbars.
+- **FR-017**: Every control MUST name the thing it acts on, and one word MUST
+  NOT mean two things on the same screen. Where a control's effect is not
+  obvious from its object, one line of plain text MUST say what it is for.
 
 ### Key Entities
 
@@ -192,6 +195,9 @@ that file.
 - **SC-009**: Switching the system scheme while the application is open changes
   the interface without a relaunch. Verified from the two rendered screenshots
   produced from the same build, one per scheme.
+- **SC-010**: On the results screen no two visible controls share a label, and
+  every label names its object. Checked by listing the labels of that screen in
+  both languages.
 
 ## Assumptions
 
@@ -204,6 +210,11 @@ that file.
   Grotesk, in the application and on the site together, because the old face is
   one of the retired defaults in current typography advice. The accent is
   unchanged; the mono is unchanged.
+- **Third revision, same day (FR-017)**: reading the built screen, three names
+  were doing two jobs each — `Göster` played a clip beside `Satırları göster`
+  which expanded text, two `Sıfırla` buttons reset different things, `Değiştir`
+  did not say what it changed, and the shift chips had no unit. The labels now
+  name their objects and the shift section says what it is for.
 
 - The visual identity continues the project site: same near-black palette, same
   one accent, same two typefaces. The app is not given a separate identity, and

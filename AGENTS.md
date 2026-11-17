@@ -27,6 +27,9 @@ tasks, implement. One feature folder per slice.
 - A plan that violates the constitution stops. Amendments go through the
   Governance section, with a version bump.
 - One task, one commit, and the app stays runnable after each commit.
+- One feature at a time, in number order. A spec may be written ahead, code may
+  not: finish and merge feature N before starting feature N+1. No two features
+  in flight at once.
 - Specs, code, comments and commit messages in English. The interface ships in
   Turkish and English.
 
