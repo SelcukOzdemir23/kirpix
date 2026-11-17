@@ -25,3 +25,7 @@ pnpm-debug.log*
 
 # Evaluation media (see eval/README.md)
 eval/media/
+
+# Rust build output and generated schemas
+target/
+app/src-tauri/gen/

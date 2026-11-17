@@ -9,10 +9,14 @@ Paths are relative to `app/` unless stated.
 
 ## Phase 1: Scaffold
 
-- [ ] **T001** Scaffold Tauri 2 with React, TypeScript, Vite and Tailwind in
+- [x] **T001** Scaffold Tauri 2 with React, TypeScript, Vite and Tailwind in
   `app/`. One window, one page, an empty state that says what to do.
   *Done when*: `npm run tauri dev` opens a window on Linux and `npm run build`
   succeeds.
+  *Evidence*: `npm run build` writes `app/dist`; `cargo check` finishes clean
+  against Tauri 2.12.6; the built page renders at 1100x760 with the palette
+  applied. The window was not launched in the development environment, so the
+  first `npm run tauri dev` on a desktop is still owed by the user.
 
 - [ ] **T002** Bundle FFmpeg and FFprobe as `externalBin`, with a Rust module
   that resolves them at runtime and probes a path given on the command line.
