@@ -1,30 +1,59 @@
 @import 'tailwindcss';
 
 /*
-  Same palette as the project site: near black surfaces, one violet accent.
-  The app adds the two supporting values the console layout needs (a raised
-  surface for the rail, a dim accent for the unused part of a clip) and the
-  two fonts the site already ships, so the app reads as the same product.
-*/
-@theme {
-  --color-ink: #0a0a0d;
-  --color-surface: #101015;
-  --color-surface-2: #15151d;
-  --color-line: rgba(255, 255, 255, 0.09);
-  --color-text: #f2f0f7;
-  --color-muted: #a8a5b6;
-  --color-accent: #8b7cf8;
-  --color-accent-dim: rgba(139, 124, 248, 0.14);
+  Two appearances, one set of token names.
 
-  --font-sans: 'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  The root values are the light theme; the dark block overrides them and nothing
+  else in the application knows which one is active. `@theme inline` maps them
+  onto Tailwind utilities, so following the system scheme is a variable change
+  rather than a rebuild.
+*/
+:root {
+  color-scheme: light dark;
+
+  --app-ink: #ffffff;
+  --app-surface: #f6f6f8;
+  --app-surface-2: #ececf1;
+  --app-line: rgba(0, 0, 0, 0.1);
+  --app-text: #17171f;
+  --app-muted: #5e5e6d;
+  --app-accent: #6250da;
+  --app-accent-fill: rgba(98, 80, 218, 0.14);
+  --app-danger: #a5122a;
+  --app-selection: rgba(98, 80, 218, 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --app-ink: #0a0a0d;
+    --app-surface: #101015;
+    --app-surface-2: #15151d;
+    --app-line: rgba(255, 255, 255, 0.09);
+    --app-text: #f4f2f9;
+    --app-muted: #adabb9;
+    --app-accent: #8b7cf8;
+    --app-accent-fill: rgba(139, 124, 248, 0.14);
+    --app-danger: #ffc9c9;
+    --app-selection: rgba(139, 124, 248, 0.28);
+  }
+}
+
+@theme inline {
+  --color-ink: var(--app-ink);
+  --color-surface: var(--app-surface);
+  --color-surface-2: var(--app-surface-2);
+  --color-line: var(--app-line);
+  --color-text: var(--app-text);
+  --color-muted: var(--app-muted);
+  --color-accent: var(--app-accent);
+  --color-accent-dim: var(--app-accent-fill);
+  --color-danger: var(--app-danger);
+
+  --font-sans: 'Familjen Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
 }
 
 @layer base {
-  html {
-    color-scheme: dark;
-  }
-
   body {
     margin: 0;
     background-color: var(--color-ink);
@@ -33,35 +62,30 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* A window is not a document: subtitle text is selectable, chrome is not. */
+  body {
+    user-select: none;
+  }
+
+  input,
+  textarea,
+  .selectable {
+    user-select: text;
+  }
+
+  /* The pointer cursor on a push button is one of the web's tell-tales. */
+  button:not(:disabled) {
+    cursor: default;
+  }
+
   ::selection {
-    background-color: rgba(139, 124, 248, 0.32);
+    background-color: var(--app-selection);
     color: var(--color-text);
   }
 
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  /* A desktop window scrolls in panes, not as one long page. */
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.12);
-    border: 3px solid transparent;
-    border-radius: 999px;
-    background-clip: content-box;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.22);
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
+    border-radius: 5px;
   }
 }

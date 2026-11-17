@@ -38,10 +38,10 @@ export default function TimelineStrip({
   return (
     <div className="flex flex-col">
       <div className="flex items-baseline justify-between gap-4 px-5 pb-2">
-        <span className="font-mono text-[10.5px] tracking-[0.14em] text-muted uppercase">
+        <span className="font-mono text-[11px] tracking-[0.13em] text-muted uppercase">
           {t.timeline}
         </span>
-        <span className="font-mono text-[11.5px] tabular-nums text-muted">
+        <span className="font-mono text-[12px] tabular-nums text-muted">
           {timecode(0)} — {timecode(total)}
         </span>
       </div>
@@ -49,27 +49,27 @@ export default function TimelineStrip({
       <div
         role="group"
         aria-label={t.timelineLabel(candidates.length)}
-        className="relative h-[52px] w-full border-y border-line bg-surface/40"
+        className="relative h-[60px] w-full border-y border-line bg-surface/50"
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 flex h-[32px] justify-between"
+          className="pointer-events-none absolute inset-x-0 top-0 flex h-[38px] justify-between"
         >
           {Array.from({ length: 11 }, (_, tick) => (
-            <span key={tick} className="w-px bg-white/[0.04]" />
+            <span key={tick} className="w-px bg-text/[0.05]" />
           ))}
         </div>
 
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-[4px] flex justify-between px-1 font-mono text-[10px] tabular-nums text-muted/70"
+          className="pointer-events-none absolute inset-x-0 bottom-[5px] flex justify-between px-1 font-mono text-[11px] tabular-nums text-muted/75"
         >
           {[0, 1, 2, 3, 4].map((quarter) => (
             <span key={quarter}>{timecode((total * quarter) / 4)}</span>
           ))}
         </div>
 
-        <div aria-hidden className="absolute inset-x-0 top-[16px] h-px bg-white/[0.07]" />
+        <div aria-hidden className="absolute inset-x-0 top-[21px] h-px bg-text/[0.08]" />
 
         {candidates.map((candidate) => {
           const current = bounds[candidate.id] ?? candidate;
@@ -86,12 +86,12 @@ export default function TimelineStrip({
                 <>
                   <span
                     aria-hidden
-                    className="absolute top-[6px] h-[22px] w-px bg-accent/35"
+                    className="absolute top-[9px] h-[26px] w-px bg-accent/35"
                     style={{ left: `${at(candidate.startMs)}%` }}
                   />
                   <span
                     aria-hidden
-                    className="absolute top-[6px] h-[22px] w-px bg-accent/35"
+                    className="absolute top-[9px] h-[26px] w-px bg-accent/35"
                     style={{ left: `${at(candidate.endMs)}%` }}
                   />
                 </>
@@ -104,9 +104,9 @@ export default function TimelineStrip({
                 title={`${timecode(current.startMs)} – ${timecode(current.endMs)}${
                   removed ? ` · ${t.removed}` : ''
                 }`}
-                className={`absolute top-[9px] h-[15px] rounded-[2px] transition-colors ${
+                className={`absolute top-[12px] h-[18px] rounded-[3px] transition-colors ${
                   removed
-                    ? 'bg-white/[0.08] hover:bg-white/[0.16]'
+                    ? 'bg-text/[0.09] hover:bg-text/[0.16]'
                     : active
                       ? 'bg-accent/75 ring-1 ring-accent'
                       : 'bg-accent/30 hover:bg-accent/50'

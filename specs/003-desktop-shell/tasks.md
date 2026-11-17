@@ -41,6 +41,31 @@ each.
 
 ## Phase 2: What only a window can show
 
+- [x] **T003** Take the shell's second pass: follow the system colour scheme
+  with one token set, raise the type scale so list content is 14px and
+  timecodes 15px, and apply the platform's own cursor, selection, scrollbar and
+  button conventions.
+  *Done when*: the same build renders in light and dark with no relaunch, no
+  interface text is under 11px, and the cursor and selection behave the way a
+  desktop window does.
+  *Evidence*:
+  - **SC-007**: contrast computed from the token values, light then dark —
+    `text` 17.8 / 17.8, `muted` 6.4 / 8.8, `accent` 5.7 / 6.0, `danger` 7.7 /
+    13.6 against the window; the lowest figure on a card surface is 5.29:1, so
+    secondary text clears 4.5:1 and body text clears 7:1 in both appearances.
+  - **SC-008**: the smallest size in the tree is 11px (the section labels and
+    the ruler's quarter marks) and the largest body sizes are 14px, with
+    timecodes at 15px. Read from the source by listing every `text-[…px]`.
+  - **SC-009**: one build, two renders — the light screenshot was taken as the
+    page serves it, the dark one with the browser forced to the dark scheme, so
+    the scheme is a variable change and not a second build.
+  - **Layout**: the search block is pinned to the foot of the rail, because at
+    the 880×600 minimum the scrolling rail was cutting the primary action in
+    half. Verified by screenshots at both sizes.
+  - `npm --prefix app run build` passes and `cargo test` still reports 59.
+  - Unverified, as before: a real window switching scheme live, and the pointer
+    behaviour under a real mouse. Both are T002.
+
 - [ ] **T002** Check the shell in a real window: drag the fixture MKV from the
   file manager onto the window, then the MKV together with the SRT, then an SRT
   alone onto an open session; hover a row and its mark; resize to 880×600.
