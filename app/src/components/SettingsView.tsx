@@ -1,11 +1,16 @@
+import type { Mode } from '../api';
 import type { copy } from '../i18n/copy';
 import type { Appearance } from '../theme';
+import ModelPanel from './ModelPanel';
 import SectionLabel from './SectionLabel';
 
 type Props = {
   t: (typeof copy)['tr'];
   appearance: Appearance;
   onAppearance: (next: Appearance) => void;
+  mode: Mode;
+  onMode: (next: Mode) => void;
+  onError: (error: unknown) => void;
 };
 
 /**
@@ -14,7 +19,14 @@ type Props = {
  * the file in the rail, which is why the rail stays where it is while this is
  * open: the criteria must still be reachable.
  */
-export default function SettingsView({ t, appearance, onAppearance }: Props) {
+export default function SettingsView({
+  t,
+  appearance,
+  onAppearance,
+  mode,
+  onMode,
+  onError,
+}: Props) {
   const appearances: { value: Appearance; label: string }[] = [
     { value: 'system', label: t.appearanceSystem },
     { value: 'light', label: t.appearanceLight },
@@ -55,6 +67,11 @@ export default function SettingsView({ t, appearance, onAppearance }: Props) {
           </div>
 
           <p className="text-[13.5px] leading-relaxed text-muted">{t.appearanceHint}</p>
+        </section>
+
+        <section className="flex flex-col gap-2.5 border-t border-line pt-4">
+          <SectionLabel>{t.modelSection}</SectionLabel>
+          <ModelPanel t={t} mode={mode} onMode={onMode} onError={onError} />
         </section>
       </div>
     </div>

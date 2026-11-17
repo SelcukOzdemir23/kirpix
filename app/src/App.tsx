@@ -15,7 +15,6 @@ import { copy, errorMessage, type Lang } from './i18n/copy';
 import { fileName, folderOf, timecode } from './format';
 import CandidateCard from './components/CandidateCard';
 import ConfirmDialog from './components/ConfirmDialog';
-import ModelPanel from './components/ModelPanel';
 import CriteriaForm from './components/CriteriaForm';
 import SectionLabel from './components/SectionLabel';
 import SettingsView from './components/SettingsView';
@@ -78,6 +77,12 @@ export default function App() {
   function chooseAppearance(next: Appearance) {
     setAppearance(next);
     saveAppearance(next);
+  }
+
+  function chooseMode(next: Mode) {
+    setMode(next);
+    setRanking(null);
+    void api.setMode(next).catch((err) => setError(errorMessage(err, lang)));
   }
 
   const dropReady = useDropZone((paths) => void acceptDropped(paths));
@@ -487,19 +492,14 @@ export default function App() {
             </section>
 
             {session && (
-              <RailSection>
-                <SectionLabel>{t.modelSection}</SectionLabel>
-                <ModelPanel
-                  t={t}
-                  mode={mode}
-                  onMode={(next) => {
-                    setMode(next);
-                    setRanking(null);
-                    void api.setMode(next).catch((err) => setError(errorMessage(err, lang)));
-                  }}
-                  onError={(err) => setError(errorMessage(err, lang))}
-                />
-              </RailSection>
+              <div className="flex items-baseline gap-2 text-[13.5px]">
+                <span className="shrink-0 font-mono text-[12px] tracking-[0.13em] text-muted uppercase">
+                  {t.engineSection}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-right" title={engineTitle(mode)}>
+                  {engineLabel(mode, t)}
+                </span>
+              </div>
             )}
 
             {session && (
@@ -543,7 +543,14 @@ export default function App() {
 
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           {settingsOpen ? (
-            <SettingsView t={t} appearance={appearance} onAppearance={chooseAppearance} />
+            <SettingsView
+              t={t}
+              appearance={appearance}
+              onAppearance={chooseAppearance}
+              mode={mode}
+              onMode={chooseMode}
+              onError={(err) => setError(errorMessage(err, lang))}
+            />
           ) : pendingVideo && tracks.length > 0 ? (
             <div className="min-h-0 flex-1 overflow-y-auto">
               <TrackChooser
@@ -684,6 +691,20 @@ export default function App() {
       )}
     </div>
   );
+}
+
+/** The rail's one line: which engine the next search will use. */
+function engineLabel(mode: Mode, t: (typeof copy)['tr']): string {
+  if (mode.mode === 'local') return `${t.modeLocal} · ${mode.model || mode.address}`;
+  if (mode.mode === 'cloud') return `${t.modeCloud} · ${mode.model}`;
+  return t.modeHeuristic;
+}
+
+/** The same line, widened for the tooltip when the rail has to truncate it. */
+function engineTitle(mode: Mode): string {
+  if (mode.mode === 'local') return `${mode.address}${mode.model ? ` · ${mode.model}` : ''}`;
+  if (mode.mode === 'cloud') return `${mode.provider} · ${mode.model}`;
+  return '';
 }
 
 /** The name the badge shows for a mode: the model, not the transport. */

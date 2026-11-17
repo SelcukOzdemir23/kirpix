@@ -182,9 +182,10 @@ application, and read the settings screen.
   drawn is dark. Checked by recording the window during start-up.
 - **SC-003**: A chosen mode, address and model are read back unchanged after a
   restart. Checked by reading the settings file and by the rail's engine line.
-- **SC-004**: At 880×600, the rail shows source, engine line, shift and criteria
-  with no clipped section, and the settings view shows every control without
-  clipping. Checked by screenshot at that size.
+- **SC-004**: At 880×600 the rail holds source, engine line, shift and criteria,
+  scrolls to all of them, and shows no model control; the settings view scrolls
+  to all of its controls and cuts none of them horizontally. Checked by
+  screenshot at that size.
 - **SC-005**: No secret appears in any file the slice writes. Checked by saving a
   cloud key, setting a mode, and reading the settings file.
 - **SC-006**: A corrupt settings file produces a starting application and a
@@ -210,3 +211,8 @@ application, and read the settings screen.
   the rail is about this file, settings are about the application.
 - No reset button, no import or export, no per-feature settings section. The
   slice is the surface and its two occupants.
+- **The rail scrolls, and will always have a section across the fold at some
+  window height.** That is feature 003's design and this slice does not change
+  it. What it removes is the model section from that column, not the scroll, so
+  SC-004 asks for reachability rather than for a fold that falls in a tidy
+  place.

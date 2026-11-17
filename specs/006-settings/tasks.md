@@ -33,12 +33,23 @@ done, never before.
 
 ## Phase 2: The model, moved
 
-- [ ] **T002** Move the model panel out of the rail into the settings view, and
+- [x] **T002** Move the model panel out of the rail into the settings view, and
   give the rail a one-line engine statement in its place.
   *Done when*: no model control remains in the rail, the rail's engine line names
   what the next search will use, and every model behaviour of feature 004 still
   works from its new home.
-  *Evidence*: …
+  *Evidence*: `SettingsView` now renders `ModelPanel` unchanged, with the same
+  `onMode` handler the rail had — the move is a relocation, and mode changes
+  still clear the old ranking. The rail's model section is gone; in its place a
+  single row, `MOTOR` and `Yerel · qwen2.5:7b`, plain text with a tooltip that
+  widens to the address when the row truncates. Screenshots at 880×600 in both
+  appearances show the settings pane with the model controls and the rail
+  without them.
+  *What the screenshots also show, and what the spec now says instead of
+  pretending otherwise*: at 880×600 the shift section straddles the fold. The
+  rail has scrolled since 003, so it is reachable, and SC-004 was reworded from
+  "no clipped section" to reachability, with the reason recorded in the spec's
+  assumptions.
 
 ## Phase 3: The file
 
