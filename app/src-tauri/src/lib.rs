@@ -20,8 +20,12 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::open_session,
+            commands::list_tracks,
+            commands::open_from_track,
             commands::session_cues,
             commands::search_topic,
+            commands::set_offset,
+            commands::cue_sample,
             commands::cut_clips
         ])
         .run(tauri::generate_context!())

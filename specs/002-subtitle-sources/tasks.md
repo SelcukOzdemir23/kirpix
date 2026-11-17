@@ -1,0 +1,117 @@
+# Tasks: Subtitle sources and alignment
+
+**Input**: `spec.md`, `plan.md`
+
+**Rule**: one task, one commit, and the application still builds and runs after
+each.
+
+## Phase 1: Fixtures
+
+- [x] **T001** Add the fixtures and record them in `eval/manifest.json`: an MKV
+  carrying the Turkish recording with two text subtitle tracks (one SubRip, one
+  ASS, both tagged `tur` with different titles), and an SRT copy of the same
+  recording shifted forward by 3.5 seconds.
+  *Done when*: `ffprobe` reports both tracks with their languages and titles,
+  and the shifted file's first cue starts at `00:00:03,500`.
+  *Note*: this was already done while planning, because the plan depended on
+  whether the toolchain could produce the files at all. The manifest now lists
+  both subtitle files, the shifted one, and the two embedded streams.
+
+## Phase 2: Sources
+
+- [x] **T002** Probe subtitle tracks: index, codec, language, title, and whether
+  the codec stores text or pictures.
+  *Evidence*: seven tests. The classifier covers the four picture codecs and
+  the common text ones, matching on real FFprobe codec names; the probe on the
+  MKV fixture returns both tracks with `tur` and `subrip`/`ass`, and both are
+  classified as text.
+  *Depends on*: T001
+
+- [x] **T003** Extract a chosen track to a cue table by reading FFmpeg's standard
+  output, writing nothing to disk.
+  *Done when*: the MKV's SubRip track yields 239 cues, the same count and the
+  same first and last text as the sidecar SRT (SC-001).
+  *Evidence*: **SC-001 is met.** The embedded SubRip track and the sidecar SRT
+  produce the same 239 cues with identical first and last text. An ASS track
+  converts through the same parser, and a stream index that does not exist
+  returns `TrackNotText` naming the stream.
+  *Depends on*: T002
+
+- [x] **T004** Open a session from a chosen track, and the interface to choose
+  one. The sidecar and embedded paths share one code path from the cue table
+  onwards.
+  *Done when*: opening the MKV lists two tracks and either one produces a
+  session.
+  *Evidence*: `open_embedded` reports 239 cues with the label "Metin" and the
+  source `embedded`; a missing stream index returns `TrackMissing`. The chooser
+  was rendered from seeded data: two readable tracks, one picture track shown
+  disabled with the reason, and a way out to a file.
+  *Note*: the session now records where its cues came from, as a file or as a
+  track, and the interface shows which. Nothing downstream changed, which was
+  the point of putting both sources behind one cue table.
+  *Depends on*: T003
+
+## Phase 3: Alignment
+
+- [x] **T005** The offset: stored on the session, applied by deriving a shifted
+  cue table, never mutating the source. Report how many cues were clamped to
+  zero.
+  *Done when*: every cue moves by exactly the offset, indices do not change,
+  and a search on a shifted table returns candidates shifted by the same amount
+  (SC-004).
+  *Evidence*: **SC-004 is met.** Four tests: every one of the 239 cues moves by
+  exactly three seconds with its index intact; a search at plus three seconds
+  returns the same candidates with start and end shifted by exactly three
+  seconds and the same cue ranges; a negative offset is clamped at zero and the
+  clamped cues are counted; clearing the offset restores the original times
+  exactly.
+  *Depends on*: T004
+
+- [x] **T006** Audio sample: four seconds around a cue as mono 16 kHz WAV,
+  produced in memory and handed to the interface as a data URL.
+  *Amended during the task*: the draft plan had the sample written to the
+  application's temporary directory and served over a scoped asset protocol.
+  FFmpeg can write WAV to its output, so not writing anything at all is
+  simpler, leaves nothing to clean up, and needs no protocol scope. FR-010 in
+  the spec is now stricter than it was.
+  *Evidence*: the sample is 128 KB of PCM with a RIFF header and the expected
+  length for four seconds; a copy of the recording with its audio stripped
+  returns `NoAudio`. **SC-003 is met** on the size half; that it plays needs a
+  desktop.
+  *Depends on*: T004
+
+- [x] **T007** Offset controls and a "hear this cue" action in the interface,
+  with the clamped-cue count shown when it is not zero.
+  *Done when*: the offset can be set in 0.1, 0.5 and 1 second steps, reset, and
+  the search that follows uses the shifted times.
+  *Evidence*: the controls were rendered from seeded data and inspected: six
+  steps, the current shift in the accent colour, reset shown only when it is
+  not zero, and the clamped count underneath. Changing the offset discards the
+  previous results, because they were measured on the old times.
+  *Note*: each cue line in an opened card carries a play action, which asks for
+  a four second sample of the sound around it. The step labels go through the
+  language formatter, so Turkish reads 0,5 and English reads 0.5.
+  *Depends on*: T005, T006
+
+## Phase 4: Verification
+
+- [ ] **T008** Verification. Every automated criterion is met; three things need
+  a person at a desktop.
+  *Done*: **SC-001**, the embedded track and the sidecar file agree on all 239
+  cues; **SC-002**, the deliberately shifted fixture is brought back within
+  100 ms of the original by the inverse offset, on every line; **SC-003**, the
+  sample is 128 KB of PCM for four seconds; **SC-004**, a search moves by
+  exactly the offset; **SC-005**, the picture codecs are classified and refused
+  by rule.
+  *Owed to a person*: play a sample and confirm it lines up with the cue
+  (SC-003, the playback half); run the whole flow with the network down
+  (SC-006); and correct the shifted fixture by ear rather than by arithmetic.
+  This box stays open until those three are done.
+  *Depends on*: T005, T006, T007
+
+## Definition of done for the slice
+
+- Every functional requirement maps to a task above.
+- `cargo test` passes with the fixtures present.
+- A shifted subtitle is corrected by ear, not only by arithmetic.
+- The constitution check in the pull request is complete.

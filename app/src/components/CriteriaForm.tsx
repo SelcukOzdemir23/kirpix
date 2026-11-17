@@ -19,44 +19,47 @@ export default function CriteriaForm({ t, terms, minSec, maxSec, searching, onTe
     .filter(Boolean);
   const disabled = parsed.length === 0 || searching;
 
+  const field =
+    'w-full rounded-[5px] border border-line bg-ink px-2.5 py-1.5 text-[13.5px] text-text outline-none transition-colors placeholder:text-muted/50 hover:border-white/20 focus:border-accent/60';
+
   return (
     <form
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-2.5"
       onSubmit={(event) => {
         event.preventDefault();
         if (!disabled) onSearch();
       }}
     >
       <label className="flex flex-col gap-1.5">
-        <span className="text-[12.5px] text-muted">{t.terms}</span>
+        <span className="text-[11px] text-muted">{t.terms}</span>
         <input
           value={terms}
           onChange={(event) => onTerms(event.target.value)}
-          placeholder="kaygı, endişe"
-          className="rounded-lg border border-line bg-surface px-3 py-2 text-[14px] text-text outline-none transition-colors placeholder:text-muted/60 focus:border-accent/60"
+          placeholder={t.termsExample}
+          className={field}
         />
-        <span className="text-[11.5px] text-muted/80">{t.termsHint}</span>
       </label>
+      <span className="text-[11px] leading-relaxed text-muted/80">{t.termsHint}</span>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <label className="flex flex-col gap-1.5">
-          <span className="text-[12.5px] text-muted">{t.min}</span>
+          <span className="text-[11px] text-muted">{t.min}</span>
           <input
             type="number"
             min={1}
             value={minSec}
             onChange={(event) => onMin(Number(event.target.value))}
-            className="rounded-lg border border-line bg-surface px-3 py-2 font-mono text-[13.5px] tabular-nums text-text outline-none focus:border-accent/60"
+            className={`${field} font-mono tabular-nums`}
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="text-[12.5px] text-muted">{t.max}</span>
+          <span className="text-[11px] text-muted">{t.max}</span>
           <input
             type="number"
             min={1}
             value={maxSec}
             onChange={(event) => onMax(Number(event.target.value))}
-            className="rounded-lg border border-line bg-surface px-3 py-2 font-mono text-[13.5px] tabular-nums text-text outline-none focus:border-accent/60"
+            className={`${field} font-mono tabular-nums`}
           />
         </label>
       </div>
@@ -64,7 +67,7 @@ export default function CriteriaForm({ t, terms, minSec, maxSec, searching, onTe
       <button
         type="submit"
         disabled={disabled}
-        className="mt-1 rounded-lg bg-text px-5 py-2.5 text-[14px] font-medium text-ink transition-colors hover:bg-white disabled:opacity-40 active:translate-y-px"
+        className="mt-1 w-full rounded-[5px] bg-text px-3 py-2 text-[13px] font-medium text-ink transition-colors hover:bg-white disabled:opacity-35 disabled:hover:bg-text active:translate-y-px"
       >
         {searching ? t.searching : t.search}
       </button>

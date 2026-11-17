@@ -5,6 +5,8 @@ use serde::Deserialize;
 
 use crate::error::KirpixError;
 
+use super::tracks::{classify, SubtitleTrack};
+
 /// Where a media binary came from. Surfaced rather than hidden: falling back to
 /// a system install is allowed in development, but it must be visible.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -94,6 +96,8 @@ pub struct MediaInfo {
     pub width: Option<u32>,
     pub height: Option<u32>,
     pub has_audio: bool,
+    /// Subtitle tracks the container carries, text and picture alike.
+    pub subtitle_tracks: Vec<SubtitleTrack>,
     /// Which binary answered, and where it came from.
     pub source: String,
 }
@@ -111,9 +115,12 @@ struct ProbeFormat {
 
 #[derive(Deserialize)]
 struct ProbeStream {
+    index: Option<usize>,
     codec_type: Option<String>,
+    codec_name: Option<String>,
     width: Option<u32>,
     height: Option<u32>,
+    tags: Option<std::collections::BTreeMap<String, String>>,
 }
 
 /// Ask FFprobe for JSON rather than scraping `ffmpeg -i` output.
@@ -175,6 +182,27 @@ pub fn probe(file: &Path) -> Result<MediaInfo, KirpixError> {
         .iter()
         .find(|s| s.codec_type.as_deref() == Some("video"));
 
+    let subtitle_tracks: Vec<SubtitleTrack> = streams
+        .iter()
+        .filter(|s| s.codec_type.as_deref() == Some("subtitle"))
+        .filter_map(|s| {
+            let codec = s.codec_name.clone().unwrap_or_else(|| "unknown".to_string());
+            let tag = |key: &str| {
+                s.tags
+                    .as_ref()
+                    .and_then(|tags| tags.get(key).cloned())
+                    .filter(|value| !value.is_empty())
+            };
+            Some(SubtitleTrack {
+                stream_index: s.index?,
+                codec: codec.clone(),
+                language: tag("language"),
+                title: tag("title"),
+                kind: classify(&codec),
+            })
+        })
+        .collect();
+
     Ok(MediaInfo {
         duration_ms: (seconds * 1000.0).round() as u64,
         width: video.and_then(|s| s.width),
@@ -182,6 +210,7 @@ pub fn probe(file: &Path) -> Result<MediaInfo, KirpixError> {
         has_audio: streams
             .iter()
             .any(|s| s.codec_type.as_deref() == Some("audio")),
+        subtitle_tracks,
         source: binary.source.as_str().to_string(),
     })
 }
@@ -218,6 +247,35 @@ mod tests {
         );
         assert!(info.has_audio);
         assert!(info.width.is_some() && info.height.is_some());
+    }
+
+    #[test]
+    fn lists_the_subtitle_tracks_the_container_carries() {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../eval/media/tr-tedx-kaygi.mkv");
+        if !path.is_file() {
+            eprintln!("skipped: {} is not present", path.display());
+            return;
+        }
+
+        let info = probe(&path).expect("probe should succeed");
+        assert_eq!(info.subtitle_tracks.len(), 2, "the fixture carries two text tracks");
+
+        let codecs: Vec<&str> = info
+            .subtitle_tracks
+            .iter()
+            .map(|track| track.codec.as_str())
+            .collect();
+        assert!(codecs.contains(&"subrip"), "codecs were {codecs:?}");
+        assert!(codecs.contains(&"ass"), "codecs were {codecs:?}");
+
+        assert!(info
+            .subtitle_tracks
+            .iter()
+            .all(|track| track.language.as_deref() == Some("tur")));
+        assert!(info
+            .subtitle_tracks
+            .iter()
+            .all(|track| track.kind == super::super::tracks::TrackKind::Text));
     }
 
     #[test]

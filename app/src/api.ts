@@ -1,8 +1,17 @@
 import { invoke } from '@tauri-apps/api/core';
 
+export type SubtitleTrack = {
+  streamIndex: number;
+  codec: string;
+  language: string | null;
+  title: string | null;
+  kind: 'text' | 'picture';
+};
+
 export type SessionInfo = {
   videoPath: string;
-  subtitlePath: string;
+  subtitleLabel: string;
+  subtitleSource: 'file' | 'embedded';
   durationMs: number;
   cueCount: number;
   encoding: string;
@@ -10,6 +19,7 @@ export type SessionInfo = {
   height: number | null;
   hasAudio: boolean;
   mediaSource: string;
+  offsetMs: number;
 };
 
 export type Cue = {
@@ -49,14 +59,26 @@ export type CutResult = {
 
 export type ClipRequest = { startMs: number; endMs: number };
 
+export type OffsetInfo = { offsetMs: number; clampedCues: number };
+
 export const api = {
   openSession: (videoPath: string, subtitlePath: string) =>
     invoke<SessionInfo>('open_session', { videoPath, subtitlePath }),
+
+  listTracks: (videoPath: string) => invoke<SubtitleTrack[]>('list_tracks', { videoPath }),
+
+  openFromTrack: (videoPath: string, streamIndex: number) =>
+    invoke<SessionInfo>('open_from_track', { videoPath, streamIndex }),
 
   sessionCues: (from: number, to: number) => invoke<Cue[]>('session_cues', { from, to }),
 
   searchTopic: (terms: string[], minMs: number, maxMs: number) =>
     invoke<Candidate[]>('search_topic', { terms, minMs, maxMs }),
+
+  setOffset: (offsetMs: number) => invoke<OffsetInfo>('set_offset', { offsetMs }),
+
+  cueSample: (cueIndex: number, seconds: number) =>
+    invoke<string>('cue_sample', { cueIndex, seconds }),
 
   cutClips: (clips: ClipRequest[], outDir: string) =>
     invoke<CutResult[]>('cut_clips', { clips, outDir }),
