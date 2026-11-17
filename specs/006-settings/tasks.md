@@ -95,10 +95,28 @@ done, never before.
 
 ## Phase 4: The evidence
 
-- [ ] **T005** Check the result the way it will be used: settings at 880×600 and
+- [x] **T005** Check the result the way it will be used: settings at 880×600 and
   1100×760, in all three appearances, in both languages; and record honestly
   which checks need a desktop session.
   *Done when*: screenshots exist for each combination, the rail shows no clipped
   section at the minimum size, and `spec.md`'s success criteria are each either
   checked or named as outstanding.
-  *Evidence*: …
+  *Evidence*: seven screenshots from the built `dist`, each by setting the stored
+  choice and reloading, which is the same path a restart takes:
+  settings at 880×600 and 1100×760 in `Açık` and in `Koyu`; settings in English
+  at 880 and at 1100; the corrupt-file message at 880; the results list at 880 to
+  show the rail without a model section.
+  Contrast from the token values, both appearances: body text 17.8:1, secondary
+  text 7.2–9.9:1 on surface and surface-2. SC-007 holds with room.
+  *SC by SC*: SC-001 by the explicit light and dark screenshots (the `Sistem`
+  case was checked in T001); SC-002 **outstanding** — the first frame needs a
+  recording of a real window; SC-003 by four Rust tests and the engine line in
+  the screenshots, but the real file **outstanding** (needs a desktop session);
+  SC-004 by the two sizes; SC-005 by reading the writer — no field of `Settings`
+  is a key, and the key path is untouched; SC-006 by tests and by the
+  corrupt-file screenshot; SC-007 above; SC-008 by `cargo test` (111), `tsc
+  --noEmit` and `npm run build`.
+  *Outstanding, all needing a desktop session*: the first frame after a restart
+  with `Koyu` chosen; the real `settings.json` path on this machine; and that a
+  model choice made in the window is the one that runs after closing and
+  reopening it.

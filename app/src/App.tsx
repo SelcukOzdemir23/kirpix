@@ -413,7 +413,7 @@ export default function App() {
                 : 'border-line text-text/85 hover:border-text/25 hover:bg-surface-2'
             }`}
           >
-            {settingsOpen ? t.dismiss : t.settingsOpen}
+            {settingsOpen ? t.settingsClose : t.settingsOpen}
           </button>
           <div className="flex items-center gap-0.5 rounded-[6px] border border-line p-0.5">
             {(['tr', 'en'] as Lang[]).map((code) => (
