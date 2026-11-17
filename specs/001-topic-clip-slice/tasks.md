@@ -66,9 +66,17 @@ Paths are relative to `app/` unless stated.
   they belong to.
   *Depends on*: T003
 
-- [ ] **T006** `open_session` and `session_cues` commands, plus the file pickers
+- [x] **T006** `open_session` and `session_cues` commands, plus the file pickers
   that call them. The screen shows file names, media duration and cue count.
   *Done when*: opening the Turkish recording shows 14:37 and 239 cues.
+  *Evidence*: `cargo test` opens the Turkish recording through `session::open`
+  and reports 239 cues, utf-8 and 877,650 ms, and pages cues within bounds; the
+  built screen renders with no page errors and an empty state that says what to
+  do. The picker to command path needs a desktop run to observe, because the
+  dialog is the operating system's; that run is still owed by the user, along
+  with the T001 window check.
+  *Note*: the media source is shown on screen when it is a system FFmpeg, so a
+  development fallback never looks like a normal state.
   *Depends on*: T002, T004
 
 ## Phase 3: Matching

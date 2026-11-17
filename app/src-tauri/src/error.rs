@@ -13,6 +13,10 @@ pub enum KirpixError {
     MediaProbeFailed { path: String, tail: String },
     /// The subtitle file could not be read.
     SubtitleUnreadable { path: String, reason: String },
+    /// The subtitle file was read but holds no usable cue.
+    SubtitleEmpty { path: String },
+    /// A command was called before any session was opened.
+    NoSession,
 }
 
 impl fmt::Display for KirpixError {
@@ -30,6 +34,10 @@ impl fmt::Display for KirpixError {
             Self::SubtitleUnreadable { path, reason } => {
                 write!(f, "{path} could not be read as subtitles: {reason}")
             }
+            Self::SubtitleEmpty { path } => {
+                write!(f, "{path} holds no usable subtitle line")
+            }
+            Self::NoSession => write!(f, "no video has been opened yet"),
         }
     }
 }
