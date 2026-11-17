@@ -112,9 +112,10 @@ when the cue says it is.
 - **FR-009**: The user MUST be able to hear a short sample of the sound around a
   chosen cue, and the sample MUST be produced locally as uncompressed audio so
   that no codec support is required of the interface.
-- **FR-010**: The sample MUST be removed from disk once it has been played and
-  the session closed, and MUST never be written outside the application's own
-  temporary directory.
+- **FR-010**: The sample MUST NOT be written to disk at all. It is produced in
+  memory and handed to the interface, so there is nothing to clean up and
+  nothing left behind. This is stricter than the draft, which allowed a
+  temporary file, and it is free: FFmpeg can write WAV to its output.
 - **FR-011**: When the media has no audio stream, the request for a sample MUST
   fail with a named error and MUST NOT block the rest of the interface.
 - **FR-012**: The feature MUST perform no network requests.

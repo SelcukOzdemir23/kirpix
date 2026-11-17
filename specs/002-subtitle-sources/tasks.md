@@ -67,11 +67,17 @@ each.
   exactly.
   *Depends on*: T004
 
-- [ ] **T006** Audio sample: four seconds around a cue as mono 16 kHz WAV under
-  the application's temporary directory, exposed to the interface through a
-  scoped asset protocol.
-  *Done when*: the sample probes as PCM, stays under one megabyte, and the
-  previous sample is removed when a new one is made.
+- [x] **T006** Audio sample: four seconds around a cue as mono 16 kHz WAV,
+  produced in memory and handed to the interface as a data URL.
+  *Amended during the task*: the draft plan had the sample written to the
+  application's temporary directory and served over a scoped asset protocol.
+  FFmpeg can write WAV to its output, so not writing anything at all is
+  simpler, leaves nothing to clean up, and needs no protocol scope. FR-010 in
+  the spec is now stricter than it was.
+  *Evidence*: the sample is 128 KB of PCM with a RIFF header and the expected
+  length for four seconds; a copy of the recording with its audio stripped
+  returns `NoAudio`. **SC-003 is met** on the size half; that it plays needs a
+  desktop.
   *Depends on*: T004
 
 - [ ] **T007** Offset controls and a "hear this cue" action in the interface,

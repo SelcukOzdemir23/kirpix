@@ -20,8 +20,8 @@ Nothing here introduces a model, a network call, or a new process boundary.
 | --- | --- |
 | Shell and core | Unchanged: Tauri 2, Rust, React 19 |
 | New dependency | None. `ffprobe` already reports streams; the offset is arithmetic |
-| Media playback | `assetProtocol` enabled and scoped to the app's temporary directory, so the interface can play the sample |
-| Storage | Samples live under the application temp directory and are removed on replacement and on exit |
+| Media playback | No asset protocol and no temporary file: the sample arrives as a data URL and plays from memory |
+| Storage | Nothing is written for a sample |
 | Testing | `cargo test` against the MKV fixture, the shifted SRT, and codec classification |
 
 ## Constitution Check
@@ -55,9 +55,11 @@ Nothing here introduces a model, a network call, or a new process boundary.
 4. **The offset produces a shifted cue table.** The stored table is never
    mutated; the offset yields a derived table for search and display. That keeps
    `criterion::find` untouched and makes the offset trivially reversible.
-5. **The sample is WAV, mono, 16 kHz.** Four seconds is 128 KB. Uncompressed
-   audio needs no codec negotiation with the webview, which is the same reason
-   feature 001 avoided video preview.
+5. **The sample is WAV, mono, 16 kHz, held in memory.** Four seconds is 128 KB.
+   Uncompressed audio needs no codec negotiation with the webview, which is the
+   same reason feature 001 avoided video preview. It also means no temporary
+   file and no asset-protocol scope to configure: FFmpeg writes to its output
+   and the bytes ride back in the response.
 6. **Clamped cues are counted, not flagged one by one.** The offset control
    reports how many cues start before zero after the shift, which is the
    information a user needs, without adding a field to every cue.
@@ -68,7 +70,7 @@ Nothing here introduces a model, a network call, or a new process boundary.
 app/src-tauri/src/
   media/ffmpeg.rs        probe grows subtitle tracks; new extract_track()
   media/tracks.rs        codec classification, text or picture
-  media/sample.rs        WAV sample around a cue, under the app temp directory
+  media/sample.rs        WAV sample around a cue, in memory
   session.rs             holds the source, the offset, and derives the shifted table
   commands.rs            list_tracks, open_from_track, set_offset, cue_sample
 app/src/
@@ -83,7 +85,7 @@ open_session(video_path, subtitle_path)            // unchanged, feature 001
 subtitle_tracks() -> Vec<Track>                    // after a video is probed
 open_from_track(video_path, stream_index) -> SessionInfo
 set_offset(offset_ms: i64) -> OffsetInfo           // { offsetMs, clampedCues }
-cue_sample(cue_index: usize, seconds: f64) -> String  // path to a WAV file
+cue_sample(cue_index: usize, seconds: f64) -> String  // data URL of a WAV
 ```
 
 ## Testing

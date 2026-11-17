@@ -4,7 +4,10 @@ use std::sync::Mutex;
 use tauri::{AppHandle, Emitter, State};
 
 use crate::criterion::{self, Bounds, Candidate};
-use crate::media::{cut, ffmpeg, ClipRequest, CutResult, SubtitleTrack};
+use base64::engine::general_purpose::STANDARD;
+use base64::Engine as _;
+
+use crate::media::{cut, ffmpeg, wav_around, ClipRequest, CutResult, SubtitleTrack};
 use crate::error::KirpixError;
 use crate::session::{self, OffsetInfo, Session, SessionInfo};
 use crate::subtitle::Cue;
@@ -101,4 +104,28 @@ pub fn set_offset(state: SessionState<'_>, offset_ms: i64) -> Result<OffsetInfo,
     let session = guard.as_mut().ok_or(KirpixError::NoSession)?;
     session.offset_ms = offset_ms;
     Ok(session.offset_info())
+}
+
+/// A few seconds of sound around a cue, as a data URL.
+///
+/// Nothing is written to disk: FFmpeg writes WAV to its output, and the bytes
+/// travel to the interface inside the response. That keeps the promise that the
+/// only files this application creates are the clips the user asked for.
+#[tauri::command]
+pub fn cue_sample(
+    state: SessionState<'_>,
+    cue_index: usize,
+    seconds: f64,
+) -> Result<String, KirpixError> {
+    let guard = state.lock().expect("session lock");
+    let session = guard.as_ref().ok_or(KirpixError::NoSession)?;
+
+    let cue = session
+        .table_with_offset()
+        .cue(cue_index)
+        .cloned()
+        .ok_or(KirpixError::CueMissing { index: cue_index })?;
+
+    let bytes = wav_around(&session.video, cue.start_ms, seconds.clamp(0.5, 15.0))?;
+    Ok(format!("data:audio/wav;base64,{}", STANDARD.encode(bytes)))
 }
