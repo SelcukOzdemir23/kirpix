@@ -361,10 +361,10 @@ export default function App() {
       <audio ref={audioRef} hidden />
 
       <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-line px-5">
-        <span className="text-[15.5px] font-semibold tracking-[-0.015em]">Kirpix</span>
+        <span className="text-[16.5px] font-semibold tracking-[-0.015em]">Kirpix</span>
 
         <div className="flex shrink-0 items-center gap-3">
-          {busy && <span className="font-mono text-[12px] text-muted">{t.opening}</span>}
+          {busy && <span className="font-mono text-[13px] text-muted">{t.opening}</span>}
           <div className="flex items-center gap-0.5 rounded-[6px] border border-line p-0.5">
             {(['tr', 'en'] as Lang[]).map((code) => (
               <button
@@ -372,7 +372,7 @@ export default function App() {
                 type="button"
                 onClick={() => setLang(code)}
                 aria-pressed={lang === code}
-                className={`rounded-[4px] px-2.5 py-1 font-mono text-[11.5px] tracking-[0.06em] transition-colors ${
+                className={`rounded-[4px] px-2.5 py-1 font-mono text-[12.5px] tracking-[0.06em] transition-colors ${
                   lang === code ? 'bg-surface-2 text-text' : 'text-muted hover:text-text'
                 }`}
               >
@@ -388,12 +388,12 @@ export default function App() {
           role="alert"
           className="flex shrink-0 items-start gap-3 border-b border-danger/30 bg-danger/10 px-5 py-2.5"
         >
-          <p className="flex-1 text-[13px] leading-relaxed text-danger">{error}</p>
+          <p className="flex-1 text-[14px] leading-relaxed text-danger">{error}</p>
           <button
             type="button"
             aria-label={t.dismiss}
             onClick={() => setError(null)}
-            className="rounded-[4px] px-1.5 text-[15px] leading-5 text-danger/70 transition-colors hover:text-danger"
+            className="rounded-[4px] px-1.5 text-[16px] leading-5 text-danger/70 transition-colors hover:text-danger"
           >
             ×
           </button>
@@ -409,7 +409,7 @@ export default function App() {
               {session || pendingVideo ? (
                 <>
                   <span
-                    className="truncate text-[14px] font-medium"
+                    className="truncate text-[15px] font-medium"
                     title={session?.videoPath ?? pendingVideo ?? ''}
                   >
                     {fileName(session?.videoPath ?? pendingVideo ?? '')}
@@ -417,23 +417,23 @@ export default function App() {
 
                   {session ? (
                     <>
-                      <div className="flex items-baseline gap-2 text-[12.5px] text-muted">
+                      <div className="flex items-baseline gap-2 text-[13.5px] text-muted">
                         <span className="font-mono tabular-nums">{timecode(session.durationMs)}</span>
                         <span>·</span>
                         <span className="font-mono tabular-nums">
                           {session.cueCount} {t.cues.toLowerCase()}
                         </span>
-                        <span className="ml-auto font-mono text-[11px] text-muted/70 uppercase">
+                        <span className="ml-auto font-mono text-[12px] text-muted/70 uppercase">
                           {session.encoding}
                         </span>
                       </div>
 
                       <div className="flex items-baseline gap-2">
-                        <span className="min-w-0 flex-1 truncate text-[12.5px] text-muted" title={session.subtitleLabel}>
+                        <span className="min-w-0 flex-1 truncate text-[13.5px] text-muted" title={session.subtitleLabel}>
                           {session.subtitleLabel}
                         </span>
                         {session.subtitleSource === 'embedded' && (
-                          <span className="shrink-0 rounded-[4px] border border-line px-1.5 py-0.5 text-[11px] text-muted">
+                          <span className="shrink-0 rounded-[4px] border border-line px-1.5 py-0.5 text-[12px] text-muted">
                             {t.embedded}
                           </span>
                         )}
@@ -445,7 +445,7 @@ export default function App() {
                     type="button"
                     onClick={pickVideo}
                     disabled={busy}
-                    className="self-start text-[12.5px] text-muted underline-offset-4 transition-colors hover:text-text hover:underline disabled:opacity-50"
+                    className="self-start text-[13.5px] text-muted underline decoration-line underline-offset-4 transition-colors hover:text-text hover:decoration-text disabled:opacity-50"
                   >
                     {t.another}
                   </button>
@@ -457,8 +457,8 @@ export default function App() {
                   disabled={busy}
                   className="flex min-h-[92px] flex-col items-center justify-center gap-1.5 rounded-[8px] border border-dashed border-text/20 px-3 py-4 text-center transition-colors hover:border-accent/50 hover:bg-surface-2/60 disabled:opacity-50"
                 >
-                  <span className="text-[13.5px]">{dropReady ? t.dropHere : busy ? t.opening : t.pick}</span>
-                  {dropReady && !busy && <span className="text-[12px] text-muted">{t.dropOrPick}</span>}
+                  <span className="text-[14.5px]">{dropReady ? t.dropHere : busy ? t.opening : t.pick}</span>
+                  {dropReady && !busy && <span className="text-[13px] text-muted">{t.dropOrPick}</span>}
                 </button>
               )}
             </section>
@@ -491,7 +491,7 @@ export default function App() {
             )}
 
             {session?.mediaSource === 'systemPath' && (
-              <p className="mt-auto border-t border-line pt-3 text-[11.5px] leading-relaxed text-muted/80">
+              <p className="mt-auto border-t border-line pt-3 text-[12.5px] leading-relaxed text-muted/80">
                 {t.systemMedia}
               </p>
             )}
@@ -556,9 +556,9 @@ export default function App() {
                     ) : (
                       <>
                         <div className="flex items-baseline justify-between gap-4 pb-3">
-                          <h2 className="flex items-baseline gap-2 text-[13.5px] text-text/90">
+                          <h2 className="flex items-baseline gap-2 text-[14.5px] text-text/90">
                             {t.found(visible.length)}
-                            <span className="font-mono text-[11px] text-muted">
+                            <span className="font-mono text-[12px] text-muted">
                               {mode.mode === 'heuristic'
                                 ? t.heuristicBadge
                                 : ranking
@@ -566,7 +566,7 @@ export default function App() {
                                   : modeLabel(mode)}
                             </span>
                           </h2>
-                          <span className="font-mono text-[12.5px] tabular-nums text-muted">
+                          <span className="font-mono text-[13.5px] tabular-nums text-muted">
                             {timecode(keptDuration)}
                           </span>
                         </div>
@@ -625,11 +625,11 @@ export default function App() {
                         type="button"
                         onClick={runCut}
                         disabled={cutting}
-                        className="rounded-[6px] bg-text px-4 py-2.5 text-[14px] font-medium text-ink transition-transform active:translate-y-px disabled:opacity-40 disabled:active:translate-y-0"
+                        className="rounded-[6px] bg-text px-4 py-2.5 text-[15px] font-medium text-ink transition-transform active:translate-y-px disabled:opacity-40 disabled:active:translate-y-0"
                       >
                         {cutting ? t.cutting : t.cut}
                       </button>
-                      <span className="font-mono text-[12.5px] tabular-nums text-muted">
+                      <span className="font-mono text-[13.5px] tabular-nums text-muted">
                         {progress ? `${progress.percent}%` : timecode(keptDuration)}
                       </span>
                     </footer>
@@ -653,7 +653,7 @@ export default function App() {
       )}
 
       {rankingBusy && (
-        <span className="pointer-events-none fixed bottom-4 left-1/2 -translate-x-1/2 rounded-[6px] border border-line bg-surface px-3 py-1.5 font-mono text-[11.5px] text-muted">
+        <span className="pointer-events-none fixed bottom-4 left-1/2 -translate-x-1/2 rounded-[6px] border border-line bg-surface px-3 py-1.5 font-mono text-[12.5px] text-muted">
           {t.ranking}
         </span>
       )}
@@ -670,7 +670,7 @@ function modeLabel(mode: Mode): string {
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <span className="font-mono text-[11px] tracking-[0.13em] text-muted uppercase">{children}</span>
+    <span className="font-mono text-[12px] tracking-[0.13em] text-muted uppercase">{children}</span>
   );
 }
 
@@ -682,8 +682,8 @@ function Centered({ title, body }: { title: string; body: string }) {
   return (
     <div className="grid h-full min-h-[240px] place-items-center px-8">
       <div className="flex max-w-[420px] flex-col gap-2 text-center">
-        <p className="text-[15px] leading-relaxed">{title}</p>
-        <p className="text-[13px] leading-relaxed text-muted">{body}</p>
+        <p className="text-[16px] leading-relaxed">{title}</p>
+        <p className="text-[14px] leading-relaxed text-muted">{body}</p>
       </div>
     </div>
   );
@@ -694,17 +694,17 @@ function StartPane({ t }: { t: (typeof copy)['tr'] }) {
   return (
     <div className="grid min-h-0 flex-1 place-items-center overflow-y-auto px-8 py-10">
       <div className="w-full max-w-[440px]">
-        <p className="text-[15px] leading-relaxed">{t.tagline}</p>
+        <p className="text-[16px] leading-relaxed">{t.tagline}</p>
 
         <ol className="mt-6 border-b border-line">
           {t.startSteps.map((step, index) => (
             <li key={step.title} className="flex gap-3.5 border-t border-line py-3">
-              <span className="pt-0.5 font-mono text-[11.5px] tabular-nums text-accent">
+              <span className="pt-0.5 font-mono text-[12.5px] tabular-nums text-accent">
                 {String(index + 1).padStart(2, '0')}
               </span>
               <span className="flex flex-col gap-1">
-                <span className="text-[14px]">{step.title}</span>
-                <span className="text-[13px] leading-relaxed text-muted">{step.body}</span>
+                <span className="text-[15px]">{step.title}</span>
+                <span className="text-[14px] leading-relaxed text-muted">{step.body}</span>
               </span>
             </li>
           ))}
@@ -733,14 +733,14 @@ function WrittenFiles({
         <button
           type="button"
           onClick={onBack}
-          className="text-[12.5px] text-muted underline-offset-4 transition-colors hover:text-text hover:underline"
+          className="text-[13.5px] text-muted underline-offset-4 transition-colors hover:text-text hover:underline"
         >
           {t.backToCandidates}
         </button>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3.5">
-        <p className="text-[13px] text-muted">
+        <p className="text-[14px] text-muted">
           {failed > 0
             ? t.cutPartial(ok, failed)
             : results.length === 0
@@ -749,7 +749,7 @@ function WrittenFiles({
         </p>
 
         {results.length > 0 && (
-          <p className="mt-1.5 flex gap-2 text-[12px] text-muted/75">
+          <p className="mt-1.5 flex gap-2 text-[13px] text-muted/75">
             <span className="shrink-0">{t.writtenTo}</span>
             <span className="truncate font-mono" title={folderOf(results[0].path)}>
               {folderOf(results[0].path)}
@@ -764,12 +764,12 @@ function WrittenFiles({
               className="grid grid-cols-[1fr_auto] items-baseline gap-3 py-2.5"
             >
               <span
-                className="truncate font-mono text-[13px] text-text/90 selectable"
+                className="truncate font-mono text-[14px] text-text/90 selectable"
                 title={result.path}
               >
                 {result.status === 'ok' ? fileName(result.path) : result.message}
               </span>
-              <span className="font-mono text-[12.5px] tabular-nums text-muted">
+              <span className="font-mono text-[13.5px] tabular-nums text-muted">
                 {result.status === 'ok' ? timecode(result.durationMs) : t.failed}
               </span>
             </li>

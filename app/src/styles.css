@@ -16,7 +16,7 @@
   --app-surface-2: #ececf1;
   --app-line: rgba(0, 0, 0, 0.1);
   --app-text: #17171f;
-  --app-muted: #5e5e6d;
+  --app-muted: #4c4c5c;
   --app-accent: #6250da;
   --app-accent-fill: rgba(98, 80, 218, 0.14);
   --app-danger: #a5122a;
@@ -30,7 +30,7 @@
     --app-surface-2: #15151d;
     --app-line: rgba(255, 255, 255, 0.09);
     --app-text: #f4f2f9;
-    --app-muted: #adabb9;
+    --app-muted: #bcbac9;
     --app-accent: #8b7cf8;
     --app-accent-fill: rgba(139, 124, 248, 0.14);
     --app-danger: #ffc9c9;

@@ -38,10 +38,10 @@ export default function TimelineStrip({
   return (
     <div className="flex flex-col">
       <div className="flex items-baseline justify-between gap-4 px-5 pb-2">
-        <span className="font-mono text-[11px] tracking-[0.13em] text-muted uppercase">
+        <span className="font-mono text-[12px] tracking-[0.13em] text-muted uppercase">
           {t.timeline}
         </span>
-        <span className="font-mono text-[12px] tabular-nums text-muted">
+        <span className="font-mono text-[13px] tabular-nums text-muted">
           {timecode(0)} — {timecode(total)}
         </span>
       </div>
@@ -62,7 +62,7 @@ export default function TimelineStrip({
 
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-[5px] flex justify-between px-1 font-mono text-[11px] tabular-nums text-muted/75"
+          className="pointer-events-none absolute inset-x-0 bottom-[5px] flex justify-between px-1 font-mono text-[12px] tabular-nums text-muted/75"
         >
           {[0, 1, 2, 3, 4].map((quarter) => (
             <span key={quarter}>{timecode((total * quarter) / 4)}</span>

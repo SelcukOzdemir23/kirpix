@@ -123,31 +123,32 @@ export default function CandidateCard({
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex items-baseline gap-3">
             {/* In and out points, bracketed like an edit decision list. */}
-            <span className="font-mono text-[15px] tabular-nums whitespace-nowrap">
+            <span className="font-mono text-[16px] tabular-nums whitespace-nowrap">
               <span className="text-accent">[</span>
               <span>{timecode(bounds.startMs)}</span>
               <span className="text-muted/60"> → </span>
               <span>{timecode(bounds.endMs)}</span>
               <span className="text-accent">]</span>
             </span>
-            <span className="font-mono text-[13px] tabular-nums text-muted">
+            <span className="font-mono text-[14px] tabular-nums text-muted">
               {timecode(duration)}
             </span>
-            {candidate.clamped && (
-              <span className="rounded-[4px] border border-line px-1.5 py-0.5 text-[11px] text-muted">
-                {t.clamped}
-              </span>
-            )}
           </div>
 
           {reason && (
-            <p className="text-[13.5px] leading-relaxed text-text/90">{reason}</p>
+            <p className="text-[14.5px] leading-relaxed text-text/90">{reason}</p>
           )}
 
-          <p className="text-[12.5px] leading-relaxed text-muted">
+          <p className="text-[13.5px] leading-relaxed text-muted">
             {t.matchedTerms(candidate.matchedTerms)}
             <span className="text-muted/50"> · </span>
             <span className="text-muted/80">{t.matchedLines(candidate.matchedCueCount)}</span>
+            {candidate.clamped && (
+              <>
+                <span className="text-muted/50"> · </span>
+                <span className="text-muted/80">{t.clamped}</span>
+              </>
+            )}
           </p>
         </div>
 
@@ -156,8 +157,10 @@ export default function CandidateCard({
             type="button"
             onClick={onPreview}
             aria-pressed={preview !== null}
-            className={`rounded-[5px] px-2.5 py-1.5 text-[12.5px] transition-colors hover:bg-text/[0.07] ${
-              preview ? 'text-accent' : 'text-text/80 hover:text-text'
+            className={`rounded-[5px] border px-2.5 py-1.5 text-[13.5px] transition-colors ${
+              preview
+                ? 'border-accent/40 text-accent hover:bg-accent/10'
+                : 'border-line text-text/85 hover:border-text/25 hover:bg-surface-2'
             }`}
           >
             {previewing ? t.preparing : preview ? t.hide : t.show}
@@ -166,7 +169,7 @@ export default function CandidateCard({
             <button
               type="button"
               onClick={onReset}
-              className="rounded-[5px] px-2.5 py-1.5 text-[12.5px] text-accent/85 transition-colors hover:bg-text/[0.07] hover:text-accent"
+              className="rounded-[5px] border border-accent/40 px-2.5 py-1.5 text-[13.5px] text-accent transition-colors hover:bg-accent/10"
             >
               {t.reset}
             </button>
@@ -174,14 +177,14 @@ export default function CandidateCard({
           <button
             type="button"
             onClick={toggleLines}
-            className="rounded-[5px] px-2.5 py-1.5 text-[12.5px] text-text/80 transition-colors hover:bg-text/[0.07] hover:text-text"
+            className="rounded-[5px] border border-line px-2.5 py-1.5 text-[13.5px] text-text/85 transition-colors hover:border-text/25 hover:bg-surface-2"
           >
             {open ? t.hideLines : t.showLines}
           </button>
           <button
             type="button"
             onClick={onReject}
-            className="rounded-[5px] px-2.5 py-1.5 text-[12.5px] text-muted transition-colors hover:bg-text/[0.07] hover:text-text"
+            className="rounded-[5px] border border-line px-2.5 py-1.5 text-[13.5px] text-muted transition-colors hover:border-text/25 hover:bg-surface-2 hover:text-text"
           >
             {t.reject}
           </button>
@@ -197,7 +200,7 @@ export default function CandidateCard({
             className="max-h-[320px] w-full rounded-[6px] bg-black"
           />
           {preview.truncated && (
-            <p className="mt-2 text-[12px] text-muted">
+            <p className="mt-2 text-[13px] text-muted">
               {t.firstSeconds(Math.round(preview.durationMs / 1000))}
             </p>
           )}
@@ -206,8 +209,8 @@ export default function CandidateCard({
 
       {open && (
         <div className="border-t border-line px-4 py-3">
-          {loading && <p className="text-[13px] text-muted">…</p>}
-          {error && <p className="text-[13px] text-danger">{error}</p>}
+          {loading && <p className="text-[14px] text-muted">…</p>}
+          {error && <p className="text-[14px] text-danger">{error}</p>}
 
           <Edge
             label={t.startLabel}
@@ -221,17 +224,17 @@ export default function CandidateCard({
               .filter((cue) => cue.index >= candidate.startCue && cue.index <= candidate.endCue)
               .map((cue) => (
                 <li key={cue.index} className="grid grid-cols-[54px_1fr_auto] items-baseline gap-x-3">
-                  <span className="font-mono text-[11.5px] leading-6 text-muted/75 tabular-nums">
+                  <span className="font-mono text-[12.5px] leading-6 text-muted/75 tabular-nums">
                     {timecode(cue.startMs)}
                   </span>
-                  <span className="text-[14px] leading-6 text-text/90 selectable" lang={lang}>
+                  <span className="text-[15px] leading-6 text-text/90 selectable" lang={lang}>
                     {cue.text}
                   </span>
                   <button
                     type="button"
                     onClick={() => onPlayCue(cue.index)}
                     title={t.listen}
-                    className="rounded-[4px] px-2 text-[11.5px] text-muted transition-colors hover:bg-text/[0.07] hover:text-text"
+                    className="rounded-[4px] border border-line px-2 text-[12.5px] text-muted transition-colors hover:border-text/25 hover:bg-surface-2 hover:text-text"
                   >
                     {t.listen}
                   </button>
@@ -263,10 +266,10 @@ function Edge({
   onCue: (direction: -1 | 1) => void;
 }) {
   const button =
-    'rounded-[5px] border border-line px-2 py-1 font-mono text-[11.5px] text-muted tabular-nums transition-colors hover:border-text/25 hover:text-text active:translate-y-px';
+    'rounded-[5px] border border-line px-2 py-1 font-mono text-[12.5px] text-muted tabular-nums transition-colors hover:border-text/25 hover:text-text active:translate-y-px';
   return (
     <div className="flex items-center gap-1.5 py-1">
-      <span className="w-16 shrink-0 font-mono text-[11px] tracking-[0.1em] text-muted uppercase">
+      <span className="w-16 shrink-0 font-mono text-[12px] tracking-[0.1em] text-muted uppercase">
         {label}
       </span>
       <button type="button" className={button} onClick={() => onSecond(-1000)}>
