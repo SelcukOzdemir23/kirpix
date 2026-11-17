@@ -1,15 +1,43 @@
 use std::path::{Path, PathBuf};
 
 use crate::error::KirpixError;
-use crate::media::{ffmpeg, MediaInfo};
+use crate::media::{extract_track, ffmpeg, MediaInfo};
 use crate::subtitle::{read_file, parse_table, CueTable};
+
+/// Where the cues came from. Both paths end in the same cue table, which is the
+/// point: nothing downstream cares how the subtitles arrived.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SubtitleSource {
+    File(PathBuf),
+    Track { stream_index: usize, label: String },
+}
+
+impl SubtitleSource {
+    pub fn label(&self) -> String {
+        match self {
+            Self::File(path) => path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or("subtitle file")
+                .to_string(),
+            Self::Track { label, .. } => label.clone(),
+        }
+    }
+
+    pub fn kind(&self) -> &'static str {
+        match self {
+            Self::File(_) => "file",
+            Self::Track { .. } => "embedded",
+        }
+    }
+}
 
 /// One open video and its subtitle file. Held by the application, so the
 /// interface never has to send several hundred cues back to search.
 #[derive(Debug)]
 pub struct Session {
     pub video: PathBuf,
-    pub subtitle: PathBuf,
+    pub source: SubtitleSource,
     pub media: MediaInfo,
     pub table: CueTable,
 }
@@ -19,7 +47,10 @@ pub struct Session {
 #[serde(rename_all = "camelCase")]
 pub struct SessionInfo {
     pub video_path: String,
-    pub subtitle_path: String,
+    /// What to show for the subtitles: a file name, or a track label.
+    pub subtitle_label: String,
+    /// `file` or `embedded`, so the interface can say which.
+    pub subtitle_source: String,
     pub duration_ms: u64,
     pub cue_count: usize,
     pub encoding: String,
@@ -34,7 +65,8 @@ impl Session {
     pub fn info(&self) -> SessionInfo {
         SessionInfo {
             video_path: self.video.display().to_string(),
-            subtitle_path: self.subtitle.display().to_string(),
+            subtitle_label: self.source.label(),
+            subtitle_source: self.source.kind().to_string(),
             duration_ms: self.media.duration_ms,
             cue_count: self.table.len(),
             encoding: self.table.encoding.clone(),
@@ -70,7 +102,31 @@ pub fn open(video: &Path, subtitle: &Path) -> Result<Session, KirpixError> {
 
     Ok(Session {
         video: video.to_path_buf(),
-        subtitle: subtitle.to_path_buf(),
+        source: SubtitleSource::File(subtitle.to_path_buf()),
+        media,
+        table,
+    })
+}
+
+/// Open a session from a track the container already carries.
+pub fn open_embedded(video: &Path, stream_index: usize) -> Result<Session, KirpixError> {
+    let media = ffmpeg::probe(video)?;
+
+    let track = media
+        .subtitle_tracks
+        .iter()
+        .find(|track| track.stream_index == stream_index)
+        .ok_or(KirpixError::TrackMissing { stream_index })?;
+
+    let table = extract_track(video, stream_index)?;
+    let label = track.label();
+
+    Ok(Session {
+        video: video.to_path_buf(),
+        source: SubtitleSource::Track {
+            stream_index,
+            label,
+        },
         media,
         table,
     })
@@ -121,6 +177,35 @@ mod tests {
         assert_eq!(past_the_end.len(), 1);
 
         assert!(session.cues(10, 5).is_empty());
+    }
+
+    #[test]
+    fn opens_from_the_embedded_track() {
+        let video = eval("media/tr-tedx-kaygi.mkv");
+        if !video.is_file() {
+            eprintln!("skipped: evaluation media is not present");
+            return;
+        }
+
+        let session = open_embedded(&video, 2).expect("the track should open");
+        let info = session.info();
+
+        assert_eq!(info.cue_count, 239);
+        assert_eq!(info.subtitle_source, "embedded");
+        assert_eq!(info.subtitle_label, "Metin");
+        assert_eq!(session.source.kind(), "embedded");
+    }
+
+    #[test]
+    fn names_a_track_that_is_not_there() {
+        let video = eval("media/tr-tedx-kaygi.mkv");
+        if !video.is_file() {
+            eprintln!("skipped: evaluation media is not present");
+            return;
+        }
+
+        let err = open_embedded(&video, 42).unwrap_err();
+        assert!(matches!(err, KirpixError::TrackMissing { stream_index: 42 }));
     }
 
     #[test]

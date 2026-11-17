@@ -20,6 +20,8 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::open_session,
+            commands::list_tracks,
+            commands::open_from_track,
             commands::session_cues,
             commands::search_topic,
             commands::cut_clips

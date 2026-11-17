@@ -37,11 +37,18 @@ each.
   returns `TrackNotText` naming the stream.
   *Depends on*: T002
 
-- [ ] **T004** Open a session from a chosen track, and the interface to choose
+- [x] **T004** Open a session from a chosen track, and the interface to choose
   one. The sidecar and embedded paths share one code path from the cue table
   onwards.
   *Done when*: opening the MKV lists two tracks and either one produces a
   session.
+  *Evidence*: `open_embedded` reports 239 cues with the label "Metin" and the
+  source `embedded`; a missing stream index returns `TrackMissing`. The chooser
+  was rendered from seeded data: two readable tracks, one picture track shown
+  disabled with the reason, and a way out to a file.
+  *Note*: the session now records where its cues came from, as a file or as a
+  track, and the interface shows which. Nothing downstream changed, which was
+  the point of putting both sources behind one cue table.
   *Depends on*: T003
 
 ## Phase 3: Alignment

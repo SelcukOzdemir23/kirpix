@@ -4,7 +4,7 @@ use std::sync::Mutex;
 use tauri::{AppHandle, Emitter, State};
 
 use crate::criterion::{self, Bounds, Candidate};
-use crate::media::{cut, ClipRequest, CutResult};
+use crate::media::{cut, ffmpeg, ClipRequest, CutResult, SubtitleTrack};
 use crate::error::KirpixError;
 use crate::session::{self, Session, SessionInfo};
 use crate::subtitle::Cue;
@@ -74,4 +74,22 @@ pub fn cut_clips(
             let _ = app.emit("cut-progress", CutProgress { index, percent });
         },
     ))
+}
+
+/// What subtitle tracks the file carries, before a session is opened.
+#[tauri::command]
+pub fn list_tracks(video_path: String) -> Result<Vec<SubtitleTrack>, KirpixError> {
+    Ok(ffmpeg::probe(Path::new(&video_path))?.subtitle_tracks)
+}
+
+#[tauri::command]
+pub fn open_from_track(
+    state: SessionState<'_>,
+    video_path: String,
+    stream_index: usize,
+) -> Result<SessionInfo, KirpixError> {
+    let opened = session::open_embedded(Path::new(&video_path), stream_index)?;
+    let info = opened.info();
+    *state.lock().expect("session lock") = Some(opened);
+    Ok(info)
 }

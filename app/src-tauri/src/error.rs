@@ -28,6 +28,8 @@ pub enum KirpixError {
     /// A subtitle stream could not be converted to text, usually because it
     /// stores pictures.
     TrackNotText { stream_index: usize, tail: String },
+    /// The container has no subtitle stream with that index.
+    TrackMissing { stream_index: usize },
 }
 
 impl fmt::Display for KirpixError {
@@ -61,6 +63,9 @@ impl fmt::Display for KirpixError {
             }
             Self::TrackNotText { stream_index, tail } => {
                 write!(f, "subtitle stream {stream_index} could not be read as text: {tail}")
+            }
+            Self::TrackMissing { stream_index } => {
+                write!(f, "the file has no subtitle stream {stream_index}")
             }
         }
     }

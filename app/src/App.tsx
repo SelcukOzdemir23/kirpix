@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { listen } from '@tauri-apps/api/event';
-import { api, type Candidate, type CutResult, type SessionInfo } from './api';
+import { api, type Candidate, type CutResult, type SessionInfo, type SubtitleTrack } from './api';
 import { copy, errorMessage, type Lang } from './i18n/copy';
 import { fileName, timecode } from './format';
 import CandidateCard from './components/CandidateCard';
 import CriteriaForm from './components/CriteriaForm';
 
 type Bounds = { startMs: number; endMs: number };
+
+const VIDEO_FILTERS = [{ name: 'Video', extensions: ['mp4', 'mkv', 'mov', 'webm'] }];
+const SUBTITLE_FILTERS = [{ name: 'Subtitles', extensions: ['srt', 'vtt'] }];
 
 export default function App() {
   const [lang, setLang] = useState<Lang>('tr');
@@ -16,6 +19,9 @@ export default function App() {
   const [session, setSession] = useState<SessionInfo | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [pendingVideo, setPendingVideo] = useState<string | null>(null);
+  const [tracks, setTracks] = useState<SubtitleTrack[]>([]);
 
   const [terms, setTerms] = useState('');
   const [minSec, setMinSec] = useState(8);
@@ -28,29 +34,59 @@ export default function App() {
   const [progress, setProgress] = useState<{ index: number; percent: number } | null>(null);
   const [results, setResults] = useState<CutResult[] | null>(null);
 
-  async function pickFiles() {
+  function applySession(info: SessionInfo) {
+    setSession(info);
+    setPendingVideo(null);
+    setTracks([]);
+    setCandidates(null);
+    setBounds({});
+    setRejected([]);
+    setResults(null);
     setError(null);
-    const video = await open({
-      multiple: false,
-      directory: false,
-      filters: [{ name: 'Video', extensions: ['mp4', 'mkv', 'mov', 'webm'] }],
-    });
+  }
+
+  async function pickVideo() {
+    setError(null);
+    const video = await open({ multiple: false, directory: false, filters: VIDEO_FILTERS });
     if (typeof video !== 'string') return;
 
-    const subtitle = await open({
-      multiple: false,
-      directory: false,
-      filters: [{ name: 'Subtitles', extensions: ['srt', 'vtt'] }],
-    });
+    setBusy(true);
+    try {
+      // A container may already carry its subtitles. Ask before asking for a file.
+      const found = await api.listTracks(video);
+      if (found.length > 0) {
+        setPendingVideo(video);
+        setTracks(found);
+        setSession(null);
+      } else {
+        await openFromFile(video);
+      }
+    } catch (err) {
+      setError(errorMessage(err, lang));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function openFromFile(video: string) {
+    const subtitle = await open({ multiple: false, directory: false, filters: SUBTITLE_FILTERS });
     if (typeof subtitle !== 'string') return;
 
     setBusy(true);
     try {
-      const info = await api.openSession(video, subtitle);
-      setSession(info);
-      setCandidates(null);
-      setBounds({});
-      setRejected([]);
+      applySession(await api.openSession(video, subtitle));
+    } catch (err) {
+      setSession(null);
+      setError(errorMessage(err, lang));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function openFromTrack(video: string, streamIndex: number) {
+    setBusy(true);
+    try {
+      applySession(await api.openFromTrack(video, streamIndex));
     } catch (err) {
       setSession(null);
       setError(errorMessage(err, lang));
@@ -148,13 +184,65 @@ export default function App() {
         </p>
       )}
 
+      {pendingVideo && (
+        <section className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-[13px] text-muted">{t.subtitleSource}</h2>
+            <p className="truncate text-[13.5px]" title={pendingVideo}>
+              {fileName(pendingVideo)}
+            </p>
+          </div>
+
+          <ul className="flex flex-col gap-2">
+            {tracks.map((track) => {
+              const readable = track.kind === 'text';
+              return (
+                <li key={track.streamIndex}>
+                  <button
+                    type="button"
+                    disabled={!readable || busy}
+                    onClick={() => openFromTrack(pendingVideo, track.streamIndex)}
+                    className="flex w-full flex-col items-start gap-0.5 rounded-lg border border-line px-3 py-2 text-left transition-colors hover:border-white/25 hover:bg-surface/70 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <span className="text-[13.5px]">
+                      {t.trackLine(
+                        track.title ?? track.language?.toUpperCase() ?? `#${track.streamIndex}`,
+                        track.codec,
+                      )}
+                    </span>
+                    <span className="text-[11.5px] text-muted">
+                      {readable ? t.embedded : t.pictureTrack}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          <button
+            type="button"
+            onClick={() => openFromFile(pendingVideo)}
+            className="w-fit rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-text/85 transition-colors hover:border-white/25 hover:bg-surface/60"
+          >
+            {t.fromFile}
+          </button>
+        </section>
+      )}
+
       {session ? (
         <section className="rounded-lg border border-line bg-surface px-4 py-3">
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[13px]">
             <dt className="text-muted">{t.video}</dt>
             <dd className="truncate" title={session.videoPath}>{fileName(session.videoPath)}</dd>
             <dt className="text-muted">{t.subtitle}</dt>
-            <dd className="truncate" title={session.subtitlePath}>{fileName(session.subtitlePath)}</dd>
+            <dd className="truncate" title={session.subtitleLabel}>
+              {session.subtitleLabel}
+              {session.subtitleSource === 'embedded' && (
+                <span className="ml-2 rounded border border-line px-1.5 py-0.5 text-[10.5px] text-muted">
+                  {t.embedded}
+                </span>
+              )}
+            </dd>
             <dt className="text-muted">{t.duration}</dt>
             <dd className="font-mono tabular-nums">{timecode(session.durationMs)}</dd>
             <dt className="text-muted">{t.cues}</dt>
@@ -171,21 +259,23 @@ export default function App() {
 
           <button
             type="button"
-            onClick={pickFiles}
+            onClick={pickVideo}
             className="mt-3 rounded border border-line px-3 py-1.5 text-[12.5px] text-text/85 transition-colors hover:border-white/25 hover:bg-surface/60"
           >
             {t.another}
           </button>
         </section>
       ) : (
-        <button
-          type="button"
-          onClick={pickFiles}
-          disabled={busy}
-          className="rounded-lg bg-text px-5 py-3 text-[14px] font-medium text-ink transition-colors hover:bg-white disabled:opacity-60 active:translate-y-px"
-        >
-          {busy ? t.opening : t.pick}
-        </button>
+        !pendingVideo && (
+          <button
+            type="button"
+            onClick={pickVideo}
+            disabled={busy}
+            className="rounded-lg bg-text px-5 py-3 text-[14px] font-medium text-ink transition-colors hover:bg-white disabled:opacity-60 active:translate-y-px"
+          >
+            {busy ? t.opening : t.pick}
+          </button>
+        )
       )}
 
       {session && (
