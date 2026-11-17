@@ -74,12 +74,24 @@ done, never before.
   *Not checked here*: the real file on a real machine — the path comes from
   Tauri's config directory, which only exists in a desktop session.
 
-- [ ] **T004** State an unreadable settings file instead of silently starting on
+- [x] **T004** State an unreadable settings file instead of silently starting on
   defaults.
   *Done when*: a corrupt file produces a running application, a stated line with
   the file's path on the settings screen, and the line goes away once a setting
   is written.
-  *Evidence*: …
+  *Evidence*: the settings view opens with a `role="status"` block in the danger
+  colour: the sentence in the current language, then `DOSYA` and the absolute
+  path in mono. Screenshot at 880×600 with a corrupt file's message.
+  The path is printed once, not twice: `Store::load` now returns the reason
+  alone, and the screen takes the path from `Store::path`, which is what the
+  earlier draft got wrong — the sentence and the file line both printed it.
+  *The line goes away*: `remember_mode` clears `load_error` after a successful
+  write, and the interface re-reads `get_settings` after every change instead of
+  trusting what it sent, so the screen shows what the file says. Covered by
+  `an_unreadable_file_is_kept_and_cleared_by_a_write`; the transition itself is
+  not screenshotted, because it needs a click.
+  *Also covered*: a failed write is no longer silent — `set_mode` answers with
+  `ProviderError::Settings`, and the alert states it in both languages.
 
 ## Phase 4: The evidence
 

@@ -40,6 +40,8 @@ export default function App() {
   const t = copy[lang];
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsPath, setSettingsPath] = useState<string | null>(null);
+  const [settingsLoadError, setSettingsLoadError] = useState<string | null>(null);
   const [appearance, setAppearance] = useState<Appearance>(() => readAppearance());
 
   const [session, setSession] = useState<SessionInfo | null>(null);
@@ -82,7 +84,17 @@ export default function App() {
   function chooseMode(next: Mode) {
     setMode(next);
     setRanking(null);
-    void api.setMode(next).catch((err) => setError(errorMessage(err, lang)));
+    // Read the file back rather than trusting what was sent: a write that failed
+    // half way is exactly the case this line exists for, and the failure now has
+    // somewhere to show itself.
+    void api
+      .setMode(next)
+      .then(() => api.getSettings())
+      .then((report) => {
+        setSettingsPath(report.path);
+        setSettingsLoadError(report.loadError);
+      })
+      .catch((err) => setError(errorMessage(err, lang)));
   }
 
   const dropReady = useDropZone((paths) => void acceptDropped(paths));
@@ -93,7 +105,11 @@ export default function App() {
     // the fallback is heuristic, and the screen says the request did not land.
     void api
       .getSettings()
-      .then((report) => setMode(report.mode))
+      .then((report) => {
+        setMode(report.mode);
+        setSettingsPath(report.path);
+        setSettingsLoadError(report.loadError);
+      })
       .catch((err) => {
         setMode({ mode: 'heuristic' });
         setError(errorMessage(err, lang));
@@ -556,6 +572,8 @@ export default function App() {
               mode={mode}
               onMode={chooseMode}
               onError={(err) => setError(errorMessage(err, lang))}
+              loadError={settingsLoadError}
+              path={settingsPath}
             />
           ) : pendingVideo && tracks.length > 0 ? (
             <div className="min-h-0 flex-1 overflow-y-auto">

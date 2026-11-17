@@ -45,12 +45,14 @@ impl Store {
         let text = match fs::read_to_string(&self.path) {
             Ok(text) => text,
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
-            Err(error) => return Err(format!("{} could not be read: {error}", self.path.display())),
+            // The reason only. Callers that show a sentence name the file from
+            // `path()`, so a screen does not print the path twice.
+            Err(error) => return Err(format!("could not be read: {error}")),
         };
 
         serde_json::from_str(&text)
             .map(Some)
-            .map_err(|error| format!("{} is not a settings file: {error}", self.path.display()))
+            .map_err(|error| format!("is not a settings file: {error}"))
     }
 
     /// Write through a temporary neighbour and rename, so a crash mid-write cannot
@@ -106,12 +108,13 @@ mod tests {
     }
 
     #[test]
-    fn a_corrupt_file_names_itself_and_is_not_overwritten() {
+    fn a_corrupt_file_is_reported_and_not_overwritten() {
         let path = scratch("corrupt");
         fs::write(&path, "{ not json").expect("write");
         let store = Store::new(&path);
         let error = store.load().expect_err("corrupt file must fail");
-        assert!(error.contains(&path.display().to_string()), "{error}");
+        assert!(error.contains("is not a settings file"), "{error}");
+        // Reading never writes: the person's broken file is still there to inspect.
         assert_eq!(fs::read_to_string(&path).expect("read"), "{ not json");
         let _ = fs::remove_file(&path);
     }

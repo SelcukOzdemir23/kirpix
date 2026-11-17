@@ -11,6 +11,10 @@ type Props = {
   mode: Mode;
   onMode: (next: Mode) => void;
   onError: (error: unknown) => void;
+  /** Why the settings file could not be read at start-up, if it could not. */
+  loadError: string | null;
+  /** Where the file is kept, when the machine gave a path. */
+  path: string | null;
 };
 
 /**
@@ -26,6 +30,8 @@ export default function SettingsView({
   mode,
   onMode,
   onError,
+  loadError,
+  path,
 }: Props) {
   const appearances: { value: Appearance; label: string }[] = [
     { value: 'system', label: t.appearanceSystem },
@@ -68,6 +74,23 @@ export default function SettingsView({
 
           <p className="text-[13.5px] leading-relaxed text-muted">{t.appearanceHint}</p>
         </section>
+
+        {loadError && (
+          <section
+            role="status"
+            className="flex flex-col gap-1.5 rounded-[6px] border border-danger/30 bg-danger/10 px-3.5 py-3"
+          >
+            <p className="text-[13.5px] leading-relaxed text-danger">
+              {t.settingsUnreadable(loadError)}
+            </p>
+            {path && (
+              <p className="font-mono text-[12px] break-all text-danger/80">
+                <span className="uppercase tracking-[0.1em] opacity-70">{t.settingsFile}</span>{' '}
+                {path}
+              </p>
+            )}
+          </section>
+        )}
 
         <section className="flex flex-col gap-2.5 border-t border-line pt-4">
           <SectionLabel>{t.modelSection}</SectionLabel>
