@@ -19,6 +19,12 @@ pub enum KirpixError {
     NoSession,
     /// The search ran with no usable term.
     EmptyTerms,
+    /// A clip was requested with no duration.
+    EmptyRange { start_ms: u64, end_ms: u64 },
+    /// FFmpeg ran but did not produce a clip.
+    FfmpegFailed { clip: String, code: i32, tail: String },
+    /// The output folder could not be written to.
+    OutputNotWritable { dir: String, reason: String },
 }
 
 impl fmt::Display for KirpixError {
@@ -41,6 +47,15 @@ impl fmt::Display for KirpixError {
             }
             Self::NoSession => write!(f, "no video has been opened yet"),
             Self::EmptyTerms => write!(f, "at least one term is needed to search"),
+            Self::EmptyRange { start_ms, end_ms } => {
+                write!(f, "the range {start_ms}..{end_ms} has no duration")
+            }
+            Self::FfmpegFailed { clip, code, tail } => {
+                write!(f, "FFmpeg failed on {clip} with code {code}: {tail}")
+            }
+            Self::OutputNotWritable { dir, reason } => {
+                write!(f, "{dir} could not be written to: {reason}")
+            }
         }
     }
 }

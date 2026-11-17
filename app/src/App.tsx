@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
-import { api, type Candidate, type SessionInfo } from './api';
+import { listen } from '@tauri-apps/api/event';
+import { api, type Candidate, type CutResult, type SessionInfo } from './api';
 import { copy, errorMessage, type Lang } from './i18n/copy';
 import { fileName, timecode } from './format';
 import CandidateCard from './components/CandidateCard';
@@ -23,6 +24,9 @@ export default function App() {
   const [candidates, setCandidates] = useState<Candidate[] | null>(null);
   const [bounds, setBounds] = useState<Record<number, Bounds>>({});
   const [rejected, setRejected] = useState<number[]>([]);
+  const [cutting, setCutting] = useState(false);
+  const [progress, setProgress] = useState<{ index: number; percent: number } | null>(null);
+  const [results, setResults] = useState<CutResult[] | null>(null);
 
   async function pickFiles() {
     setError(null);
@@ -67,11 +71,41 @@ export default function App() {
       setCandidates(found);
       setBounds({});
       setRejected([]);
+      setResults(null);
     } catch (err) {
       setCandidates(null);
       setError(errorMessage(err, lang));
     } finally {
       setSearching(false);
+    }
+  }
+
+  async function runCut() {
+    const folder = await open({ directory: true, multiple: false });
+    if (typeof folder !== 'string') return;
+
+    const clips = visible.map((candidate) => {
+      const current = bounds[candidate.id] ?? candidate;
+      return { startMs: current.startMs, endMs: current.endMs };
+    });
+
+    setError(null);
+    setCutting(true);
+    setResults(null);
+    setProgress(null);
+
+    const stopListening = await listen<{ index: number; percent: number }>('cut-progress', (event) => {
+      setProgress(event.payload);
+    });
+
+    try {
+      setResults(await api.cutClips(clips, folder));
+    } catch (err) {
+      setError(errorMessage(err, lang));
+    } finally {
+      stopListening();
+      setProgress(null);
+      setCutting(false);
     }
   }
 
@@ -205,6 +239,51 @@ export default function App() {
               />
             ))}
           </ul>
+
+          {visible.length > 0 && (
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={runCut}
+                disabled={cutting}
+                className="rounded-lg bg-text px-4 py-2.5 text-[13.5px] font-medium text-ink transition-colors hover:bg-white disabled:opacity-40 active:translate-y-px"
+              >
+                {cutting ? t.cutting : t.cut}
+              </button>
+              {progress && (
+                <span className="font-mono text-[12px] tabular-nums text-muted">
+                  {progress.percent}%
+                </span>
+              )}
+            </div>
+          )}
+
+          {results && (
+            <div className="flex flex-col gap-2 rounded-lg border border-line bg-surface p-4">
+              <p className="text-[13px] text-muted">
+                {results.some((result) => result.status === 'failed')
+                  ? t.cutPartial(
+                      results.filter((result) => result.status === 'ok').length,
+                      results.filter((result) => result.status === 'failed').length,
+                    )
+                  : results.length === 0
+                    ? t.cutNothing
+                    : t.cutDone(results.length)}
+              </p>
+              <ul className="flex flex-col gap-1.5">
+                {results.map((result, position) => (
+                  <li key={position} className="grid grid-cols-[1fr_auto] gap-x-3 text-[12.5px]">
+                    <span className="truncate text-text/85" title={result.path}>
+                      {result.status === 'ok' ? fileName(result.path) : result.message}
+                    </span>
+                    <span className="font-mono tabular-nums text-muted">
+                      {result.status === 'ok' ? timecode(result.durationMs) : t.failed}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       )}
     </main>

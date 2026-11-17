@@ -31,6 +31,13 @@ const tr = {
   cueForward: '+1 satır',
   reset: 'Sıfırla',
   reject: 'Çıkar',
+  cut: 'Seçilenleri kırp',
+  cutting: 'Kırpılıyor…',
+  cutDone: (ok: number) => `${ok} dosya oluşturuldu`,
+  cutPartial: (ok: number, failed: number) => `${ok} dosya oluşturuldu, ${failed} tanesi başarısız`,
+  cutNothing: 'Hiçbir dosya oluşmadı',
+  written: 'Yazılan dosyalar',
+  failed: 'başarısız',
   clamped: 'Süre sınırına dayandı',
   errors: {
     ffmpegMissing: (name?: string) =>
@@ -75,6 +82,13 @@ const en: typeof tr = {
   cueForward: '+1 line',
   reset: 'Reset',
   reject: 'Remove',
+  cut: 'Cut the selected clips',
+  cutting: 'Cutting…',
+  cutDone: (ok: number) => `${ok} files written`,
+  cutPartial: (ok: number, failed: number) => `${ok} files written, ${failed} failed`,
+  cutNothing: 'No file was written',
+  written: 'Files written',
+  failed: 'failed',
   clamped: 'Hit the duration limit',
   errors: {
     ffmpegMissing: (name?: string) =>

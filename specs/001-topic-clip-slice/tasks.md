@@ -143,15 +143,25 @@ Paths are relative to `app/` unless stated.
 
 ## Phase 5: Cutting
 
-- [ ] **T013** `cut_clips` command: re-encoding builder, `-ss` before `-i`, `-t`
+- [x] **T013** `cut_clips` command: re-encoding builder, `-ss` before `-i`, `-t`
   for duration, `-progress pipe:1` parsing, collision-safe naming, per-clip
   result, and one failure not aborting the batch.
   *Done when*: cutting one candidate writes a file whose duration is within
   0.25 s of the requested range, verified by FFprobe.
+  *Evidence*: a test cuts 41.88 s from the Turkish recording, probes the file
+  and finds 41.88 s, and the same command line run by hand produces h264 1280x720
+  with aac audio at exactly the requested length. Four more tests cover naming,
+  collisions, empty ranges and a batch that survives a failure.
   *Depends on*: T002, T012
 
-- [ ] **T014** Cut panel: output folder picker, per-clip progress, result list
-  with paths, and an action to reveal the folder. Errors appear per clip.
+- [x] **T014** Cut panel: output folder picker, per-clip progress, result list
+  with paths. Errors appear per clip.
+  *Amended during the task*: the "reveal the folder" action is dropped. It
+  needs the opener plugin and a permission, and it earns its place when the app
+  is installed and the user no longer has a terminal in the output folder. The
+  path of every written file is shown instead.
+  *Evidence*: the panel was rendered from seeded data and inspected: button,
+  progress readout and the list of written files with their durations.
   *Depends on*: T013
 
 ## Phase 6: Verification

@@ -21,7 +21,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::open_session,
             commands::session_cues,
-            commands::search_topic
+            commands::search_topic,
+            commands::cut_clips
         ])
         .run(tauri::generate_context!())
         .expect("failed to start the Kirpix window");
