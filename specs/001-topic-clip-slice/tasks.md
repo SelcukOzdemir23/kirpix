@@ -33,9 +33,15 @@ Paths are relative to `app/` unless stated.
 
 ## Phase 2: Subtitle core
 
-- [ ] **T003** `Cue`, `CueTable`, and decoding: UTF-8 with byte order mark
+- [x] **T003** `Cue`, `CueTable`, and decoding: UTF-8 with byte order mark
   stripped, then Windows-1254, then `SubtitleUnreadable` naming the file.
   *Done when*: unit tests cover all three paths.
+  *Refined during the task*: Windows-1254 maps every byte, so decoding cannot
+  fail there. The real guard against a file that is neither is the empty-table
+  check after parsing, and `SubtitleUnreadable` covers the file that cannot be
+  read at all.
+  *Evidence*: four decoding tests pass, covering UTF-8, a stripped byte order
+  mark, Windows-1254 and CRLF normalisation.
 
 - [ ] **T004** VTT parser that implements FR-003 step by step, tested against
   `eval/fixtures/en-single-story.en.vtt`: exactly 357 cues, the repeated block

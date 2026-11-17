@@ -11,6 +11,8 @@ pub enum KirpixError {
     MediaUnreadable { path: String, reason: String },
     /// FFprobe ran but did not return a usable description.
     MediaProbeFailed { path: String, tail: String },
+    /// The subtitle file could not be read.
+    SubtitleUnreadable { path: String, reason: String },
 }
 
 impl fmt::Display for KirpixError {
@@ -24,6 +26,9 @@ impl fmt::Display for KirpixError {
             }
             Self::MediaProbeFailed { path, tail } => {
                 write!(f, "{path} was not recognised as media: {tail}")
+            }
+            Self::SubtitleUnreadable { path, reason } => {
+                write!(f, "{path} could not be read as subtitles: {reason}")
             }
         }
     }
