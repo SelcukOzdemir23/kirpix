@@ -7,7 +7,7 @@ use crate::criterion::{self, Bounds, Candidate};
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine as _;
 
-use crate::media::{cut, ffmpeg, wav_around, ClipRequest, CutResult, SubtitleTrack};
+use crate::media::{cut, encode_preview, ffmpeg, wav_around, ClipRequest, CutResult, SubtitleTrack};
 use crate::error::KirpixError;
 use crate::session::{self, OffsetInfo, Session, SessionInfo};
 use crate::subtitle::Cue;
@@ -128,4 +128,35 @@ pub fn cue_sample(
 
     let bytes = wav_around(&session.video, cue.start_ms, seconds.clamp(0.5, 15.0))?;
     Ok(format!("data:audio/wav;base64,{}", STANDARD.encode(bytes)))
+}
+
+/// A small copy of one range, for looking at it before cutting it.
+///
+/// The bytes come back as a data URL rather than a file or an asset-protocol
+/// path: the webview cannot decode MKV or AV1, so it is handed H.264 in MP4, and
+/// nothing is left on disk to clean up afterwards.
+#[derive(Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClipPreview {
+    pub url: String,
+    pub duration_ms: u64,
+    pub truncated: bool,
+}
+
+#[tauri::command]
+pub fn preview_clip(
+    state: SessionState<'_>,
+    start_ms: u64,
+    end_ms: u64,
+) -> Result<ClipPreview, KirpixError> {
+    let guard = state.lock().expect("session lock");
+    let session = guard.as_ref().ok_or(KirpixError::NoSession)?;
+
+    let encoded = encode_preview(&session.video, start_ms, end_ms)?;
+
+    Ok(ClipPreview {
+        url: format!("data:video/mp4;base64,{}", STANDARD.encode(encoded.bytes)),
+        duration_ms: encoded.duration_ms,
+        truncated: encoded.truncated,
+    })
 }

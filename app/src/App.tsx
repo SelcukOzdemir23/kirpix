@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { listen } from '@tauri-apps/api/event';
-import { api, type Candidate, type CutResult, type SessionInfo, type SubtitleTrack } from './api';
+import {
+  api,
+  type Candidate,
+  type ClipPreview,
+  type CutResult,
+  type SessionInfo,
+  type SubtitleTrack,
+} from './api';
 import { copy, errorMessage, type Lang } from './i18n/copy';
 import { fileName, folderOf, timecode } from './format';
 import CandidateCard from './components/CandidateCard';
@@ -48,6 +55,9 @@ export default function App() {
   const [progress, setProgress] = useState<{ index: number; percent: number } | null>(null);
   const [results, setResults] = useState<CutResult[] | null>(null);
   const [writtenOpen, setWrittenOpen] = useState(false);
+  const [preview, setPreview] = useState<(ClipPreview & { candidateId: number }) | null>(null);
+  const [previewingId, setPreviewingId] = useState<number | null>(null);
+  const previewSeq = useRef(0);
 
   const dropReady = useDropZone((paths) => void acceptDropped(paths));
 
@@ -89,6 +99,9 @@ export default function App() {
       setResults(null);
       setWrittenOpen(false);
       setActiveId(null);
+      previewSeq.current += 1;
+      setPreview(null);
+      setPreviewingId(null);
     } catch (err) {
       setError(errorMessage(err, lang));
     }
@@ -161,6 +174,42 @@ export default function App() {
     }
   }
 
+  /**
+   * Ask for a preview of one candidate, or close the one already showing.
+   *
+   * Every request takes a ticket. An answer whose ticket is no longer current is
+   * dropped, so a slow encode cannot paint over a preview the user asked for
+   * afterwards — the same reason the counter is bumped when the bounds move.
+   */
+  async function togglePreview(candidate: Candidate) {
+    if (preview?.candidateId === candidate.id) {
+      previewSeq.current += 1;
+      setPreview(null);
+      setPreviewingId(null);
+      return;
+    }
+
+    const current = bounds[candidate.id] ?? candidate;
+    const ticket = (previewSeq.current += 1);
+    setPreview(null);
+    setPreviewingId(candidate.id);
+
+    try {
+      const clip = await api.previewClip(current.startMs, current.endMs);
+      if (previewSeq.current === ticket) {
+        setPreview({ ...clip, candidateId: candidate.id });
+      }
+    } catch (err) {
+      if (previewSeq.current === ticket) {
+        setError(errorMessage(err, lang));
+      }
+    } finally {
+      if (previewSeq.current === ticket) {
+        setPreviewingId(null);
+      }
+    }
+  }
+
   /** A dropped file is the same choice as a picked one; an explicit subtitle wins over the container's own. */
   async function acceptDropped(paths: string[]) {
     const video = paths.find((path) => VIDEO_EXT.test(path));
@@ -193,6 +242,9 @@ export default function App() {
       setResults(null);
       setWrittenOpen(false);
       setActiveId(null);
+      previewSeq.current += 1;
+      setPreview(null);
+      setPreviewingId(null);
     } catch (err) {
       setCandidates(null);
       setError(errorMessage(err, lang));
@@ -440,14 +492,23 @@ export default function App() {
                                 }
                               }
                               active={activeId === candidate.id}
+                              preview={
+                                preview?.candidateId === candidate.id ? preview : null
+                              }
+                              previewing={previewingId === candidate.id}
                               lang={lang}
                               t={t}
-                              onBounds={(startMs, endMs) =>
+                              onBounds={(startMs, endMs) => {
+                                // The player would be showing the range the row
+                                // no longer names.
+                                previewSeq.current += 1;
+                                setPreview(null);
+                                setPreviewingId(null);
                                 setBounds((current) => ({
                                   ...current,
                                   [candidate.id]: { startMs, endMs },
-                                }))
-                              }
+                                }));
+                              }}
                               onReset={() =>
                                 setBounds((current) => {
                                   const next = { ...current };
@@ -458,6 +519,7 @@ export default function App() {
                               onReject={() => setRejected((current) => [...current, candidate.id])}
                               onPlayCue={playCue}
                               onActive={setActiveId}
+                              onPreview={() => void togglePreview(candidate)}
                             />
                           ))}
                         </ul>
