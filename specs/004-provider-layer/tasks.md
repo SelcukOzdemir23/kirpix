@@ -10,13 +10,26 @@ open questions come first.
 
 ## Phase 1: The seam
 
-- [ ] **T001** Add the `provider` module: `Mode`, `ProviderConfig`, `Shortlist`,
+- [x] **T001** Add the `provider` module: `Mode`, the two configs, `Shortlist`,
   `Answer`, `ProviderError`, and the `ModelClient` and `KeyStore` traits, with a
   fake client and an in-memory key store so every later task can be tested
   offline.
   *Done when*: a test drives the fake client end to end through the trait and
   returns a ranked answer, and no module outside `provider` knows a provider
   name.
+  *Evidence*: five tests, 68 in the crate. A fake client ranks a two-candidate
+  shortlist through the trait and the test reads back what it was asked, so the
+  seam is exercised, not just declared. The in-memory store round-trips and
+  clears. `Mode` round-trips through serde for all three variants and defaults to
+  heuristic. Every `ProviderError` variant prints a sentence and none of them
+  contains a key.
+  `grep` for `DeepSeek` or `Ollama` across `src-tauri/src` and `app/src` returns
+  nothing outside `provider/`: the rest of the application does not know a
+  provider by name yet, which is what makes T008's interface the only place that
+  will.
+  *Deviation from the task text*: there is no separate `ProviderConfig` type —
+  `Mode::Local(LocalConfig)` and `Mode::Cloud(CloudConfig)` carry it, which
+  removes a struct that would only ever have held the same two fields.
   *Depends on*: nothing.
 
 - [ ] **T002** Build the shortlist and the prompt: cap at twenty candidates and
