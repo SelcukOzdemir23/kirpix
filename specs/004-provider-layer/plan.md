@@ -49,8 +49,7 @@ app/src-tauri/src/
   provider/
     mod.rs        Mode, ProviderConfig, Shortlist, Answer, ProviderError,
                   trait ModelClient { models(), rank() }, trait KeyStore
-    openai.rs     OpenAI-compatible shape: local servers, DeepSeek, OpenAI
-    anthropic.rs  Anthropic messages shape
+    openai.rs     OpenAI-compatible shape: Ollama, LM Studio, self-served, DeepSeek
     shortlist.rs  deterministic trim to the budget, left-out count
     prompt.rs     the one prompt, built from the shortlist
     validate.rs   strict parsing and index validation
@@ -65,13 +64,15 @@ Two request shapes, because that is all the promised providers need:
 | --- | --- | --- |
 | Ollama | OpenAI-compatible | `http://127.0.0.1:11434/v1` |
 | LM Studio | OpenAI-compatible | `http://127.0.0.1:1234/v1` |
+| vLLM, llama.cpp, anything self-served | OpenAI-compatible | whatever the user typed |
 | DeepSeek | OpenAI-compatible | `https://api.deepseek.com/v1` |
-| OpenAI | OpenAI-compatible | `https://api.openai.com/v1` |
-| Claude | Anthropic messages | `https://api.anthropic.com/v1` |
 
-The address is visible and editable for local modes; for cloud modes it is fixed
-per provider and shown read-only, so a key is never posted to a stray host by a
-typo.
+One shape, four addresses, in this slice. Anthropic's messages shape and OpenAI's
+own endpoint are a later slice: a provider in the picker must be a provider that
+is tested, and two shapes tested half as well is the worse trade.
+
+The address is visible and editable for local modes; DeepSeek's is fixed and
+shown read-only, so a key is never posted to a stray host by a typo.
 
 ## The prompt
 

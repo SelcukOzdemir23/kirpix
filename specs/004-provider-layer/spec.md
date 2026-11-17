@@ -19,7 +19,10 @@ actually want", and the reason it prints is a list of terms, not a reason.
 The site already promises this: a local model through Ollama or LM Studio, a
 cloud model through DeepSeek, OpenAI or Claude, with the subtitle text and
 nothing else leaving the machine, after a confirmation that says so. None of it
-is built. This slice builds the smallest thing that keeps that promise.
+is built. This slice builds the first half of that promise — the local servers
+and DeepSeek — and says plainly in the interface that the rest is not there yet,
+because a picker entry for a provider that does not work is a lie with a
+dropdown.
 
 ## What this slice is not
 
@@ -134,12 +137,17 @@ out-of-range index, and confirm the answer is refused with a named error.
   keep working when the model layer is absent entirely.
 - **FR-002**: The active mode MUST be visible wherever results are produced, and
   MUST be visible while a request is in flight.
-- **FR-003**: Local mode MUST work against an OpenAI-compatible server on a
-  user-visible address, so Ollama and LM Studio are both reachable without two
-  clients.
-- **FR-004**: Cloud mode MUST work against an OpenAI-compatible endpoint and
-  against Anthropic's own API. No other request shape MAY be added in this
-  slice.
+- **FR-003**: Local mode MUST work against a local server that speaks the
+  OpenAI-compatible shape, on an address the user can see and change. One client
+  then covers Ollama, LM Studio, and the vLLM or llama.cpp servers people point
+  at models they tuned themselves (Unsloth's own product is a training toolkit —
+  what it produces is served by one of those). Ollama's own model listing is
+  called through the same client where the server offers it.
+- **FR-004**: Cloud mode in this slice MUST work against DeepSeek's
+  OpenAI-compatible endpoint, with the confirmation gate in FR-005. Anthropic's
+  request shape, and OpenAI's own endpoint, are explicitly out of this slice and
+  belong to a later one: one request shape now, more later, rather than two
+  half-tested shapes now.
 - **FR-005**: A cloud request MUST NOT be sent until the user confirms a dialog
   naming the provider, the model, the number of cues and the character count
   being sent. The confirmation MUST be per request, not per session.
@@ -223,18 +231,23 @@ out-of-range index, and confirm the answer is refused with a named error.
 - The reason sentence is displayed next to the term evidence, never instead of
   it (constitution IV).
 
-## Open questions (answer before implementation)
+## Decisions taken (2026-11-17)
 
-1. **Which provider first?** The recommendation is local first (Ollama), because
-   it is the mode the product claims, it needs no key, and it can be tested
-   offline. Cloud then follows in the same slice, with the confirmation gate.
-2. **Is the Anthropic shape in this slice?** Covering DeepSeek and OpenAI is one
-   request shape; Claude is a second. Keeping both makes the slice coherent —
-   the site promises all three names — but doubles the client work. The
-   recommendation is to keep it, behind the same interface, tested against a
-   stub.
-3. **What is the budget number?** The plan proposes a prompt of at most 4 000
-   estimated tokens and an answer of at most 1 000, with the shortlist capped at
-   the twenty highest-ranked candidates of sixty cues each. That fits a one hour
-   recording and leaves room for the criterion text. Confirm or set another
-   number.
+1. **Local first, and local means anything OpenAI-shaped.** Ollama is the face
+   of it, because that is what the site promises and what people already run;
+   the same client reaches LM Studio and the servers people point at their own
+   fine-tunes. The address is visible and editable, so a server on another port
+   is a setting, not a code change.
+2. **One cloud provider for now: DeepSeek.** Anthropic's shape and OpenAI's own
+   endpoint wait for a later slice. The interface must not pretend they are
+   there — a provider that is not in the build is not in the picker.
+3. **Heuristic stays the default.** The model layer is something the user turns
+   on, not something that arrives on.
+
+## Open question (answer before implementation)
+
+**The budget.** The plan proposes a prompt of at most 4 000 estimated tokens and
+an answer of at most 1 000, with the shortlist capped at the twenty
+highest-ranked candidates of sixty cues each. That fits a one hour recording and
+leaves room for the criterion text. Confirm or set another number; the tasks can
+start without it as long as `shortlist.rs` takes the number from one constant.

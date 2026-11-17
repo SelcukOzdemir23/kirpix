@@ -38,16 +38,23 @@ open questions come first.
 
 - [ ] **T004** Implement the OpenAI-compatible client and point it at a local
   server: list the models it serves, rank the shortlist, one retry on 429 and
-  5xx, timeout, and `Unreachable` naming the address when nothing answers.
+  5xx, timeout, and `Unreachable` naming the address when nothing answers. The
+  same client carries DeepSeek, with a key from T006 and the gate from T007.
   *Done when*: a stub server on `127.0.0.1:0` drives the whole path, the
   recorded request body matches the prompt the builder produced, and a dead port
   produces `Unreachable` with the address.
   *Depends on*: T002, T003.
 
-- [ ] **T005** Implement the Anthropic client behind the same trait.
-  *Done when*: the stub shows the Anthropic shape (system prompt, messages,
-  `max_tokens`) and the same validator accepts its answer.
+- [ ] **T005** Point the same client at DeepSeek: fixed address, key from the
+  keychain, the same ranking path. Its answer is validated by the same code.
+  *Done when*: the stub sees the DeepSeek address, the key travels as a bearer
+  header, and the recorded body is byte-identical to the local request for the
+  same shortlist.
   *Depends on*: T004.
+
+- [ ] **T005b** *(later slice, not this one)* The Anthropic messages shape and
+  OpenAI's own endpoint. Recorded so the omission is a decision and not an
+  oversight.
 
 - [ ] **T006** Move keys to the OS keychain behind `KeyStore`, with set, read
   and clear, and a redaction rule for provider messages.
