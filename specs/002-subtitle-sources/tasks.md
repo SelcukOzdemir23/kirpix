@@ -27,10 +27,14 @@ each.
   classified as text.
   *Depends on*: T001
 
-- [ ] **T003** Extract a chosen track to a cue table by reading FFmpeg's standard
+- [x] **T003** Extract a chosen track to a cue table by reading FFmpeg's standard
   output, writing nothing to disk.
   *Done when*: the MKV's SubRip track yields 239 cues, the same count and the
   same first and last text as the sidecar SRT (SC-001).
+  *Evidence*: **SC-001 is met.** The embedded SubRip track and the sidecar SRT
+  produce the same 239 cues with identical first and last text. An ASS track
+  converts through the same parser, and a stream index that does not exist
+  returns `TrackNotText` naming the stream.
   *Depends on*: T002
 
 - [ ] **T004** Open a session from a chosen track, and the interface to choose

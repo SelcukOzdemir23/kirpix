@@ -25,6 +25,9 @@ pub enum KirpixError {
     FfmpegFailed { clip: String, code: i32, tail: String },
     /// The output folder could not be written to.
     OutputNotWritable { dir: String, reason: String },
+    /// A subtitle stream could not be converted to text, usually because it
+    /// stores pictures.
+    TrackNotText { stream_index: usize, tail: String },
 }
 
 impl fmt::Display for KirpixError {
@@ -55,6 +58,9 @@ impl fmt::Display for KirpixError {
             }
             Self::OutputNotWritable { dir, reason } => {
                 write!(f, "{dir} could not be written to: {reason}")
+            }
+            Self::TrackNotText { stream_index, tail } => {
+                write!(f, "subtitle stream {stream_index} could not be read as text: {tail}")
             }
         }
     }
