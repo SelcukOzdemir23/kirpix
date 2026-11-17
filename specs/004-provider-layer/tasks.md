@@ -10,28 +10,68 @@ open questions come first.
 
 ## Phase 1: The seam
 
-- [ ] **T001** Add the `provider` module: `Mode`, `ProviderConfig`, `Shortlist`,
+- [x] **T001** Add the `provider` module: `Mode`, the two configs, `Shortlist`,
   `Answer`, `ProviderError`, and the `ModelClient` and `KeyStore` traits, with a
   fake client and an in-memory key store so every later task can be tested
   offline.
   *Done when*: a test drives the fake client end to end through the trait and
   returns a ranked answer, and no module outside `provider` knows a provider
   name.
+  *Evidence*: five tests, 68 in the crate. A fake client ranks a two-candidate
+  shortlist through the trait and the test reads back what it was asked, so the
+  seam is exercised, not just declared. The in-memory store round-trips and
+  clears. `Mode` round-trips through serde for all three variants and defaults to
+  heuristic. Every `ProviderError` variant prints a sentence and none of them
+  contains a key.
+  `grep` for `DeepSeek` or `Ollama` across `src-tauri/src` and `app/src` returns
+  nothing outside `provider/`: the rest of the application does not know a
+  provider by name yet, which is what makes T008's interface the only place that
+  will.
+  *Deviation from the task text*: there is no separate `ProviderConfig` type —
+  `Mode::Local(LocalConfig)` and `Mode::Cloud(CloudConfig)` carry it, which
+  removes a struct that would only ever have held the same two fields.
   *Depends on*: nothing.
 
-- [ ] **T002** Build the shortlist and the prompt: cap at twenty candidates and
+- [x] **T002** Build the shortlist and the prompt: cap at twenty candidates and
   sixty cues each, estimate characters, record how many were left out, and build
   the one prompt from the plan.
   *Done when*: the fixture recording's search produces a prompt under the cap,
   the left-out count matches what was dropped, and the prompt contains no
   timecode and no path.
+  *Evidence*: seven tests, 75 in the crate. On the fixture, `kaygı, endişe`
+  offers **4 candidates and keeps all 4**, 21 cues, 1 095 characters of cue text;
+  the built prompt is **1 974 characters, about 494 estimated tokens** — an eighth
+  of the 16 000-character ceiling, so the ceiling is not doing any work on a
+  fourteen minute recording. The trim keeps the deterministic order, leaves out
+  and counts a candidate that does not fit, shortens a candidate past sixty cues
+  and records which, and stops on characters before it stops on the candidate cap
+  when the cues are large. The prompt is scanned for `h:mm` patterns and for path
+  separators, and contains neither.
+  *Deviation from the plan*: `Shortlist` carries a `truncated: Vec<u64>` beyond
+  the shape in the plan, because shortening a candidate's cue list without
+  recording it would be exactly the sort of quiet reduction this project keeps
+  designing against.
+  *For the open budget question*: at 494 tokens for the fixture, the proposed
+  ceiling leaves room for a recording around thirty times longer before anything
+  is left out.
   *Depends on*: T001.
 
-- [ ] **T003** Validate the answer: strict parse, unknown fields refused, every
+- [x] **T003** Validate the answer: strict parse, unknown fields refused, every
   cue index inside the candidate it explains, reasons bounded and non-empty.
   *Done when*: tests cover a valid answer, an out-of-range index, an unknown
   candidate id, a missing field, a reason longer than the limit, and prose
   instead of JSON — each producing its own named failure.
+  *Evidence*: nine tests, 84 in the crate. A grounded answer is read in the
+  order it arrived. A cue the candidate does not contain is `InvalidIndex`
+  naming both. An answer for a candidate that was never sent is dropped while
+  the real rankings survive, as the spec's edge case says. Prose instead of
+  JSON, an unknown field, an empty reason, a 241 character reason and a ranking
+  with no cited line are each a named `MalformedAnswer`. An empty answer fails;
+  a partial one is kept, because throwing away grounded sentences to punish a
+  missing one helps nobody.
+  *Decisions taken here*: `WireAnswer`/`WireRanking` use `deny_unknown_fields`,
+  so a model that adds `"score"` is refused rather than half-read. A repeated
+  candidate keeps its first ranking.
   *Depends on*: T001.
 
 ## Phase 2: Talking to a model
