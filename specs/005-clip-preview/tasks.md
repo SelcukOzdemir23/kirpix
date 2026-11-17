@@ -18,9 +18,16 @@ each.
   of an empty or inverted range.
   *Depends on*: nothing.
 
-- [ ] **T002** Register `preview_clip` and allow the media sources it needs.
+- [x] **T002** Register `preview_clip` and allow the media sources it needs.
   *Done when*: the command returns a data URL and the policy permits `data:` and
   `blob:` media — which also unblocks the audio sample from feature 002.
+  *Evidence*: the command is registered in `lib.rs` and returns
+  `data:video/mp4;base64,…`. The policy is now
+  `default-src 'self'; style-src 'self' 'unsafe-inline'; media-src 'self' data: blob:`,
+  read out of `tauri.conf.json` after the build. The audio sample from 002 was
+  indeed being blocked before this: its data URL falls back to `default-src`.
+  Unverified: that the webview accepts a data-URL MP4 at runtime — the CSP is
+  enforced only inside Tauri, and nothing here runs Tauri. That is T004.
   *Depends on*: T001.
 
 - [ ] **T003** Put the player in the row: one preview at a time, a generation
