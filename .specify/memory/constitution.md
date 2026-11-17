@@ -1,0 +1,132 @@
+# Kirpix Constitution
+
+Kirpix is a desktop application that finds the clips a user asked for in a
+subtitled recording and cuts them on that user's own machine. These articles are
+the rules every spec, plan, task and line of code must satisfy. Where this
+document and any other document disagree, this document wins.
+
+## Core Principles
+
+### I. Local by Default (NON-NEGOTIABLE)
+
+Video, audio, extracted frames, thumbnails and cut output never leave the
+device. They are read from the filesystem, processed locally, and written back
+to a folder the user chose.
+
+The only data permitted to leave the device is text the user can already see on
+screen (subtitle text), sent to a model provider the user configured, after an
+explicit confirmation naming the provider and the payload. Any feature whose
+path uploads media rather than text is out of scope.
+
+### II. The Device Works Alone (NON-NEGOTIABLE)
+
+No telemetry, no analytics, no crash reporting, no accounts, no remote config,
+no background network requests. Every outbound request is user-initiated, is
+visible in the interface, and states what it sends and where.
+
+With a local model or heuristic mode selected, the entire flow must complete
+with the network interface down. This is a release gate, not an aspiration.
+
+### III. AI Is Optional
+
+Every capability has a deterministic path that needs no model. Removing the
+model layer may reduce selection quality; it must never remove the ability to
+produce clips.
+
+The active mode (local model, cloud provider, heuristic) is always visible while
+the user works. The user is never told a result came from a model when it did
+not, and never left guessing which mode produced it.
+
+### IV. Criterion In, Evidence Out
+
+The application does not decide what "the best moment" is. It answers the
+criterion the user stated.
+
+Every clip carries the subtitle lines it was built from and a human-readable
+reason. A clip that cannot present its evidence must not be displayed.
+
+### V. Line Indices, Never Model Timestamps
+
+The model receives numbered subtitle cues and returns cue indices. Timestamps
+are computed from the cue table. No code path may treat a timecode produced by a
+model as authoritative, and no prompt may ask the model for one.
+
+### VI. Tokens On Decisions, Not On Reading
+
+Parsing, normalization, alignment, segmentation, candidate shortlisting and
+cutting are deterministic and cost no tokens. Only ranking and justification of
+already-shortlisted candidates may call a model.
+
+The prompt payload for a one-hour recording stays within a documented budget.
+Exceeding that budget is a defect, not a tuning problem.
+
+### VII. Determinism Before Probability
+
+Same input, same settings and same model configuration produce the same output;
+generation parameters are pinned. Heuristic mode is fully deterministic.
+
+Anything that can be computed is computed rather than predicted.
+
+### VIII. Small, Runnable Slices
+
+Every feature ships as a slice that runs end to end on a real file. No
+scaffolding for unbuilt modes, no flags hiding half-features.
+
+A slice that cannot be demonstrated with a real recording is not done.
+
+### IX. Failures Are Visible
+
+Errors state what failed, why, and what the user can do about it. No silent
+fallbacks: when the application degrades, for example to heuristic mode, it says
+so where the work happens.
+
+### X. The Evaluation Set Defines Quality
+
+"A good clip" is measured against a fixed set of real recordings with expected
+ranges, not against anyone's impression. Every quality claim in a spec names the
+recordings and the threshold used to check it.
+
+## Additional Constraints
+
+- **Stack**: Tauri 2 shell, Rust for filesystem, process control, keychain and
+  media invocation, TypeScript and React for the interface. No Python, no local
+  HTTP sidecar, no IPC port or bearer token.
+- **Media**: a bundled FFmpeg binary invoked as a child process. The application
+  never depends on a system FFmpeg being installed.
+- **Secrets**: API keys live in the operating system keychain. Never in a
+  plaintext file, never in logs, never in error messages.
+- **Distribution**: Windows, macOS and Linux, unsigned. Code signing is out of
+  scope until there is a reason to pay for it.
+- **Size**: installer under 150 MB excluding models. Speech and language models
+  are downloaded on demand, never bundled.
+- **License**: MIT for the project. FFmpeg, model and font licenses are
+  documented in the repository.
+- **Language**: interface in Turkish and English. Specs, code, comments and
+  commit messages in English.
+
+## Development Workflow
+
+- **Spec first.** Work follows the Spec Kit sequence: constitution, specify,
+  plan, tasks, implement. One feature folder per slice under `specs/`.
+- **No task without a spec.** An implementation task must trace to a requirement
+  whose acceptance criteria are written down.
+- **Traceable acceptance.** Every acceptance criterion maps to an automated test
+  or a documented manual check against the evaluation set.
+- **The plan passes the constitution.** A planned decision that violates an
+  article stops the plan. Amendments go through Governance; workarounds do not.
+- **One task, one commit.** Each task leaves the application buildable and
+  runnable. A task that cannot be reviewed alone is too large.
+
+## Governance
+
+- This constitution supersedes specs, plans, tasks and code. A spec that
+  conflicts with it is wrong, however carefully it is written.
+- **Amendments** require a written reason, a version bump, and a note on how
+  existing specs are affected. Undocumented drift is not an amendment.
+- **Versioning**: MAJOR for removing or redefining an article, MINOR for adding
+  one, PATCH for wording that does not change meaning.
+- **Review**: every plan review checks the plan against these articles and
+  records the outcome. Skipping the check is a governance failure, not a
+  shortcut.
+
+**Version**: 1.0.0 | **Ratified**: 2026-11-17 | **Last Amended**: 2026-11-17
