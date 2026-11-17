@@ -10,6 +10,7 @@ use reqwest::blocking::{Client, Response};
 use reqwest::StatusCode;
 use serde_json::json;
 
+use super::keychain::redact;
 use super::prompt;
 use super::validate;
 use super::{Answer, ModelClient, ProviderError, Shortlist};
@@ -42,6 +43,16 @@ pub struct OpenAiClient {
     model: String,
     key: Option<String>,
     retry_wait: Duration,
+}
+
+impl std::fmt::Debug for OpenAiClient {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("OpenAiClient")
+            .field("base", &self.base)
+            .field("model", &self.model)
+            .field("key", &self.key.as_ref().map(|_| "[redacted]"))
+            .finish()
+    }
 }
 
 impl OpenAiClient {
@@ -85,6 +96,27 @@ impl OpenAiClient {
         })
     }
 
+    /// A status the model layer has a name for, or a plain HTTP failure, with
+    /// this client's key scrubbed out of whatever the provider said.
+    fn status_error(&self, status: StatusCode, response: Response) -> ProviderError {
+        let message = response.text().unwrap_or_default();
+        let message: String = message.trim().chars().take(300).collect();
+        let message = redact(&message, self.key.as_deref());
+
+        if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN {
+            return ProviderError::Auth { message };
+        }
+
+        if status == StatusCode::TOO_MANY_REQUESTS {
+            return ProviderError::Busy { retry_after_ms: 0 };
+        }
+
+        ProviderError::Http {
+            status: status.as_u16(),
+            message,
+        }
+    }
+
     /// POST with the one retry the plan allows: 429 and 5xx, never 4xx.
     fn post(&self, body: &serde_json::Value) -> Result<Response, ProviderError> {
         let url = format!("{}/chat/completions", self.base);
@@ -123,7 +155,7 @@ impl ModelClient for OpenAiClient {
         let status = response.status();
 
         if !status.is_success() {
-            return Err(status_error(status, response));
+            return Err(self.status_error(status, response));
         }
 
         let body: serde_json::Value = response.json().map_err(|err| ProviderError::MalformedAnswer {
@@ -160,7 +192,7 @@ impl ModelClient for OpenAiClient {
         let status = response.status();
 
         if !status.is_success() {
-            return Err(status_error(status, response));
+            return Err(self.status_error(status, response));
         }
 
         let body: serde_json::Value = response.json().map_err(|err| ProviderError::MalformedAnswer {
@@ -174,28 +206,6 @@ impl ModelClient for OpenAiClient {
             })?;
 
         validate::read(shortlist, content)
-    }
-}
-
-/// A status the model layer has a name for, or a plain HTTP failure.
-///
-/// The body is passed through for the two cases where the provider's own words
-/// are what helps the user: a refused key and a refusal of the request itself.
-fn status_error(status: StatusCode, response: Response) -> ProviderError {
-    let message = response.text().unwrap_or_default();
-    let message = message.trim().chars().take(300).collect::<String>();
-
-    if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN {
-        return ProviderError::Auth { message };
-    }
-
-    if status == StatusCode::TOO_MANY_REQUESTS {
-        return ProviderError::Busy { retry_after_ms: 0 };
-    }
-
-    ProviderError::Http {
-        status: status.as_u16(),
-        message,
     }
 }
 
@@ -420,6 +430,31 @@ mod tests {
         assert!(OLLAMA_BASE.starts_with("http://127.0.0.1:"));
         assert!(LM_STUDIO_BASE.starts_with("http://127.0.0.1:"));
         assert!(DEEPSEEK_BASE.starts_with("https://api.deepseek.com"));
+    }
+
+    #[test]
+    fn a_refused_key_is_not_repeated_back_in_the_error() {
+        let stub = Stub::start(vec![reply(
+            401,
+            r#"{"error":"invalid api key sk-test"}"#,
+        )]);
+
+        let client = OpenAiClient::cloud(&stub.base, "test-model", "sk-test");
+        let error = client.rank(&shortlist()).unwrap_err();
+
+        let text = error.to_string();
+        assert!(!text.contains("sk-test"), "{text}");
+        assert!(text.contains("[redacted]"), "{text}");
+    }
+
+    #[test]
+    fn the_debug_view_does_not_print_the_key() {
+        let client = OpenAiClient::cloud(DEEPSEEK_BASE, "deepseek-chat", "sk-test");
+
+        let text = format!("{client:?}");
+
+        assert!(!text.contains("sk-test"), "{text}");
+        assert!(text.contains("[redacted]"), "{text}");
     }
 
     #[test]

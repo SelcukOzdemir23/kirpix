@@ -122,6 +122,19 @@ open questions come first.
   *Done when*: the in-memory store covers the tests; an authentication failure
   whose message contains the key produces an error without it; a test asserts
   the key is absent from `Debug` output and from the error payload.
+  *Evidence*: `KeychainStore` is one entry per provider under the service name
+  `dev.kirpix.app`, with `apple-native`, `windows-native` and
+  `sync-secret-service` behind it; a missing entry reads as `None` and deleting
+  an absent key is not an error. `redact` replaces the key with `[redacted]`, and
+  it is applied to every provider message on its way into an error. Two tests
+  hold the client to it: a `401` whose body repeats `sk-test` comes back as an
+  error containing `[redacted]` and not the key, and `format!("{client:?}")`
+  prints `[redacted]` because `OpenAiClient` has a hand-written `Debug` instead
+  of a derived one.
+  *Honest limit*: no test touches the real keychain — that is the point of the
+  trait, and it means the `KeychainStore` path is reviewed, not exercised. A
+  person with a desktop session should store a key, restart, and confirm it is
+  still there; that goes with T009.
   *Depends on*: T001.
 
 ## Phase 3: The gate and the screen
@@ -131,6 +144,14 @@ open questions come first.
   count, and refuses with `Unconfirmed` when they differ.
   *Done when*: a test confirms one payload and sends a different one, and
   nothing reaches the stub.
+  *Evidence*: `Confirmation::of(mode, shortlist)` is what the dialog will state,
+  and `rank_confirmed` is the only path a call may take: it checks first, then
+  calls the client. Five tests: the confirmed payload goes through and the client
+  is called once; a payload whose character count changed after the dialog is
+  `Unconfirmed` and the counting client records **zero** calls; a changed cue
+  count, a changed model and a changed address are each refused, because a
+  confirmation that still passes after the mode changed would be a dialog the
+  user agreed to about something else.
   *Depends on*: T004.
 
 - [ ] **T008** Build the interface: the model section in the rail, the mode

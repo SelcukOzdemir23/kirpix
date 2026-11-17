@@ -9,6 +9,8 @@
 //! fake client and an in-memory key store implement both traits, so no test ever
 //! reaches a real server or the operating system's secret service.
 
+pub mod gate;
+pub mod keychain;
 pub mod openai;
 pub mod prompt;
 pub mod shortlist;
@@ -184,6 +186,8 @@ pub enum ProviderError {
     MissingKey { provider: CloudProvider },
     /// The provider answered with a status this layer has no better name for.
     Http { status: u16, message: String },
+    /// The operating system's keychain could not be read or written.
+    Keyring { detail: String },
 }
 
 impl std::fmt::Display for ProviderError {
@@ -203,6 +207,7 @@ impl std::fmt::Display for ProviderError {
             Self::Http { status, message } => {
                 write!(f, "the provider answered {status}: {message}")
             }
+            Self::Keyring { detail } => write!(f, "the keychain could not help: {detail}"),
         }
     }
 }
@@ -345,6 +350,9 @@ mod tests {
             ProviderError::Http {
                 status: 418,
                 message: "teapot".into(),
+            },
+            ProviderError::Keyring {
+                detail: "no secret service".into(),
             },
         ];
 
