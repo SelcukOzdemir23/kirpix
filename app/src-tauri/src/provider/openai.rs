@@ -458,6 +458,23 @@ mod tests {
     }
 
     #[test]
+    fn the_same_answer_twice_produces_the_same_order() {
+        // SC-006: what this application does with a given answer is deterministic,
+        // whatever the model is. Two runs against identical answers agree.
+        let first = Stub::start(vec![reply(200, &chat_response(ANSWER))]);
+        let a = OpenAiClient::local(&first.base, "test-model")
+            .rank(&shortlist())
+            .expect("first answer");
+
+        let second = Stub::start(vec![reply(200, &chat_response(ANSWER))]);
+        let b = OpenAiClient::local(&second.base, "test-model")
+            .rank(&shortlist())
+            .expect("second answer");
+
+        assert_eq!(a, b);
+    }
+
+    #[test]
     fn the_models_a_server_serves_are_listed() {
         let stub = Stub::start(vec![reply(
             200,

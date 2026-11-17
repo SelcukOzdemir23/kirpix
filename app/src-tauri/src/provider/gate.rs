@@ -7,9 +7,10 @@
 
 use super::{Answer, Mode, ModelClient, ProviderError, Shortlist};
 
-/// What the user agreed to. Built by the interface from the shortlist it is
-/// about to send; compared here against the shortlist that is actually built.
-#[derive(Debug, Clone, PartialEq, Eq)]
+/// What the user agreed to. Built by the interface from the facts the
+/// application stated; compared here against the payload that is actually built.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Confirmation {
     pub mode: Mode,
     pub cue_count: usize,

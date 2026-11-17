@@ -9,6 +9,8 @@ type Props = {
   candidate: Candidate;
   bounds: { startMs: number; endMs: number };
   active: boolean;
+  /** The model's sentence for this candidate, when a model ranked it. */
+  reason: string | null;
   preview: { url: string; durationMs: number; truncated: boolean } | null;
   previewing: boolean;
   lang: Lang;
@@ -25,6 +27,7 @@ export default function CandidateCard({
   candidate,
   bounds,
   active,
+  reason,
   preview,
   previewing,
   lang,
@@ -137,7 +140,11 @@ export default function CandidateCard({
             )}
           </div>
 
-          <p className="text-[13.5px] leading-relaxed text-muted">
+          {reason && (
+            <p className="text-[13.5px] leading-relaxed text-text/90">{reason}</p>
+          )}
+
+          <p className="text-[12.5px] leading-relaxed text-muted">
             {t.matchedTerms(candidate.matchedTerms)}
             <span className="text-muted/50"> · </span>
             <span className="text-muted/80">{t.matchedLines(candidate.matchedCueCount)}</span>

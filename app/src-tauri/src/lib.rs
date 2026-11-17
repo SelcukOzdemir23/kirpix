@@ -15,6 +15,9 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(Mutex::new(None::<session::Session>))
+        .manage(Mutex::new(provider::state::ProviderState::new(Box::new(
+            provider::keychain::KeychainStore,
+        ))))
         .setup(|app| {
             let _ = app.get_webview_window("main");
             Ok(())
@@ -28,6 +31,14 @@ pub fn run() {
             commands::set_offset,
             commands::cue_sample,
             commands::preview_clip,
+            commands::get_mode,
+            commands::set_mode,
+            commands::list_models,
+            commands::has_key,
+            commands::set_key,
+            commands::clear_key,
+            commands::plan_request,
+            commands::rank_candidates,
             commands::cut_clips
         ])
         .run(tauri::generate_context!())
