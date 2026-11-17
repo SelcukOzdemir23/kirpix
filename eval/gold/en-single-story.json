@@ -33,5 +33,6 @@
       "note": "closing callback, one line"
     }
   ],
-  "note": "Expected means a candidate here is a correct answer. Incidental mentions are legitimate but are not required; a search that only returns those has not found the topic."
+  "note": "Expected means a candidate here is a correct answer. Incidental mentions are legitimate but are not required; a search that only returns those has not found the topic.",
+  "recorded_against": "eval/fixtures/en-single-story.en.vtt"
 }

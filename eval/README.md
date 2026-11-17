@@ -49,6 +49,15 @@ and token-budget work starts; it is deliberately not invented here.
 
 Both are used for local, non-commercial testing only. Files are unmodified.
 
+## Two formats, two numberings
+
+`tr-tedx-kaygi` has both a VTT and an SRT render (`ffmpeg -i ...srt`). They hold
+the same 239 cues but not the same boundaries: the SRT carries the transcriber
+credit as its first cue and shifts everything by one. Neither is wrong; they are
+different renderings of one recording, and it means a cue index only means
+something alongside the file it belongs to. Every gold file records its fixture
+in `recorded_against`, and the gold files use the VTT numbering.
+
 ## Cue indices
 
 Indices come from the extraction rule in feature 001, FR-003, not from counting

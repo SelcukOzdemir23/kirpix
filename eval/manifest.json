@@ -59,10 +59,26 @@
           "sha256": "c5145d211071129a2435104fa7a5e4bc2a3357912b29e0399f1459a60c34f5cc",
           "quirks": [],
           "index_note": "cue count under the canonical rule in spec FR-003; raw timestamp pairs in the file differ"
+        },
+        {
+          "path": "eval/fixtures/tr-tedx-kaygi.srt",
+          "lang": "tr",
+          "cues": 239,
+          "first_cue": "00:00:00.000",
+          "last_cue_end": "00:14:29.876",
+          "bytes": 21859,
+          "sha256": "7130fe8e8af59fa35c6e8322ea1d2f97cf6c6fd7cc98c3b044f65ce8faa3adcc",
+          "quirks": [
+            "carries the transcriber credit as its first cue",
+            "same cue count as the VTT but shifted boundaries"
+          ],
+          "index_note": "cue count under the canonical rule in spec FR-003",
+          "provenance": "rendered from tr-tedx-kaygi.tr.vtt with ffmpeg, so the SRT path is exercised on real timings rather than invented text"
         }
       ],
       "duration_seconds": 877.65,
       "gold": "eval/gold/tr-tedx-kaygi.json"
     }
-  ]
+  ],
+  "gold_note": "Ground truth is recorded against the VTT files, whose cue numbering the gold files use. The SRT render of the same talk has different boundaries."
 }

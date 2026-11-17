@@ -216,6 +216,34 @@ mod tests {
     }
 
     #[test]
+    fn reads_the_edge_srt_with_crlf_tags_and_a_repeat() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/edge.srt");
+        let (text, _) = decode::read_file(&path).expect("edge fixture should decode");
+        let cues = parse(&text);
+
+        assert_eq!(cues.len(), 2, "a repeat and an empty cue should both be dropped");
+        assert_eq!(cues[0].text, "kaygı ve endişe");
+        assert_eq!(cues[0].start_ms, 1000);
+        assert_eq!(cues[1].text, "Yalnızca bu satır kalmalı.");
+        assert_eq!(cues[1].index, 2);
+    }
+
+    #[test]
+    fn reads_the_srt_render_of_the_turkish_recording() {
+        let Some(text) = fixture("tr-tedx-kaygi.srt") else {
+            return;
+        };
+        let cues = parse(&text);
+
+        assert_eq!(cues.len(), 239, "cue count changed");
+        // FFmpeg's render carries the transcriber credit as the first cue, which
+        // the VTT does not have. Same count, shifted boundaries: the two formats
+        // are not interchangeable, so ground truth names the file it belongs to.
+        assert!(cues[0].text.starts_with("Transcriber:"));
+        assert!(cues[1].text.starts_with("Hepinize merhabalar"));
+    }
+
+    #[test]
     fn accepts_a_missing_hours_field() {
         assert_eq!(parse_timestamp("01:02.500"), Some(62_500));
         assert_eq!(parse_timestamp("01:02:03.500"), Some(3_723_500));

@@ -53,8 +53,17 @@ Paths are relative to `app/` unless stated.
   the check that the rule is written clearly enough to be followed.
   *Depends on*: T003
 
-- [ ] **T005** SRT parser with the same cue model, tested on a small fixture
-  committed next to the code, including a CRLF file and an inline tag.
+- [x] **T005** SRT fixtures and tests. One parser covers both formats, so the
+  task became fixture work rather than a second parser.
+  *Refined during the task*: instead of inventing an SRT, `eval/fixtures/
+  tr-tedx-kaygi.srt` is rendered from the real VTT with ffmpeg, and a small
+  `app/src-tauri/tests/fixtures/edge.srt` covers what the render does not: CRLF
+  endings, inline tags, an empty cue and a verbatim repeat.
+  *Evidence*: the rendered SRT parses to 239 cues, with the transcriber credit
+  first and "Hepinize merhabalar" second; the edge file yields two cues out of
+  four. This also showed the two formats are not interchangeable, since the same
+  count comes with shifted boundaries, so gold files now record which fixture
+  they belong to.
   *Depends on*: T003
 
 - [ ] **T006** `open_session` and `session_cues` commands, plus the file pickers

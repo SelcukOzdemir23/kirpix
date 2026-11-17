@@ -37,5 +37,6 @@
       "note": "the word appears as a label on an example, one line"
     }
   ],
-  "note": "Expected means a candidate here is a correct answer. Incidental mentions are legitimate but are not required; a search that only returns those has not found the topic."
+  "note": "Expected means a candidate here is a correct answer. Incidental mentions are legitimate but are not required; a search that only returns those has not found the topic.",
+  "recorded_against": "eval/fixtures/tr-tedx-kaygi.tr.vtt"
 }
