@@ -53,12 +53,18 @@ each.
 
 ## Phase 3: Alignment
 
-- [ ] **T005** The offset: stored on the session, applied by deriving a shifted
+- [x] **T005** The offset: stored on the session, applied by deriving a shifted
   cue table, never mutating the source. Report how many cues were clamped to
   zero.
   *Done when*: every cue moves by exactly the offset, indices do not change,
   and a search on a shifted table returns candidates shifted by the same amount
   (SC-004).
+  *Evidence*: **SC-004 is met.** Four tests: every one of the 239 cues moves by
+  exactly three seconds with its index intact; a search at plus three seconds
+  returns the same candidates with start and end shifted by exactly three
+  seconds and the same cue ranges; a negative offset is clamped at zero and the
+  clamped cues are counted; clearing the offset restores the original times
+  exactly.
   *Depends on*: T004
 
 - [ ] **T006** Audio sample: four seconds around a cue as mono 16 kHz WAV under

@@ -40,6 +40,18 @@ pub struct Session {
     pub source: SubtitleSource,
     pub media: MediaInfo,
     pub table: CueTable,
+    /// Applied at read time, never written back to the subtitle file. Positive
+    /// moves the cues later in the recording.
+    pub offset_ms: i64,
+}
+
+/// What the interface needs after the offset changes.
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OffsetInfo {
+    pub offset_ms: i64,
+    /// How many cues would start before zero and were clamped to it.
+    pub clamped_cues: usize,
 }
 
 /// What the interface needs to draw the loaded state.
@@ -59,6 +71,7 @@ pub struct SessionInfo {
     pub has_audio: bool,
     /// Which FFprobe answered: bundled or a system install.
     pub media_source: String,
+    pub offset_ms: i64,
 }
 
 impl Session {
@@ -74,18 +87,63 @@ impl Session {
             height: self.media.height,
             has_audio: self.media.has_audio,
             media_source: self.media.source.clone(),
+            offset_ms: self.offset_ms,
+        }
+    }
+
+    /// The cue table with the offset applied. The stored table is never
+    /// mutated, so clearing the offset is free and cannot drift.
+    pub fn table_with_offset(&self) -> CueTable {
+        if self.offset_ms == 0 {
+            return self.table.clone();
+        }
+
+        let shift = |value: u64| -> u64 { (value as i64 + self.offset_ms).max(0) as u64 };
+        CueTable {
+            cues: self
+                .table
+                .cues
+                .iter()
+                .map(|cue| crate::subtitle::Cue {
+                    index: cue.index,
+                    start_ms: shift(cue.start_ms),
+                    end_ms: shift(cue.end_ms),
+                    text: cue.text.clone(),
+                })
+                .collect(),
+            encoding: self.table.encoding.clone(),
+        }
+    }
+
+    /// How many cues the current offset would push before the start.
+    pub fn clamped_cues(&self) -> usize {
+        if self.offset_ms >= 0 {
+            return 0;
+        }
+        self.table
+            .cues
+            .iter()
+            .filter(|cue| (cue.start_ms as i64 + self.offset_ms) < 0)
+            .count()
+    }
+
+    pub fn offset_info(&self) -> OffsetInfo {
+        OffsetInfo {
+            offset_ms: self.offset_ms,
+            clamped_cues: self.clamped_cues(),
         }
     }
 
     /// Cues `from..=to`, one based, clamped to the table. Paging keeps the
     /// interface from receiving the whole file to show twenty lines.
     pub fn cues(&self, from: usize, to: usize) -> Vec<crate::subtitle::Cue> {
+        let table = self.table_with_offset();
         let start = from.max(1);
-        let end = to.min(self.table.len());
+        let end = to.min(table.len());
         if start > end {
             return Vec::new();
         }
-        self.table.cues[start - 1..end].to_vec()
+        table.cues[start - 1..end].to_vec()
     }
 }
 
@@ -105,6 +163,7 @@ pub fn open(video: &Path, subtitle: &Path) -> Result<Session, KirpixError> {
         source: SubtitleSource::File(subtitle.to_path_buf()),
         media,
         table,
+        offset_ms: 0,
     })
 }
 
@@ -129,6 +188,7 @@ pub fn open_embedded(video: &Path, stream_index: usize) -> Result<Session, Kirpi
         },
         media,
         table,
+        offset_ms: 0,
     })
 }
 
@@ -206,6 +266,97 @@ mod tests {
 
         let err = open_embedded(&video, 42).unwrap_err();
         assert!(matches!(err, KirpixError::TrackMissing { stream_index: 42 }));
+    }
+
+    fn open_fixture() -> Option<Session> {
+        let video = eval("media/tr-tedx-kaygi.mp4");
+        let subs = eval("fixtures/tr-tedx-kaygi.tr.vtt");
+        if !video.is_file() || !subs.is_file() {
+            eprintln!("skipped: evaluation files are not present");
+            return None;
+        }
+        Some(open(&video, &subs).expect("session should open"))
+    }
+
+    #[test]
+    fn the_offset_moves_every_cue_and_keeps_its_index() {
+        let Some(mut session) = open_fixture() else {
+            return;
+        };
+        let before = session.cues(1, 239);
+
+        session.offset_ms = 3_000;
+        let after = session.cues(1, 239);
+
+        assert_eq!(before.len(), after.len());
+        for (original, moved) in before.iter().zip(after.iter()) {
+            assert_eq!(original.index, moved.index, "indices must not change");
+            assert_eq!(moved.start_ms, original.start_ms + 3_000);
+            assert_eq!(moved.end_ms, original.end_ms + 3_000);
+            assert_eq!(original.text, moved.text);
+        }
+    }
+
+    #[test]
+    fn clearing_the_offset_restores_the_original_times() {
+        let Some(mut session) = open_fixture() else {
+            return;
+        };
+        let before = session.cues(1, 10);
+
+        session.offset_ms = -2_500;
+        session.offset_ms = 0;
+
+        assert_eq!(session.cues(1, 10), before);
+    }
+
+    #[test]
+    fn a_negative_offset_is_clamped_and_counted() {
+        let Some(mut session) = open_fixture() else {
+            return;
+        };
+
+        session.offset_ms = -1_000;
+        let info = session.offset_info();
+
+        assert_eq!(info.offset_ms, -1_000);
+        assert!(info.clamped_cues >= 1, "the first cue starts at zero");
+        assert_eq!(session.cues(1, 1)[0].start_ms, 0, "never below zero");
+    }
+
+    #[test]
+    fn the_search_moves_with_the_offset() {
+        use crate::criterion::{find, Bounds};
+
+        let Some(mut session) = open_fixture() else {
+            return;
+        };
+        let terms = vec!["kaygı".to_string(), "endişe".to_string()];
+
+        let base = find(
+            &session.table_with_offset(),
+            &terms,
+            Bounds::default(),
+            session.media.duration_ms,
+        )
+        .expect("search should run");
+
+        session.offset_ms = 3_000;
+        let shifted = find(
+            &session.table_with_offset(),
+            &terms,
+            Bounds::default(),
+            session.media.duration_ms,
+        )
+        .expect("search should run");
+
+        assert!(!base.is_empty());
+        assert_eq!(base.len(), shifted.len());
+        for (original, moved) in base.iter().zip(shifted.iter()) {
+            assert_eq!(moved.start_ms, original.start_ms + 3_000);
+            assert_eq!(moved.end_ms, original.end_ms + 3_000);
+            assert_eq!(original.start_cue, moved.start_cue);
+        }
     }
 
     #[test]

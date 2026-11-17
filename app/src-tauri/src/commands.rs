@@ -6,7 +6,7 @@ use tauri::{AppHandle, Emitter, State};
 use crate::criterion::{self, Bounds, Candidate};
 use crate::media::{cut, ffmpeg, ClipRequest, CutResult, SubtitleTrack};
 use crate::error::KirpixError;
-use crate::session::{self, Session, SessionInfo};
+use crate::session::{self, OffsetInfo, Session, SessionInfo};
 use crate::subtitle::Cue;
 
 pub type SessionState<'a> = State<'a, Mutex<Option<Session>>>;
@@ -40,7 +40,7 @@ pub fn search_topic(
     let guard = state.lock().expect("session lock");
     let session = guard.as_ref().ok_or(KirpixError::NoSession)?;
     criterion::find(
-        &session.table,
+        &session.table_with_offset(),
         &terms,
         Bounds { min_ms, max_ms },
         session.media.duration_ms,
@@ -92,4 +92,13 @@ pub fn open_from_track(
     let info = opened.info();
     *state.lock().expect("session lock") = Some(opened);
     Ok(info)
+}
+
+/// Move every cue by the given amount. Positive is later.
+#[tauri::command]
+pub fn set_offset(state: SessionState<'_>, offset_ms: i64) -> Result<OffsetInfo, KirpixError> {
+    let mut guard = state.lock().expect("session lock");
+    let session = guard.as_mut().ok_or(KirpixError::NoSession)?;
+    session.offset_ms = offset_ms;
+    Ok(session.offset_info())
 }

@@ -19,6 +19,7 @@ export type SessionInfo = {
   height: number | null;
   hasAudio: boolean;
   mediaSource: string;
+  offsetMs: number;
 };
 
 export type Cue = {

@@ -24,6 +24,7 @@ pub fn run() {
             commands::open_from_track,
             commands::session_cues,
             commands::search_topic,
+            commands::set_offset,
             commands::cut_clips
         ])
         .run(tauri::generate_context!())
