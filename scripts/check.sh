@@ -31,6 +31,10 @@ if grep -qE "^test result: FAILED|^error" "$test_log"; then
   exit 1
 fi
 skipped=$(grep -o "skipped: " "$test_log" | wc -l | tr -d ' ')
+ignored=$(grep -oE "[0-9]+ ignored" "$test_log" | awk '{n += $1} END {print n + 0}')
+if [ "$ignored" -gt 0 ]; then
+  printf 'NOTE: %s tests ignored as known failures (cargo test -- --ignored lists them)\n' "$ignored"
+fi
 if [ "$skipped" -gt 0 ]; then
   printf 'WARNING: %s tests skipped because eval/ input is missing (see eval/README.md)\n' "$skipped"
 fi

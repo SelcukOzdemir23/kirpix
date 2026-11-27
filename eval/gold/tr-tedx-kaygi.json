@@ -14,16 +14,16 @@
   "expected": [
     {
       "start_cue": 59,
-      "end_cue": 70,
-      "note": "Fear turning into anxiety, and the thoughts that explain it. The talk is making its central move here.",
+      "end_cue": 71,
+      "note": "Fear turning into anxiety, and the thoughts that explain it. The talk is making its central move here. Ends on the sentence that resolves it, cue 71.",
       "start": "00:03:34.156",
-      "end": "00:04:15.036"
+      "end": "00:04:16.596"
     },
     {
-      "start_cue": 227,
+      "start_cue": 226,
       "end_cue": 232,
-      "note": "Avoidance keeps the anxiety alive; facing the situation reduces it. The practical conclusion.",
-      "start": "00:13:41.356",
+      "note": "Avoidance keeps the anxiety alive; facing the situation reduces it. The practical conclusion. Starts where the sentence starts, cue 226.",
+      "start": "00:13:35.116",
       "end": "00:14:05.556"
     }
   ],
@@ -38,5 +38,8 @@
     }
   ],
   "note": "Expected means a candidate here is a correct answer. Incidental mentions are legitimate but are not required; a search that only returns those has not found the topic.",
-  "recorded_against": "eval/fixtures/tr-tedx-kaygi.tr.vtt"
+  "recorded_against": "eval/fixtures/tr-tedx-kaygi.tr.vtt",
+  "revisions": [
+    "2026-11-27: both ranges moved to sentence boundaries (59-70 -> 59-71, 227-232 -> 226-232). The earlier ends cut a sentence in half. Still proposed: the owner has not reviewed the ranges."
+  ]
 }

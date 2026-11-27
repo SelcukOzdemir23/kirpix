@@ -484,16 +484,24 @@ mod tests {
         );
     }
 
-    #[test]
-    fn finds_the_recorded_ground_truth() {
+    /// SC-001 of feature 001, read from the evaluation set (article X): the
+    /// search must return a candidate covering at least 80 percent of one
+    /// expected range in `eval/gold/<id>.json`, on the fixture that file names.
+    fn assert_finds_gold(id: &str, media_ms: u64) {
         use crate::subtitle::{decode, parse_cues};
         use serde_json::Value;
         use std::path::Path;
 
         let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let fixture = root.join("eval/fixtures/tr-tedx-kaygi.tr.vtt");
-        let gold_path = root.join("eval/gold/tr-tedx-kaygi.json");
-        if !fixture.is_file() || !gold_path.is_file() {
+        let gold_path = root.join(format!("eval/gold/{id}.json"));
+        if !gold_path.is_file() {
+            crate::testing::skip("evaluation files are not present");
+            return;
+        }
+        let gold: Value = serde_json::from_str(&std::fs::read_to_string(&gold_path).unwrap())
+            .expect("gold file should parse");
+        let fixture = root.join(gold["fixture"].as_str().expect("gold names its fixture"));
+        if !fixture.is_file() {
             crate::testing::skip("evaluation files are not present");
             return;
         }
@@ -503,9 +511,13 @@ mod tests {
             cues: parse_cues(&text),
             encoding: "utf-8".to_string(),
         };
-
-        let gold: Value = serde_json::from_str(&std::fs::read_to_string(&gold_path).unwrap())
-            .expect("gold file should parse");
+        assert_eq!(
+            table.cues.len() as u64,
+            gold["canonical_cue_count"]
+                .as_u64()
+                .expect("canonical_cue_count"),
+            "the gold file was recorded against a different cue count"
+        );
         let terms: Vec<String> = gold["criterion"]["terms"]
             .as_array()
             .expect("terms")
@@ -514,8 +526,8 @@ mod tests {
             .collect();
 
         let candidates =
-            find(&table, &terms, Bounds::default(), 877_650).expect("search should run");
-        assert!(!candidates.is_empty(), "the search found nothing");
+            find(&table, &terms, Bounds::default(), media_ms).expect("search should run");
+        assert!(!candidates.is_empty(), "{id}: the search found nothing");
 
         let mut best_overlap = 0.0f64;
         for expected in gold["expected"].as_array().expect("expected ranges") {
@@ -536,13 +548,30 @@ mod tests {
 
         assert!(
             best_overlap >= 0.8,
-            "best overlap with the ground truth was {:.0}% (candidates: {:?})",
+            "{id}: best overlap with the ground truth was {:.0}% (candidates: {:?})",
             best_overlap * 100.0,
             candidates
                 .iter()
                 .map(|c| (c.start_cue, c.end_cue, c.matched_terms.clone()))
                 .collect::<Vec<_>>()
         );
+    }
+
+    #[test]
+    fn finds_the_recorded_ground_truth_in_turkish() {
+        assert_finds_gold("tr-tedx-kaygi", 877_650);
+    }
+
+    /// Known failure, recorded rather than hidden: on the English recording
+    /// the merge rule of FR-008 splits the expected passage 38-58 into 38-44
+    /// and 52-58, a best overlap of 33 percent. 001's SC-001 names only the
+    /// Turkish recording, so 001 is not violated; changing the merge rule
+    /// changes behaviour and belongs to a numbered slice. Run it with
+    /// `cargo test -- --ignored` to see the current result.
+    #[test]
+    #[ignore = "known failure: the merge rule splits en-single-story 38-58 (analysis 2026-11-27, finding D3)"]
+    fn finds_the_recorded_ground_truth_in_english() {
+        assert_finds_gold("en-single-story", 1_112_280);
     }
 
     #[test]
