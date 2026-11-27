@@ -18,9 +18,10 @@ and hook criteria (009, 011) will use.
 Kirpix finds clips from subtitles, and subtitle times are not speech times. A
 cue starts when the subtitler decided, often a breath early or late. On the
 Turkish evaluation recording today, **none of the eight edges of the four
-topic candidates falls inside a pause** (measured 2026-11-27, FFmpeg
-`silencedetect`, below -32 dB for at least 0.12 s). The nearest pause is
-0.13 s to 3.3 s away. A clip cut there starts or ends mid-word.
+topic candidates falls inside a pause** (measured 2026-11-27; research R2). A
+clip cut there starts or ends mid-word. One candidate sits in such dense
+speech that no pause of 0.15 s or more lies within 3 seconds of either edge;
+that one will stay on its subtitle edges and say so.
 
 The product document promises a heuristic mode that looks at "silences, the
 gaps between sentences, changes of topic". Today it looks only at words. This
@@ -167,8 +168,8 @@ be read.
 ### Measurable Outcomes
 
 - **SC-001**: On `tr-tedx-kaygi` with "kaygı, endişe", every candidate edge is
-  either inside a detected pause or marked as not placed; at least six of the
-  eight edges are placed. Checked by a test against the evaluation recording.
+  either inside a detected pause or marked as not placed; at least four of the
+  eight edges are placed, and none moves more than 1.5 seconds. Checked by a test against the evaluation recording.
 - **SC-002**: The placed candidates still contain all their matched lines and
   respect the 8 to 120 second bounds. Checked by the same test.
 - **SC-003**: Two reads of the same recording give byte-identical pause lists,
@@ -191,8 +192,13 @@ be read.
   asks? → A: Automatically, after every search, for every candidate (FR-004);
   each row shows how far its edges moved (FR-013).
 - Q: How far may an edge move to reach a pause? → A: 1.5 seconds (FR-004,
-  FR-005). On the measurement above that places six of the eight edges; the
-  two further away stay on their subtitle times and say so.
+  FR-005).
+- Q (revision, after measuring with the full rule): the 1.5 s answer was given
+  on an estimate of six placed edges that ignored two rules, an edge must not
+  enter a matched line and a pause must last at least 0.15 s. With them, 1.5 s
+  places four of eight; 2.0 s places six but moves two edges by about 1.8 s.
+  Keep 1.5 s? → A: Yes. SC-001 is lowered to four of eight rather than tuning
+  the detector to the evaluation recording (constitution X). See research R2.
 - Q: Which pauses does the ruler show? → A: Only pauses of half a second or
   longer, faintly; the selected clip's detail shows all of them (FR-007,
   FR-008). The owner asked for a minimal screen; the recording has more than
