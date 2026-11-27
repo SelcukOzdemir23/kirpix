@@ -71,9 +71,9 @@ No violation, so Complexity Tracking is empty.
 ## The visual identity (owner approval gate)
 
 The identity in research R1–R4, shown in the screenshots attached to this plan
-(`specs/007-ui-redesign/identity/`), is **one proposal for the owner to approve
-or correct** (Clarifications). No interface task after T003 starts until the
-owner has approved it; T003 records the approval.
+(`specs/007-ui-redesign/identity/`), was **approved by the owner on
+2026-11-27** with one instruction, less clutter, which the screenshots already
+apply (spec › Clarifications, FR-010, FR-011, FR-025).
 
 In short:
 

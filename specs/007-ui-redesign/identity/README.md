@@ -11,4 +11,5 @@ not committed here (they ship through Fontsource once the app adopts them). To
 re-render, copy the four `files/*-wght-normal.woff2` from
 `@fontsource-variable/atkinson-hyperlegible-next` and `…-mono` next to it.
 
-Status: **awaiting the owner's approval** (spec › Clarifications).
+Status: **approved by the owner, 2026-11-27**, after the clutter pass (spec ›
+Clarifications).

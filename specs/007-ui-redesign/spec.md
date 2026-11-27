@@ -186,14 +186,19 @@ plays.
 - **FR-023**: Each candidate's mark on the ruler MUST be a control: activating
   it, by pointer or keyboard, selects that candidate and brings its row into
   view in the list. The ruler MUST NOT seek the player.
-- **FR-010**: The recording MUST be named in a line at the top of the window,
-  with its duration, cue count, subtitle source, the engine of 006 and, when it
-  is not zero, the offset.
+- **FR-010**: The recording MUST be named in a line at the top of the window
+  with its duration and the engine of 006 (article III), and the offset when
+  it is not zero. Nothing else is in that line.
 - **FR-011**: The offset controls of 002 MUST move into an alignment control
-  opened from that line. Their behaviour MUST NOT change.
+  opened from that line, which also shows the cue count and the subtitle
+  source. Their behaviour MUST NOT change.
 
 **Actions**
 
+- **FR-025**: Boundary adjustment MUST show one minus and one plus control per
+  edge and a single step choice, one second or one line, shared by both edges;
+  a reset appears only after an edge has moved. This keeps 001 FR-015 with four
+  buttons instead of eight.
 - **FR-012**: Each screen state MUST have exactly one primary action: pick a
   file; find clips; cut the kept clips. The cut action's label MUST state the
   number of kept candidates and MUST be disabled at zero.
@@ -306,6 +311,12 @@ plays.
   the candidate list that names each file, the folder and any failure; the
   candidates stay on screen and the strip can be closed. The output folder is
   chosen beside the cut button (FR-024).
+- Q: Is the proposed identity approved? → A: Yes, with one instruction: less
+  clutter, every feature minimal and clear. Applied before approval was
+  recorded: the recording line keeps only name, duration and engine (FR-010,
+  FR-011); boundary controls become a step choice and two buttons per edge
+  (FR-025); the duplicate "change criterion" link is removed; inactive cards say
+  "Henüz yok" with the roadmap number beside it.
 
 ## Assumptions
 

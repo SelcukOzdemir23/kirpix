@@ -57,10 +57,15 @@ button{font:inherit;color:inherit}
 .player{position:relative;aspect-ratio:16/9;width:min(100%,calc(var(--player-h)*16/9));flex:none;border-radius:6px;background:#0f110f;display:grid;place-items:center;overflow:hidden}
 .player .poster{position:absolute;inset:0;background:radial-gradient(120% 90% at 30% 35%,#3c4a44 0,#1c2320 55%,#0f110f 100%)}
 .player .btn{position:relative;background:rgba(255,255,255,.94);color:#1B1D1B;border-color:#fff}
-.edges{display:grid;grid-template-columns:auto auto 1fr;gap:6px 10px;align-items:center;font-size:14px}
+.edges{display:grid;grid-template-columns:auto auto auto 1fr;grid-template-rows:auto auto;gap:6px 10px;align-items:center;font-size:14px}
+.edges .step{grid-column:4;grid-row:1/3;justify-self:end}
+.seg{display:inline-flex;border:1px solid var(--edge);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:5px 10px;font-size:13.5px}
+.seg button+button{border-left:1px solid var(--edge)}
+.seg button.on{background:var(--ink);color:var(--surface);font-weight:600}
 .edges .lab{color:var(--quiet)}
 .edges .grp{display:flex;gap:6px;flex-wrap:nowrap}
-.edges .btn{padding:4px 9px;font-size:13.5px}
+.edges .btn{width:30px;padding:3px 0;font-size:16px;line-height:1.2}
 .lines{flex:1;overflow:auto;border-top:1px solid var(--rule);padding-top:8px}
 .line{display:grid;grid-template-columns:58px 1fr;gap:10px;padding:4px 0;font-size:15px}
 .line .tc{color:var(--quiet);font-size:13.5px;padding-top:2px}
@@ -82,7 +87,7 @@ mark{background:var(--marker);color:var(--on-marker);font-weight:650;border-radi
 .card.on{border:2px solid var(--select);background:var(--select-fill);padding:11px}
 .card.later{border:1px dashed var(--edge);background:transparent}
 .card.later b{color:var(--quiet);font-weight:600}
-.card .when{margin-top:auto;font-size:12.5px;color:var(--quiet)}
+.card .when{margin-top:auto;font-size:12.5px;color:var(--quiet);display:flex;justify-content:space-between}
 .inputs{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:14px}
 .inputs label{display:flex;flex-direction:column;gap:4px;font-size:13.5px;color:var(--quiet)}
 .inputs .field{color:var(--ink);font-size:15px}
@@ -96,11 +101,11 @@ if(q.get('theme')==='dark')document.documentElement.dataset.theme='dark';
 document.documentElement.style.setProperty('--player-h', (innerHeight<700? 150: 230)+'px');
 const state=q.get('state')||'results';
 const header=`<div class="top"><span class="word">Kirpix</span><span class="file">tr-tedx-kaygi.mkv</span>
-<span class="facts"><span><b>Süre</b><span class="tc">14:37</span></span><span><b>Altyazı</b>239 satır</span><span><b>Motor</b>Sezgisel</span></span>
-<span class="sp"></span><button class="btn">Hizalama <span class="tc">0,0 sn</span></button><button class="btn">Ayarlar</button><button class="btn link">English</button></div>`;
+<span class="tc quiet">14:37</span><span class="quiet">Sezgisel</span>
+<span class="sp"></span><button class="btn">Altyazı hizası</button><button class="btn">Ayarlar</button><button class="btn link">English</button></div>`;
 const lines=[["3:34","Yaklaşık 2-3 dakika sonra o korku duygusu kendisini büyük bir <mark>endişe</mark>"],["3:39","duygusuna bırakıyor. O <mark>endişe</mark> ve <mark>kaygı</mark> ile birlikte kişi evine dönüyor hemen."],["3:44","Aslında işi gücü varken evine dönüyor."],["3:47","O gün eve kapanıyor. Şimdi bu bizim için bu ikincil"],["3:51","ortaya çıkan <mark>endişe</mark> duygusu biraz anlaşılmaz bir şey."],["3:54","‘Nereden çıktı bu?’ diye düşünebiliriz."],["3:56","Çünkü burada bir parça eksik."],["3:58","O anda o kişinin yürürken, o <mark>endişe</mark> ve <mark>kaygıyı</mark> hissederken,"]];
 const results=`${header}
-<div class="bar"><span class="chip">Konu</span><span class="field">kaygı, endişe</span><span class="quiet">8 ile 120 saniye arası</span><span class="sp"></span><button class="btn">Yeniden ara</button><button class="btn link">Kriteri değiştir</button></div>
+<div class="bar"><span class="chip">Konu</span><span class="field">kaygı, endişe</span><span class="quiet">8 ile 120 saniye arası</span><span class="sp"></span><button class="btn">Yeniden ara</button></div>
 <div class="main">
  <div class="list"><h2>3 kesit bulundu</h2><div class="rows">
   <div class="row sel"><span class="box on">✓</span><span class="range tc">3:34 – 4:16</span><span class="dur tc">0:42</span><span class="why"><em>kaygı</em> ve <em>endişe</em> geçiyor, 9 satırda</span></div>
@@ -110,8 +115,11 @@ const results=`${header}
  <div class="cutbar"><span class="folder quiet">Klasör: ~/Videolar/kirpix</span><button class="btn link">Değiştir</button><span class="sp"></span><button class="btn primary">2 kesiti kes</button></div></div>
  <div class="detail">
   <div class="player"><div class="poster"></div><button class="btn">Önizle</button></div>
-  <div class="edges"><span class="lab">Başlangıç</span><span class="tc">3:33,6</span><span class="grp"><button class="btn">−1 sn</button><button class="btn">+1 sn</button><button class="btn">−1 satır</button><button class="btn">+1 satır</button></span>
-  <span class="lab">Bitiş</span><span class="tc">4:16,6</span><span class="grp"><button class="btn">−1 sn</button><button class="btn">+1 sn</button><button class="btn">−1 satır</button><button class="btn">+1 satır</button></span></div>
+  <div class="edges">
+   <span class="lab">Başlangıç</span><span class="tc">3:33,6</span><span class="grp"><button class="btn">−</button><button class="btn">+</button></span>
+   <span class="lab">Bitiş</span><span class="tc">4:16,6</span><span class="grp"><button class="btn">−</button><button class="btn">+</button></span>
+   <span class="step"><span class="seg"><button class="on">1 sn</button><button>1 satır</button></span></span>
+  </div>
   <div class="lines">${lines.map(([t,x])=>`<div class="line"><span class="tc">${t}</span><span>${x}</span></div>`).join('')}</div>
  </div>
 </div>
@@ -120,13 +128,13 @@ const results=`${header}
 const crit=`${header}<div class="crit"><h1>Ne arıyorsun?</h1>
 <div class="cards">
  <div class="card on"><b>Konu</b><span>Bu kelimelerin geçtiği yerler</span></div>
- <div class="card later"><b>Süre</b><span>Toplam 5 dakika, en yoğun yerlerden</span><span class="when">009 ile gelecek</span></div>
- <div class="card later"><b>Akış</b><span>Başı ve sonu belli tek bölüm</span><span class="when">010 ile gelecek</span></div>
- <div class="card later"><b>Dikkat çeken açılış</b><span>İzleyeni ilk saniyede tutan yerler</span><span class="when">011 ile gelecek</span></div>
- <div class="card later"><b>Kendi cümlen</b><span>Ne aradığını bir cümleyle yaz</span><span class="when">012 ile gelecek</span></div>
+ <div class="card later"><b>Süre</b><span>Toplam 5 dakika, en yoğun yerlerden</span><span class="when"><span>Henüz yok</span><span class="tc">009</span></span></div>
+ <div class="card later"><b>Akış</b><span>Başı ve sonu belli tek bölüm</span><span class="when"><span>Henüz yok</span><span class="tc">010</span></span></div>
+ <div class="card later"><b>Dikkat çeken açılış</b><span>İzleyeni ilk saniyede tutan yerler</span><span class="when"><span>Henüz yok</span><span class="tc">011</span></span></div>
+ <div class="card later"><b>Kendi cümlen</b><span>Ne aradığını bir cümleyle yaz</span><span class="when"><span>Henüz yok</span><span class="tc">012</span></span></div>
 </div>
 <div class="inputs"><label>Kelimeler, virgülle<span class="field" style="min-width:280px">kaygı, endişe</span></label><label>En kısa<span class="field num tc">8 sn</span></label><label>En uzun<span class="field num tc">120 sn</span></label><span class="sp"></span><button class="btn primary">Kesitleri bul</button></div>
-<p class="quiet" style="margin:0;font-size:14px">Arama altyazı metninde yapılır; video bilgisayarından çıkmaz.</p>
+
 </div>`;
 document.body.innerHTML = state==='criterion'?crit:results;
 </script>

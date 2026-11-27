@@ -107,6 +107,10 @@ is also set semibold: the mark does not rest on colour alone.
 | Inactive | dashed border, `quiet` text, a "009'da" line, no hover | the four coming cards |
 | Destructive | `danger` text and border | Anahtarı sil |
 
+Boundary controls use one step choice (a two-option segmented control, "1 sn"
+or "1 satır") and a minus and a plus per edge, instead of four buttons per
+edge, after the owner asked for less clutter (FR-025).
+
 Selected state (a row, a card, a ruler mark) is a 3px `select` bar on the
 leading edge plus `select`-tinted fill, so it reads in greyscale too.
 
