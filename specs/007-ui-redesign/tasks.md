@@ -59,7 +59,7 @@ the detail with marked lines, a ruler that selects.
 the first candidate; player, boundary controls and lines are visible together
 at 880×600 and 1100×760 (spec US1).
 
-- [ ] T011 [P] [US1] `src/components/TopBar.tsx` and `src/components/RecordingLine.tsx`: name, duration, engine, offset when not zero, Altyazı hizası, Ayarlar, language (FR-010). Used by the old screen in place of its header.
+- [x] T011 [P] [US1] `src/components/TopBar.tsx` and `src/components/RecordingLine.tsx`: name, duration, engine, offset when not zero, Altyazı hizası, Ayarlar, language (FR-010). Used by the old screen in place of its header.
 - [ ] T012 [P] [US1] `src/screens/StartScreen.tsx`: drop area, file picker as the only primary action, one sentence on what Kirpix does (FR-001).
 - [ ] T013 [P] [US1] `src/components/CriterionCards.tsx` and `src/components/TopicInputs.tsx`: five cards in order from data-model.md `CriterionCard.id`, only cards with data-model.md `CriterionCard.built` selectable, unbuilt cards inert text with "Henüz yok" and `CriterionCard.roadmap` (FR-002, FR-003, FR-021); topic terms and bounds (FR-004).
 - [ ] T014 [US1] `src/screens/CriterionScreen.tsx` composing T013 with "Kesitleri bul" as its primary action; `src/App.tsx` shows it in the `criterion` state of data-model.md.

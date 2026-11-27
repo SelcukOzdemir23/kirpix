@@ -5,6 +5,7 @@ import { fileName, folderOf, timecode } from './format';
 import CandidateCard from './components/CandidateCard';
 import Button from './components/Button';
 import ConfirmDialog from './components/ConfirmDialog';
+import TopBar from './components/TopBar';
 import CriteriaForm from './components/CriteriaForm';
 import SectionLabel from './components/SectionLabel';
 import SettingsView from './components/SettingsView';
@@ -118,19 +119,18 @@ export default function App() {
     <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-ink text-text">
       <audio ref={audioRef} hidden />
 
-      <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-line px-5">
-        <span className="text-[16.5px] font-semibold tracking-[-0.015em]">Kirpix</span>
-
-        <div className="flex shrink-0 items-center gap-3">
-          {busy && <span className="font-mono text-[13px] text-muted">{t.opening}</span>}
-          <Button onClick={() => setSettingsOpen((open) => !open)} selected={settingsOpen}>
-            {settingsOpen ? t.settingsClose : t.settingsOpen}
-          </Button>
-          <Button kind="quiet" onClick={() => setLang(lang === 'tr' ? 'en' : 'tr')}>
-            {lang === 'tr' ? 'English' : 'Türkçe'}
-          </Button>
-        </div>
-      </header>
+      <TopBar
+        t={t}
+        lang={lang}
+        session={session}
+        mode={mode}
+        offsetMs={offsetMs}
+        busy={busy}
+        settingsOpen={settingsOpen}
+        onLang={setLang}
+        onSettings={() => setSettingsOpen((open) => !open)}
+        onChangeFile={() => void pickVideo()}
+      />
 
       {error != null && (
         <div
