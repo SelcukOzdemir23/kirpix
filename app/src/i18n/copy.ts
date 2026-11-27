@@ -122,6 +122,10 @@ const tr = {
   later: 'Geç al',
   resetEdges: 'Sıfırla',
   keep: 'Kesilecekler arasında',
+  cutCount: (count: number) => (count === 0 ? 'Kesilecek kesit yok' : `${count} kesiti kes`),
+  folder: 'Klasör',
+  folderAsk: 'kesince sorulacak',
+  changeFolder: 'Değiştir',
   rulerLabel: 'Kaydın tamamı; bir işarete basınca o kesit seçilir',
   markLabel: (start: string, end: string) => `${start} ile ${end} arasındaki kesiti seç`,
   errors: {
@@ -270,6 +274,11 @@ const en: typeof tr = {
   later: 'Later',
   resetEdges: 'Reset',
   keep: 'Among the clips to cut',
+  cutCount: (count: number) =>
+    count === 0 ? 'No clip to cut' : `Cut ${count} ${count === 1 ? 'clip' : 'clips'}`,
+  folder: 'Folder',
+  folderAsk: 'asked when you cut',
+  changeFolder: 'Change',
   rulerLabel: 'The whole recording; press a mark to select that clip',
   markLabel: (start: string, end: string) => `Select the clip from ${start} to ${end}`,
   errors: {

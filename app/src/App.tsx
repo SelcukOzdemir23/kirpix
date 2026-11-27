@@ -13,6 +13,7 @@ import CandidateDetail from './components/CandidateDetail';
 import CandidateList from './components/CandidateList';
 import CriterionBar from './components/CriterionBar';
 import Ruler from './components/Ruler';
+import CutBar from './components/CutBar';
 import { stepEdge, type Edge, type Step } from './state/edges';
 import SectionLabel from './components/SectionLabel';
 import SettingsView from './components/SettingsView';
@@ -126,10 +127,6 @@ export default function App() {
     previewState.reset();
     search.moveEdges(candidate.id, next.startMs, next.endMs);
   }
-  const keptDuration = visible.reduce((total, candidate) => {
-    const current = bounds[candidate.id] ?? candidate;
-    return total + (current.endMs - current.startMs);
-  }, 0);
 
   return (
     <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-ink text-text">
@@ -254,18 +251,16 @@ export default function App() {
                       onSelect={setActiveId}
                       onToggleKeep={search.toggleKeep}
                       footer={
-                        <div className="flex items-center justify-between gap-4 px-4 py-2.5">
-                          <span className="min-w-0 text-[13px] text-muted">
-                            {progress
-                              ? `${progress.percent}%`
-                              : session.mediaSource === 'systemPath'
-                                ? t.systemMedia
-                                : timecode(keptDuration)}
-                          </span>
-                          <Button kind="primary" onClick={runCut} disabled={cutting || visible.length === 0}>
-                            {cutting ? t.cutting : t.cut}
-                          </Button>
-                        </div>
+                        <CutBar
+                          t={t}
+                          kept={visible.length}
+                          folder={cut.folder}
+                          cutting={cutting}
+                          progress={progress}
+                          systemMedia={session.mediaSource === 'systemPath'}
+                          onChooseFolder={() => void cut.chooseFolder()}
+                          onCut={runCut}
+                        />
                       }
                     />
                   )

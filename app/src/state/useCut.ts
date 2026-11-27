@@ -16,16 +16,27 @@ export function useCut(report: (error: unknown) => void) {
   const [progress, setProgress] = useState<CutProgress | null>(null);
   const [results, setResults] = useState<CutResult[] | null>(null);
   const [writtenOpen, setWrittenOpen] = useState(false);
+  // The folder stays chosen for the session, shown beside the cut action
+  // (FR-024); until one is chosen, cutting asks for it.
+  const [folder, setFolder] = useState<string | null>(null);
+
+  /** Ask for a folder; keeps the current one when the dialog is dismissed. */
+  async function chooseFolder(): Promise<string | null> {
+    const picked = await open({ directory: true, multiple: false });
+    if (typeof picked !== 'string') return null;
+    setFolder(picked);
+    return picked;
+  }
 
   function reset() {
     setResults(null);
     setWrittenOpen(false);
   }
 
-  /** Ask for a folder, then cut every clip into it. */
+  /** Cut every clip into the chosen folder, asking for one first if there is none. */
   async function run(clips: ClipRequest[]) {
-    const folder = await open({ directory: true, multiple: false });
-    if (typeof folder !== 'string') return;
+    const target = folder ?? (await chooseFolder());
+    if (target === null) return;
 
     report(null);
     setCutting(true);
@@ -36,7 +47,7 @@ export function useCut(report: (error: unknown) => void) {
     });
 
     try {
-      setResults(await api.cutClips(clips, folder));
+      setResults(await api.cutClips(clips, target));
       setWrittenOpen(true);
     } catch (error) {
       report(error);
@@ -47,5 +58,5 @@ export function useCut(report: (error: unknown) => void) {
     }
   }
 
-  return { cutting, progress, results, writtenOpen, setWrittenOpen, reset, run };
+  return { cutting, progress, results, writtenOpen, setWrittenOpen, folder, chooseFolder, reset, run };
 }

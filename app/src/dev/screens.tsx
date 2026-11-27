@@ -23,7 +23,7 @@ import CriterionBar from '../components/CriterionBar';
 import CandidateList from '../components/CandidateList';
 import CandidateDetail from '../components/CandidateDetail';
 import Ruler from '../components/Ruler';
-import Button from '../components/Button';
+import CutBar from '../components/CutBar';
 import { edgesOf } from '../state/useSearch';
 import * as fixture from './fixtures';
 
@@ -62,9 +62,16 @@ function results(t: Text, options: { dropped?: number[] } = {}) {
           onSelect={noop}
           onToggleKeep={noop}
           footer={
-            <div className="flex items-center justify-end gap-4 px-4 py-2.5">
-              <Button kind="primary">{t.cut}</Button>
-            </div>
+            <CutBar
+              t={t}
+              kept={fixture.candidates.length - dropped.length}
+              folder="/home/kullanici/Videolar/kirpix"
+              cutting={false}
+              progress={null}
+              systemMedia={false}
+              onChooseFolder={noop}
+              onCut={noop}
+            />
           }
         />
       }
