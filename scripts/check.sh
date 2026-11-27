@@ -18,6 +18,18 @@ else
   exit 1
 fi
 
+step "rust: documentation"
+# Constitution, code structure: the number of public items without a doc
+# comment only goes down. Lower the baseline when a change documents more.
+doc_baseline=183
+undocumented=$(cd app/src-tauri && CARGO_TARGET_DIR=target/doc-check RUSTFLAGS="-W missing-docs" cargo build --lib --quiet 2>&1 \
+  | grep -c "^warning: missing documentation" || true)
+echo "$undocumented public items without a doc comment (baseline $doc_baseline)"
+if [ "$undocumented" -gt "$doc_baseline" ]; then
+  echo "undocumented public items went up: document the new ones" >&2
+  exit 1
+fi
+
 step "rust: test"
 # Tests whose evaluation input is missing print one "skipped:" line each
 # (app/src-tauri/src/testing.rs). Count them so a partial run is never read as
