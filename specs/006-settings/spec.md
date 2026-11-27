@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-17
 
-**Status**: Implemented — five tasks complete; three checks need a desktop session, named in `tasks.md`
+**Status**: Merged (#13). Open: T005p, three checks owed to a person.
 
 **Input**: The owner changed the operating system theme to test the dark
 appearance and could not find a theme control in the application. They expected
