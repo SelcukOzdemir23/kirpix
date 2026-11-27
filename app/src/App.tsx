@@ -21,7 +21,9 @@ import TimelineStrip, { type Bounds } from './components/TimelineStrip';
 import TrackChooser from './components/TrackChooser';
 import { useDrop } from './state/useDrop';
 import { useSession } from './state/useSession';
-import { orderCandidates, parseTerms, useSearch } from './state/useSearch';
+import { edgesOf, orderCandidates, parseTerms, useSearch } from './state/useSearch';
+import { usePreview } from './state/usePreview';
+import { useRanking } from './state/useRanking';
 import { useSettings } from './state/useSettings';
 
 /*
@@ -65,18 +67,14 @@ export default function App() {
   const [progress, setProgress] = useState<{ index: number; percent: number } | null>(null);
   const [results, setResults] = useState<CutResult[] | null>(null);
   const [writtenOpen, setWrittenOpen] = useState(false);
-  const [plan, setPlan] = useState<RequestPlan | null>(null);
-  const [ranking, setRanking] = useState<{ order: number[]; reasons: Record<number, string> } | null>(
-    null,
-  );
-  const [rankingBusy, setRankingBusy] = useState(false);
-  const [preview, setPreview] = useState<(ClipPreview & { candidateId: number }) | null>(null);
-  const [previewingId, setPreviewingId] = useState<number | null>(null);
-  const previewSeq = useRef(0);
+  const rankingState = useRanking(setError);
+  const { plan, ranking } = rankingState;
+  const previewState = usePreview(setError);
+  const { preview } = previewState;
 
   function chooseMode(next: Mode) {
     settings.chooseMode(next);
-    setRanking(null);
+    rankingState.reset();
   }
 
   const dropReady = useDrop((paths) => void acceptDropped(paths));
@@ -98,45 +96,7 @@ export default function App() {
     search.clear();
     setResults(null);
     setWrittenOpen(false);
-    previewSeq.current += 1;
-    setPreview(null);
-    setPreviewingId(null);
-  }
-
-  /**
-   * Ask for a preview of one candidate, or close the one already showing.
-   *
-   * Every request takes a ticket. An answer whose ticket is no longer current is
-   * dropped, so a slow encode cannot paint over a preview the user asked for
-   * afterwards — the same reason the counter is bumped when the bounds move.
-   */
-  async function togglePreview(candidate: Candidate) {
-    if (preview?.candidateId === candidate.id) {
-      previewSeq.current += 1;
-      setPreview(null);
-      setPreviewingId(null);
-      return;
-    }
-
-    const current = bounds[candidate.id] ?? candidate;
-    const ticket = (previewSeq.current += 1);
-    setPreview(null);
-    setPreviewingId(candidate.id);
-
-    try {
-      const clip = await api.previewClip(current.startMs, current.endMs);
-      if (previewSeq.current === ticket) {
-        setPreview({ ...clip, candidateId: candidate.id });
-      }
-    } catch (err) {
-      if (previewSeq.current === ticket) {
-        setError(err);
-      }
-    } finally {
-      if (previewSeq.current === ticket) {
-        setPreviewingId(null);
-      }
-    }
+    previewState.reset();
   }
 
   async function runSearch() {
@@ -144,47 +104,15 @@ export default function App() {
     if (!parsed) return;
     setResults(null);
     setWrittenOpen(false);
-    setRanking(null);
-    previewSeq.current += 1;
-    setPreview(null);
-    setPreviewingId(null);
-
-    if (mode.mode !== 'heuristic') {
-      // What would leave, stated before it leaves. The dialog's numbers come
-      // from the payload the backend actually built.
-      try {
-        setPlan(await api.planRequest(parsed, minSec * 1000, maxSec * 1000));
-      } catch (err) {
-        search.clear();
-        setError(err);
-      }
+    previewState.reset();
+    if (!(await rankingState.propose(mode, parsed, minSec * 1000, maxSec * 1000))) {
+      search.clear();
     }
   }
 
   /** Send the payload the dialog described, then order the list by the answer. */
-  async function sendToModel() {
-    if (!plan) return;
-    const parsed = parseTerms(terms);
-
-    setRankingBusy(true);
-    try {
-      const answer = await api.rankCandidates(parsed, minSec * 1000, maxSec * 1000, {
-        mode: plan.mode,
-        cueCount: plan.cueCount,
-        charCount: plan.charCount,
-      });
-
-      setRanking({
-        order: answer.map((entry) => entry.candidate),
-        reasons: Object.fromEntries(answer.map((entry) => [entry.candidate, entry.reason])),
-      });
-      setPlan(null);
-    } catch (err) {
-      setError(err);
-      setPlan(null);
-    } finally {
-      setRankingBusy(false);
-    }
+  function sendToModel() {
+    void rankingState.send(parseTerms(terms), minSec * 1000, maxSec * 1000);
   }
 
   async function runCut() {
@@ -475,22 +403,20 @@ export default function App() {
                               preview={
                                 preview?.candidateId === candidate.id ? preview : null
                               }
-                              previewing={previewingId === candidate.id}
+                              previewing={previewState.pendingId === candidate.id}
                               lang={lang}
                               t={t}
                               onBounds={(startMs, endMs) => {
                                 // The player would be showing the range the row
                                 // no longer names.
-                                previewSeq.current += 1;
-                                setPreview(null);
-                                setPreviewingId(null);
+                                previewState.reset();
                                 search.moveEdges(candidate.id, startMs, endMs);
                               }}
                               onReset={() => search.resetEdges(candidate.id)}
                               onReject={() => search.reject(candidate.id)}
                               onPlayCue={playCue}
                               onActive={setActiveId}
-                              onPreview={() => void togglePreview(candidate)}
+                              onPreview={() => void previewState.toggle(candidate.id, edgesOf(candidate, bounds))}
                             />
                           ))}
                         </ul>
@@ -526,12 +452,12 @@ export default function App() {
         <ConfirmDialog
           t={t}
           plan={plan}
-          onCancel={() => setPlan(null)}
-          onSend={() => void sendToModel()}
+          onCancel={rankingState.cancel}
+          onSend={sendToModel}
         />
       )}
 
-      {rankingBusy && (
+      {rankingState.busy && (
         <span className="pointer-events-none fixed bottom-4 left-1/2 -translate-x-1/2 rounded-[6px] border border-line bg-surface px-3 py-1.5 font-mono text-[12.5px] text-muted">
           {t.ranking}
         </span>
