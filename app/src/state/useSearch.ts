@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { api, type Candidate } from '../api';
+import { useEffect, useRef, useState } from 'react';
+import { api, type Candidate, type Cue } from '../api';
 
 /** A candidate's edges as the user left them. */
 export type Bounds = { startMs: number; endMs: number };
@@ -59,6 +59,28 @@ export function useSearch(report: (error: unknown) => void) {
   const [bounds, setBounds] = useState<Record<number, Bounds>>({});
   const [rejected, setRejected] = useState<number[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  // The terms the last search ran with: marks follow what was searched, not
+  // what has been typed since.
+  const [ranTerms, setRanTerms] = useState<string[]>([]);
+  const [lines, setLines] = useState<Cue[] | null>(null);
+  const linesTicket = useRef(0);
+
+  // The selected candidate's lines, with one beyond each edge so the edge
+  // controls have somewhere to go, marked by the backend's matcher (FR-008).
+  useEffect(() => {
+    const candidate = candidates?.find((each) => each.id === selectedId);
+    const mine = (linesTicket.current += 1);
+    setLines(null);
+    if (!candidate) return;
+    api
+      .sessionCues(Math.max(1, candidate.startCue - 1), candidate.endCue + 1, ranTerms)
+      .then((loaded) => {
+        if (linesTicket.current === mine) setLines(loaded);
+      })
+      .catch((error) => {
+        if (linesTicket.current === mine) report(error);
+      });
+  }, [candidates, selectedId, ranTerms]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function clear() {
     setCandidates(null);
@@ -74,6 +96,7 @@ export function useSearch(report: (error: unknown) => void) {
     setSearching(true);
     try {
       const found = await api.searchTopic(parsed, minSec * 1000, maxSec * 1000);
+      setRanTerms(parsed);
       setCandidates(found);
       setBounds({});
       setRejected([]);
@@ -124,6 +147,7 @@ export function useSearch(report: (error: unknown) => void) {
     rejected,
     selectedId,
     select: setSelectedId,
+    lines,
     clear,
     run,
     moveEdges,
