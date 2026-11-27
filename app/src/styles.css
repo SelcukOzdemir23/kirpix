@@ -8,55 +8,76 @@
   application uses: the system when nothing is chosen, and one block per
   explicit choice. The attribute wins over the media query on specificity, so a
   person who picks an appearance is not overruled by their desktop.
+
+  The palette is feature 007's (research R3). Every colour has one job:
+    ink         the window's ground       surface   lists, panels, dialogs
+    line        dividers between regions  edge      a control's border, 3:1 or more
+    text, muted primary, secondary text   accent    selected and focused
+    marker      words the search matched and nothing else; text on it is on-marker
+    danger      failures and destructive actions
 */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
-  --light-ink: #ffffff;
-  --light-surface: #f6f6f8;
-  --light-surface-2: #ececf1;
-  --light-line: rgba(0, 0, 0, 0.1);
-  --light-text: #17171f;
-  --light-muted: #4c4c5c;
-  --light-accent: #6250da;
-  --light-accent-fill: rgba(98, 80, 218, 0.14);
-  --light-danger: #a5122a;
-  --light-selection: rgba(98, 80, 218, 0.22);
+  --light-ink: #f3f4f1;
+  --light-surface: #ffffff;
+  --light-surface-2: #e9ebe6;
+  --light-line: #d5d9d3;
+  --light-edge: #7d847e;
+  --light-text: #1b1d1b;
+  --light-muted: #565c57;
+  --light-accent: #2457a6;
+  --light-accent-fill: rgba(36, 87, 166, 0.09);
+  --light-danger: #a1271e;
+  --light-marker: #f5d547;
+  --light-on-marker: #1b1d1b;
+  --light-selection: rgba(36, 87, 166, 0.2);
 
-  --dark-ink: #0a0a0d;
-  --dark-surface: #101015;
-  --dark-surface-2: #15151d;
-  --dark-line: rgba(255, 255, 255, 0.09);
-  --dark-text: #f4f2f9;
-  --dark-muted: #bcbac9;
-  --dark-accent: #8b7cf8;
-  --dark-accent-fill: rgba(139, 124, 248, 0.14);
-  --dark-danger: #ffc9c9;
-  --dark-selection: rgba(139, 124, 248, 0.28);
+  --dark-ink: #1a1c1a;
+  --dark-surface: #232623;
+  --dark-surface-2: #2b2e2b;
+  --dark-line: #3a3e3a;
+  --dark-edge: #7a817a;
+  --dark-text: #ecede8;
+  --dark-muted: #a8aea8;
+  --dark-accent: #86a9e6;
+  --dark-accent-fill: rgba(134, 169, 230, 0.12);
+  --dark-danger: #f09a91;
+  --dark-marker: #c9a92e;
+  --dark-on-marker: #1a1c1a;
+  --dark-selection: rgba(134, 169, 230, 0.28);
 
   --app-ink: var(--light-ink);
   --app-surface: var(--light-surface);
   --app-surface-2: var(--light-surface-2);
   --app-line: var(--light-line);
+  --app-edge: var(--light-edge);
   --app-text: var(--light-text);
   --app-muted: var(--light-muted);
   --app-accent: var(--light-accent);
   --app-accent-fill: var(--light-accent-fill);
   --app-danger: var(--light-danger);
+  --app-marker: var(--light-marker);
+  --app-on-marker: var(--light-on-marker);
   --app-selection: var(--light-selection);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
     --app-ink: var(--dark-ink);
     --app-surface: var(--dark-surface);
     --app-surface-2: var(--dark-surface-2);
     --app-line: var(--dark-line);
+    --app-edge: var(--dark-edge);
     --app-text: var(--dark-text);
     --app-muted: var(--dark-muted);
     --app-accent: var(--dark-accent);
     --app-accent-fill: var(--dark-accent-fill);
     --app-danger: var(--dark-danger);
+    --app-marker: var(--dark-marker);
+    --app-on-marker: var(--dark-on-marker);
     --app-selection: var(--dark-selection);
   }
 }
@@ -68,11 +89,14 @@
   --app-surface: var(--light-surface);
   --app-surface-2: var(--light-surface-2);
   --app-line: var(--light-line);
+  --app-edge: var(--light-edge);
   --app-text: var(--light-text);
   --app-muted: var(--light-muted);
   --app-accent: var(--light-accent);
   --app-accent-fill: var(--light-accent-fill);
   --app-danger: var(--light-danger);
+  --app-marker: var(--light-marker);
+  --app-on-marker: var(--light-on-marker);
   --app-selection: var(--light-selection);
 }
 
@@ -83,11 +107,14 @@
   --app-surface: var(--dark-surface);
   --app-surface-2: var(--dark-surface-2);
   --app-line: var(--dark-line);
+  --app-edge: var(--dark-edge);
   --app-text: var(--dark-text);
   --app-muted: var(--dark-muted);
   --app-accent: var(--dark-accent);
   --app-accent-fill: var(--dark-accent-fill);
   --app-danger: var(--dark-danger);
+  --app-marker: var(--dark-marker);
+  --app-on-marker: var(--dark-on-marker);
   --app-selection: var(--dark-selection);
 }
 
@@ -96,11 +123,14 @@
   --color-surface: var(--app-surface);
   --color-surface-2: var(--app-surface-2);
   --color-line: var(--app-line);
+  --color-edge: var(--app-edge);
   --color-text: var(--app-text);
   --color-muted: var(--app-muted);
   --color-accent: var(--app-accent);
   --color-accent-dim: var(--app-accent-fill);
   --color-danger: var(--app-danger);
+  --color-marker: var(--app-marker);
+  --color-on-marker: var(--app-on-marker);
 
   --font-sans: 'Atkinson Hyperlegible Next Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Atkinson Hyperlegible Mono Variable', ui-monospace, 'SFMono-Regular', monospace;

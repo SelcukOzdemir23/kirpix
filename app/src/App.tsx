@@ -3,6 +3,7 @@ import { type CutResult, type Mode } from './api';
 import { copy, errorMessage, type Lang } from './i18n/copy';
 import { fileName, folderOf, timecode } from './format';
 import CandidateCard from './components/CandidateCard';
+import Button from './components/Button';
 import ConfirmDialog from './components/ConfirmDialog';
 import CriteriaForm from './components/CriteriaForm';
 import SectionLabel from './components/SectionLabel';
@@ -122,33 +123,12 @@ export default function App() {
 
         <div className="flex shrink-0 items-center gap-3">
           {busy && <span className="font-mono text-[13px] text-muted">{t.opening}</span>}
-          <button
-            type="button"
-            onClick={() => setSettingsOpen((open) => !open)}
-            aria-pressed={settingsOpen}
-            className={`rounded-[6px] border px-3 py-1.5 text-[13.5px] transition-colors ${
-              settingsOpen
-                ? 'border-accent/40 bg-accent/10 text-accent'
-                : 'border-line text-text/85 hover:border-text/25 hover:bg-surface-2'
-            }`}
-          >
+          <Button onClick={() => setSettingsOpen((open) => !open)} selected={settingsOpen}>
             {settingsOpen ? t.settingsClose : t.settingsOpen}
-          </button>
-          <div className="flex items-center gap-0.5 rounded-[6px] border border-line p-0.5">
-            {(['tr', 'en'] as Lang[]).map((code) => (
-              <button
-                key={code}
-                type="button"
-                onClick={() => setLang(code)}
-                aria-pressed={lang === code}
-                className={`rounded-[4px] px-2.5 py-1 font-mono text-[12.5px] tracking-[0.06em] transition-colors ${
-                  lang === code ? 'bg-surface-2 text-text' : 'text-muted hover:text-text'
-                }`}
-              >
-                {code.toUpperCase()}
-              </button>
-            ))}
-          </div>
+          </Button>
+          <Button kind="quiet" onClick={() => setLang(lang === 'tr' ? 'en' : 'tr')}>
+            {lang === 'tr' ? 'English' : 'Türkçe'}
+          </Button>
         </div>
       </header>
 
@@ -212,14 +192,9 @@ export default function App() {
                     </>
                   ) : null}
 
-                  <button
-                    type="button"
-                    onClick={pickVideo}
-                    disabled={busy}
-                    className="self-start text-[13.5px] text-muted underline decoration-line underline-offset-4 transition-colors hover:text-text hover:decoration-text disabled:opacity-50"
-                  >
+                  <Button kind="quiet" onClick={pickVideo} disabled={busy} className="self-start">
                     {t.another}
-                  </button>
+                  </Button>
                 </>
               ) : (
                 <button
@@ -387,14 +362,9 @@ export default function App() {
 
                   {visible.length > 0 && (
                     <footer className="flex shrink-0 items-center justify-between gap-4 border-t border-line px-5 py-3.5">
-                      <button
-                        type="button"
-                        onClick={runCut}
-                        disabled={cutting}
-                        className="rounded-[6px] bg-text px-4 py-2.5 text-[15px] font-medium text-ink transition-transform active:translate-y-px disabled:opacity-40 disabled:active:translate-y-0"
-                      >
+                      <Button kind="primary" onClick={runCut} disabled={cutting}>
                         {cutting ? t.cutting : t.cut}
-                      </button>
+                      </Button>
                       <span className="font-mono text-[13.5px] tabular-nums text-muted">
                         {progress ? `${progress.percent}%` : timecode(keptDuration)}
                       </span>
