@@ -1,7 +1,11 @@
 # Working in this repository
 
-Read `.specify/memory/constitution.md` before anything else. It outranks specs,
-plans and code, and every plan review checks the work against it.
+Read two files before anything else:
+
+- `.specify/memory/constitution.md`: the rules. It outranks specs, plans and
+  code, and every plan review checks the work against it.
+- `.specify/memory/product.md`: what Kirpix is for, who it is for, and the
+  numbered roadmap. Every spec names the roadmap item it delivers.
 
 ## Layout
 
@@ -46,8 +50,9 @@ manages them. One feature folder per slice.
 - One task, one commit, and the app stays runnable after each commit.
 - One feature at a time, in number order. A spec may be written ahead, code may
   not: finish and merge feature N before starting feature N+1. No two features
-  in flight at once. A merged feature is not reopened; a fix to it is the next
-  numbered slice, or a chore if it changes no behaviour.
+  in flight at once. A merged feature is not reopened. A fix that makes the code
+  do what its merged spec already says is a `fix-*` branch through the bug
+  commands; a change to what the spec says is the next numbered slice.
 - The cycle, every time: spec (with the owner's answers to its open
   questions), plan, tasks, then a branch named after the spec
   (`NNN-short-name`), one commit per task, a pull request, merge, delete the
@@ -58,10 +63,39 @@ manages them. One feature folder per slice.
 - A chore (`chore-*` branch) changes no behaviour: records, docs, formatting,
   lint, tooling. It needs no spec but goes through a pull request.
 - `./scripts/check.sh` passes before every pull request.
-- A task box is ticked in the commit that does the task. A box whose check
-  needs a person stays open and says exactly what is owed.
+- A task box is ticked in the commit that does the task. Verification is two
+  boxes: *verified by the machine* (ticked when the tests pass) and *owed to a
+  person* (open, naming each check, until that person has done it).
 - Specs, code, comments and commit messages in English. The interface ships in
   Turkish and English.
+
+## Branches and merges
+
+```
+master ──●───────────────●──────────────●──   always runnable, protected
+          \             /  \            /
+           007-ui-redesign   chore-records
+           one commit per task   no behaviour change
+```
+
+| Branch | Starts from | Holds | Merges when |
+| --- | --- | --- | --- |
+| `NNN-short-name` | `master`, after `/speckit-specify` | one feature: its spec, plan, tasks, then one commit per task | `/speckit-analyze` has no critical finding, every task is done or names what a person owes, `check.sh` passes, the owner approves |
+| `chore-short-name` | `master` | records, docs, formatting, lint, tooling, tests that pin existing behaviour | `check.sh` passes, the owner approves |
+| `fix-short-name` | `master`, after `/speckit-bug-assess` | the scoped fix and its report under `.specify/bugs/` | `/speckit-bug-test` has recorded the verification |
+
+The steps, every time:
+
+1. `git switch master && git pull --ff-only`
+2. create the branch (the spec command does this for a feature)
+3. commit each task on its own; push
+4. `./scripts/check.sh`, then `gh pr create` with the checks' summary
+5. the owner reviews; `gh pr merge <n> --merge --delete-branch`
+6. `git switch master && git pull --ff-only && git branch -D <branch>`
+
+Never: squash, rebase onto `master` after review, `--admin`, force-push to
+`master`, or a second feature branch while one is open. A chore may run
+beside a feature when it touches none of the feature's files.
 
 ## Commands
 

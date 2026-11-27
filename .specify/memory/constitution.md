@@ -147,7 +147,9 @@ recordings and the threshold used to check it.
   task commits: merge commits, not squashes.
 - **One feature in flight, in number order.** A spec may be written ahead;
   code for feature N+1 waits until feature N is merged. A merged feature is
-  not reopened: a change to its behaviour is a new numbered slice.
+  not reopened: a change to its specified behaviour is a new numbered
+  slice. A fix that brings the code back to what its spec already says goes
+  through the bug commands on its own branch, with its report.
 - **Chores are not features.** A change with no behaviour change (records,
   docs, formatting, lint, tooling) may go without a spec, on its own branch,
   through a pull request.
@@ -173,7 +175,8 @@ recordings and the threshold used to check it.
 - **1.2.0** (2026-11-27), MINOR: the bundled-FFmpeg rule becomes a release
   gate; a code-structure constraint is added; the workflow names every Spec Kit
   step, ties each spec to the product document, and splits verification into a
-  machine box and a person box. *Reason*: the analysis of 001 to 006 found the
+  machine box and a person box, and separates a bug fix (code back to its
+  spec) from a behaviour change (a new slice). *Reason*: the analysis of 001 to 006 found the
   FFmpeg rule unmet by every build with no record of the deferral (finding D1),
   and two rules in use for person-owed checks (I1). The owner asked for code a
   reader can judge, so the structure the Rust side already follows is written
