@@ -27,7 +27,7 @@ changes (Phase 2), so a behaviour change cannot hide inside the redesign.
 
 ## Phase 1: Setup
 
-- [ ] T001 Swap the bundled typefaces: add `@fontsource-variable/atkinson-hyperlegible-next` and `…-mono`, remove `familjen-grotesk` and `jetbrains-mono` in `package.json`; import them in `src/main.tsx`; set the two font tokens in `src/styles.css`; replace the two font rows in `THIRD_PARTY.md` (research R2). The old layout renders in the new faces.
+- [x] T001 Swap the bundled typefaces: add `@fontsource-variable/atkinson-hyperlegible-next` and `…-mono`, remove `familjen-grotesk` and `jetbrains-mono` in `package.json`; import them in `src/main.tsx`; set the two font tokens in `src/styles.css`; replace the two font rows in `THIRD_PARTY.md` (research R2). The old layout renders in the new faces.
 
 ---
 

@@ -102,8 +102,8 @@
   --color-accent-dim: var(--app-accent-fill);
   --color-danger: var(--app-danger);
 
-  --font-sans: 'Familjen Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+  --font-sans: 'Atkinson Hyperlegible Next Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Atkinson Hyperlegible Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
 }
 
 @layer base {
