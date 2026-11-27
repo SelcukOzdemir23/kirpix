@@ -17,13 +17,91 @@ import { copy, type Lang } from '../i18n/copy';
 import TrackChooser from '../components/TrackChooser';
 import StartScreen from '../screens/StartScreen';
 import CriterionScreen from '../screens/CriterionScreen';
+import TopBar from '../components/TopBar';
+import ResultsScreen from '../screens/ResultsScreen';
+import CriterionBar from '../components/CriterionBar';
+import CandidateList from '../components/CandidateList';
+import CandidateDetail from '../components/CandidateDetail';
+import Ruler from '../components/Ruler';
+import Button from '../components/Button';
+import { edgesOf } from '../state/useSearch';
 import * as fixture from './fixtures';
 
 type Text = (typeof copy)['tr'];
 const noop = () => {};
 
 /** Every state the page can show. */
+function results(t: Text, options: { dropped?: number[] } = {}) {
+  const selected = fixture.candidates[0];
+  const dropped = options.dropped ?? [fixture.candidates[3].id];
+  const lines = fixture.cues.filter(
+    (cue) => cue.index >= selected.startCue - 1 && cue.index <= selected.endCue + 1,
+  );
+  return (
+    <ResultsScreen
+      bar={
+        <CriterionBar
+          t={t}
+          terms={fixture.terms.join(', ')}
+          minSec={8}
+          maxSec={120}
+          searching={false}
+          onTerms={noop}
+          onSearch={noop}
+        />
+      }
+      list={
+        <CandidateList
+          t={t}
+          candidates={fixture.candidates}
+          bounds={{}}
+          dropped={dropped}
+          selectedId={selected.id}
+          reasons={null}
+          badge={t.heuristicBadge}
+          onSelect={noop}
+          onToggleKeep={noop}
+          footer={
+            <div className="flex items-center justify-end gap-4 px-4 py-2.5">
+              <Button kind="primary">{t.cut}</Button>
+            </div>
+          }
+        />
+      }
+      detail={
+        <CandidateDetail
+          t={t}
+          candidate={selected}
+          edges={edgesOf(selected, {})}
+          lines={lines}
+          preview={null}
+          previewing={false}
+          systemMedia={false}
+          step="second"
+          onStep={noop}
+          onPreview={noop}
+          onMove={noop}
+          onReset={noop}
+          onListen={noop}
+        />
+      }
+      ruler={
+        <Ruler
+          t={t}
+          durationMs={fixture.session.durationMs}
+          candidates={fixture.candidates}
+          bounds={{}}
+          dropped={dropped}
+          selectedId={selected.id}
+          onSelect={noop}
+        />
+      }
+    />
+  );
+}
+
 export const states: Record<string, (t: Text) => ReactNode> = {
+  results: (t) => results(t),
   criterion: (t) => (
     <CriterionScreen
       t={t}
@@ -60,6 +138,20 @@ const render = states[name];
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-ink text-text">
+      {name !== 'start' && (
+        <TopBar
+          t={copy[lang]}
+          lang={lang}
+          session={fixture.session}
+          mode={{ mode: 'heuristic' }}
+          offsetMs={0}
+          busy={false}
+          settingsOpen={false}
+          onLang={noop}
+          onSettings={noop}
+          onChangeFile={noop}
+        />
+      )}
       {render ? render(copy[lang]) : <p className="p-6">Unknown state: {name}</p>}
     </div>
   </React.StrictMode>,

@@ -1,18 +1,22 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { type CutResult, type Mode } from './api';
+import { type Candidate, type CutResult, type Mode } from './api';
 import { copy, errorMessage, type Lang } from './i18n/copy';
 import { fileName, folderOf, timecode } from './format';
-import CandidateCard from './components/CandidateCard';
 import Button from './components/Button';
 import ConfirmDialog from './components/ConfirmDialog';
 import TopBar from './components/TopBar';
 import StartScreen from './screens/StartScreen';
 import CriterionScreen from './screens/CriterionScreen';
+import ResultsScreen from './screens/ResultsScreen';
+import CandidateDetail from './components/CandidateDetail';
+import CandidateList from './components/CandidateList';
+import CriterionBar from './components/CriterionBar';
+import Ruler from './components/Ruler';
+import { stepEdge, type Edge, type Step } from './state/edges';
 import CriteriaForm from './components/CriteriaForm';
 import SectionLabel from './components/SectionLabel';
 import SettingsView from './components/SettingsView';
 import OffsetControls from './components/OffsetControls';
-import TimelineStrip from './components/TimelineStrip';
 import TrackChooser from './components/TrackChooser';
 import { useDrop } from './state/useDrop';
 import { useSession } from './state/useSession';
@@ -59,6 +63,7 @@ export default function App() {
   const { candidates, bounds, rejected } = search;
   const activeId = search.selectedId;
   const setActiveId = search.select;
+  const [step, setStep] = useState<Step>('second');
   const cut = useCut(setError);
   const { cutting, progress, results, writtenOpen, setWrittenOpen } = cut;
   const rankingState = useRanking(setError);
@@ -112,6 +117,15 @@ export default function App() {
   }
 
   const visible = orderCandidates(candidates, rejected, ranking);
+  const listed = orderCandidates(candidates, [], ranking);
+  const selected = listed.find((candidate) => candidate.id === activeId) ?? null;
+
+  function moveEdge(candidate: Candidate, edge: Edge, direction: -1 | 1) {
+    const next = stepEdge(edgesOf(candidate, bounds), edge, direction, step, search.lines ?? []);
+    // The player would be showing a range the row no longer names.
+    previewState.reset();
+    search.moveEdges(candidate.id, next.startMs, next.endMs);
+  }
   const keptDuration = visible.reduce((total, candidate) => {
     const current = bounds[candidate.id] ?? candidate;
     return total + (current.endMs - current.startMs);
@@ -285,106 +299,105 @@ export default function App() {
               />
             </div>
           ) : session ? (
-            <>
-              <div className="shrink-0 pt-4">
-                <TimelineStrip
-                  t={t}
-                  durationMs={session.durationMs}
-                  candidates={candidates ?? []}
-                  bounds={bounds}
-                  rejected={rejected}
-                  activeId={activeId}
-                  onActive={setActiveId}
-                />
-              </div>
-
-              {candidates === null ? (
-                <CriterionScreen
-                  t={t}
-                  terms={terms}
-                  minSec={minSec}
-                  maxSec={maxSec}
-                  searching={searching}
-                  onTerms={setTerms}
-                  onMin={setMinSec}
-                  onMax={setMaxSec}
-                  onSearch={() => void runSearch()}
-                />
-              ) : writtenOpen && results ? (
-                <WrittenFiles t={t} results={results} onBack={() => setWrittenOpen(false)} />
-              ) : (
-                <>
-                  <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3.5">
-                    {candidates.length === 0 ? (
-                      <Centered title={t.noMatch} body={t.noMatchHint} />
-                    ) : (
-                      <>
-                        <div className="flex items-baseline justify-between gap-4 pb-3">
-                          <h2 className="flex items-baseline gap-2 text-[14.5px] text-text/90">
-                            {t.found(visible.length)}
-                            <span className="font-mono text-[12px] text-muted">
-                              {mode.mode === 'heuristic'
-                                ? t.heuristicBadge
-                                : ranking
-                                  ? t.rankedBy(modeLabel(mode))
-                                  : modeLabel(mode)}
-                            </span>
-                          </h2>
-                          <span className="font-mono text-[13.5px] tabular-nums text-muted">
-                            {timecode(keptDuration)}
+            candidates === null ? (
+              <CriterionScreen
+                t={t}
+                terms={terms}
+                minSec={minSec}
+                maxSec={maxSec}
+                searching={searching}
+                onTerms={setTerms}
+                onMin={setMinSec}
+                onMax={setMaxSec}
+                onSearch={() => void runSearch()}
+              />
+            ) : writtenOpen && results ? (
+              <WrittenFiles t={t} results={results} onBack={() => setWrittenOpen(false)} />
+            ) : (
+              <ResultsScreen
+                bar={
+                  <CriterionBar
+                    t={t}
+                    terms={terms}
+                    minSec={minSec}
+                    maxSec={maxSec}
+                    searching={searching}
+                    onTerms={setTerms}
+                    onSearch={() => void runSearch()}
+                  />
+                }
+                list={
+                  candidates.length === 0 ? (
+                    <Centered title={t.noMatch} body={t.noMatchHint} />
+                  ) : (
+                    <CandidateList
+                      t={t}
+                      candidates={listed}
+                      bounds={bounds}
+                      dropped={rejected}
+                      selectedId={activeId}
+                      reasons={ranking?.reasons ?? null}
+                      badge={
+                        mode.mode === 'heuristic'
+                          ? t.heuristicBadge
+                          : ranking
+                            ? t.rankedBy(modeLabel(mode))
+                            : modeLabel(mode)
+                      }
+                      onSelect={setActiveId}
+                      onToggleKeep={search.toggleKeep}
+                      footer={
+                        <div className="flex items-center justify-between gap-4 px-4 py-2.5">
+                          <span className="min-w-0 text-[13px] text-muted">
+                            {progress
+                              ? `${progress.percent}%`
+                              : session.mediaSource === 'systemPath'
+                                ? t.systemMedia
+                                : timecode(keptDuration)}
                           </span>
+                          <Button kind="primary" onClick={runCut} disabled={cutting || visible.length === 0}>
+                            {cutting ? t.cutting : t.cut}
+                          </Button>
                         </div>
-
-                        <ul className="space-y-2">
-                          {visible.map((candidate) => (
-                            <CandidateCard
-                              key={candidate.id}
-                              candidate={candidate}
-                              bounds={
-                                bounds[candidate.id] ?? {
-                                  startMs: candidate.startMs,
-                                  endMs: candidate.endMs,
-                                }
-                              }
-                              active={activeId === candidate.id}
-                              reason={ranking?.reasons[candidate.id] ?? null}
-                              preview={
-                                preview?.candidateId === candidate.id ? preview : null
-                              }
-                              previewing={previewState.pendingId === candidate.id}
-                              lang={lang}
-                              t={t}
-                              onBounds={(startMs, endMs) => {
-                                // The player would be showing the range the row
-                                // no longer names.
-                                previewState.reset();
-                                search.moveEdges(candidate.id, startMs, endMs);
-                              }}
-                              onReset={() => search.resetEdges(candidate.id)}
-                              onReject={() => search.reject(candidate.id)}
-                              onPlayCue={playCue}
-                              onActive={setActiveId}
-                              onPreview={() => void previewState.toggle(candidate.id, edgesOf(candidate, bounds))}
-                            />
-                          ))}
-                        </ul>
-                      </>
-                    )}
-                  </div>
-
-                  {visible.length > 0 && (
-                    <footer className="flex shrink-0 items-center justify-between gap-4 border-t border-line px-5 py-3.5">
-                      <Button kind="primary" onClick={runCut} disabled={cutting}>
-                        {cutting ? t.cutting : t.cut}
-                      </Button>
-                      <span className="font-mono text-[13.5px] tabular-nums text-muted">
-                        {progress ? `${progress.percent}%` : timecode(keptDuration)}
-                      </span>
-                    </footer>
-                  )}
-                </>
-              )}
-            </>
+                      }
+                    />
+                  )
+                }
+                detail={
+                  selected && (
+                    <CandidateDetail
+                      t={t}
+                      candidate={selected}
+                      edges={edgesOf(selected, bounds)}
+                      lines={search.lines}
+                      preview={preview?.candidateId === selected.id ? preview : null}
+                      previewing={previewState.pendingId === selected.id}
+                      systemMedia={session.mediaSource === 'systemPath'}
+                      step={step}
+                      onStep={setStep}
+                      onPreview={() => void previewState.toggle(selected.id, edgesOf(selected, bounds))}
+                      onMove={(edge, direction) => moveEdge(selected, edge, direction)}
+                      onReset={() => {
+                        previewState.reset();
+                        search.resetEdges(selected.id);
+                      }}
+                      onListen={(cueIndex) => void playCue(cueIndex)}
+                    />
+                  )
+                }
+                ruler={
+                  <Ruler
+                    t={t}
+                    durationMs={session.durationMs}
+                    candidates={listed}
+                    bounds={bounds}
+                    dropped={rejected}
+                    selectedId={activeId}
+                    onSelect={setActiveId}
+                  />
+                }
+              />
+            )
           ) : (
             <StartScreen t={t} dropReady={dropReady} busy={busy} onPick={() => void pickVideo()} />
           )}
