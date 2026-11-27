@@ -8,8 +8,6 @@ import {
   type CutResult,
   type Mode,
   type RequestPlan,
-  type SessionInfo,
-  type SubtitleTrack,
 } from './api';
 import { copy, errorMessage, type Lang } from './i18n/copy';
 import { fileName, folderOf, timecode } from './format';
@@ -22,12 +20,8 @@ import OffsetControls from './components/OffsetControls';
 import TimelineStrip, { type Bounds } from './components/TimelineStrip';
 import TrackChooser from './components/TrackChooser';
 import { useDrop } from './state/useDrop';
+import { useSession } from './state/useSession';
 import { useSettings } from './state/useSettings';
-
-const VIDEO_FILTERS = [{ name: 'Video', extensions: ['mp4', 'mkv', 'mov', 'webm'] }];
-const SUBTITLE_FILTERS = [{ name: 'Subtitles', extensions: ['srt', 'vtt'] }];
-const VIDEO_EXT = /\.(mp4|mkv|mov|webm)$/i;
-const SUBTITLE_EXT = /\.(srt|vtt)$/i;
 
 /*
   Two panes, the way a desktop tool reads: everything you set on the left, what
@@ -45,11 +39,21 @@ export default function App() {
   const settingsOpen = settings.open;
   const setSettingsOpen = settings.setOpen;
 
-  const [session, setSession] = useState<SessionInfo | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  const [pendingVideo, setPendingVideo] = useState<string | null>(null);
-  const [tracks, setTracks] = useState<SubtitleTrack[]>([]);
+  const {
+    session,
+    busy,
+    pendingVideo,
+    tracks,
+    offsetMs,
+    clampedCues,
+    audioRef,
+    pickVideo,
+    chooseSubtitleFile,
+    openFromTrack,
+    acceptDropped,
+    applyOffset,
+    playCue,
+  } = useSession(setError, clearResults);
 
   const [terms, setTerms] = useState('');
   const [minSec, setMinSec] = useState(8);
@@ -59,9 +63,6 @@ export default function App() {
   const [bounds, setBounds] = useState<Record<number, Bounds>>({});
   const [rejected, setRejected] = useState<number[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
-  const [offsetMs, setOffsetMs] = useState(0);
-  const [clampedCues, setClampedCues] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [cutting, setCutting] = useState(false);
   const [progress, setProgress] = useState<{ index: number; percent: number } | null>(null);
   const [results, setResults] = useState<CutResult[] | null>(null);
@@ -94,105 +95,17 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [error]);
 
-  function applySession(info: SessionInfo) {
-    setSession(info);
-    setPendingVideo(null);
-    setTracks([]);
+  /** Everything measured on the cue times: a new recording or offset clears it. */
+  function clearResults() {
     setCandidates(null);
     setBounds({});
     setRejected([]);
     setResults(null);
     setWrittenOpen(false);
-    setError(null);
-    setOffsetMs(info.offsetMs);
-    setClampedCues(0);
     setActiveId(null);
-  }
-
-  async function applyOffset(next: number) {
-    try {
-      const info = await api.setOffset(next);
-      setOffsetMs(info.offsetMs);
-      setClampedCues(info.clampedCues);
-      // The previous results were measured on the old times.
-      setCandidates(null);
-      setBounds({});
-      setResults(null);
-      setWrittenOpen(false);
-      setActiveId(null);
-      previewSeq.current += 1;
-      setPreview(null);
-      setPreviewingId(null);
-    } catch (err) {
-      setError(err);
-    }
-  }
-
-  async function playCue(cueIndex: number) {
-    try {
-      const url = await api.cueSample(cueIndex, 4);
-      if (audioRef.current) {
-        audioRef.current.src = url;
-        await audioRef.current.play();
-      }
-    } catch (err) {
-      setError(err);
-    }
-  }
-
-  async function pickVideo() {
-    setError(null);
-    const video = await open({ multiple: false, directory: false, filters: VIDEO_FILTERS });
-    if (typeof video === 'string') await acceptVideo(video);
-  }
-
-  /** A container may already carry its subtitles. Ask which text before asking for a file. */
-  async function acceptVideo(video: string) {
-    setError(null);
-    setBusy(true);
-    try {
-      const found = await api.listTracks(video);
-      if (found.length > 0) {
-        setPendingVideo(video);
-        setTracks(found);
-        setSession(null);
-      } else {
-        await acceptSubtitleFile(video);
-      }
-    } catch (err) {
-      setError(err);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function acceptSubtitleFile(video: string) {
-    const subtitle = await open({ multiple: false, directory: false, filters: SUBTITLE_FILTERS });
-    if (typeof subtitle === 'string') await openWith(video, subtitle);
-  }
-
-  async function openWith(video: string, subtitle: string) {
-    setBusy(true);
-    try {
-      applySession(await api.openSession(video, subtitle));
-    } catch (err) {
-      setSession(null);
-      setError(err);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function openFromTrack(video: string, streamIndex: number) {
-    setBusy(true);
-    try {
-      applySession(await api.openFromTrack(video, streamIndex));
-    } catch (err) {
-      setSession(null);
-      setError(err);
-    } finally {
-      setBusy(false);
-    }
+    previewSeq.current += 1;
+    setPreview(null);
+    setPreviewingId(null);
   }
 
   /**
@@ -228,23 +141,6 @@ export default function App() {
       if (previewSeq.current === ticket) {
         setPreviewingId(null);
       }
-    }
-  }
-
-  /** A dropped file is the same choice as a picked one; an explicit subtitle wins over the container's own. */
-  async function acceptDropped(paths: string[]) {
-    const video = paths.find((path) => VIDEO_EXT.test(path));
-    const subtitle = paths.find((path) => SUBTITLE_EXT.test(path));
-
-    if (video) {
-      if (subtitle) await openWith(video, subtitle);
-      else await acceptVideo(video);
-      return;
-    }
-
-    if (subtitle) {
-      const known = pendingVideo ?? session?.videoPath;
-      if (known) await openWith(known, subtitle);
     }
   }
 
@@ -551,7 +447,7 @@ export default function App() {
                 tracks={tracks}
                 busy={busy}
                 onTrack={(streamIndex) => openFromTrack(pendingVideo, streamIndex)}
-                onFile={() => void acceptSubtitleFile(pendingVideo)}
+                onFile={() => void chooseSubtitleFile(pendingVideo)}
               />
             </div>
           ) : session ? (
