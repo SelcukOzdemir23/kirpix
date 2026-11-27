@@ -11,8 +11,11 @@ adjust the boundaries, and cut.
 
 **Status: in development, nothing released.** The application runs from source.
 What works today: open a video with a subtitle file or an embedded text track,
-shift the subtitles to match the sound, search by topic, preview a candidate,
-adjust its boundaries and cut it with FFmpeg. A local model (Ollama, LM Studio
+choose what to look for from five criterion cards (topic is built; duration,
+arc, hook and your own sentence are on the roadmap and say so), see each clip
+beside its player and its subtitle lines with the matched words marked, pick
+clips from the list or the ruler, adjust their edges, shift the subtitles to
+match the sound, and cut with FFmpeg. A local model (Ollama, LM Studio
 or any OpenAI-compatible server) or DeepSeek can rank the candidates and give
 a reason, after a confirmation. Not built yet: the duration, arc, hook and
 free-sentence criteria, Whisper transcription, and packaged installers.

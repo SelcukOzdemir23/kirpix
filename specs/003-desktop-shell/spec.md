@@ -121,14 +121,20 @@ that file.
 - **FR-001**: The window MUST be laid out as a fixed-width rail holding the
   inputs and a flexible working pane holding the result. The rail scrolls on its
   own; the page does not.
+  *Superseded (recorded 2026-11-27)*: 007 replaces the rail and pane with a top bar,
+  a criterion screen and a results screen (007 FR-001 to FR-011).
 - **FR-002**: The application MUST ship its two typefaces rather than use system
   fonts: a sans for text and a monospaced face for every timecode, path and
   numeric value. Both are the faces the project site already uses.
+  *Superseded (recorded 2026-11-27)*: 007 bundles Atkinson Hyperlegible Next and
+  Mono in the application; the site keeps the faces named here (007 research R2).
 - **FR-003**: One accent colour MUST be reserved for state — the selected or
   edited mark, the focus ring, the current value — and the primary action MUST
   NOT use it. No colour outside the palette except the error surface.
 - **FR-004**: The working pane MUST show one subject at a time: the subtitle
   track choice, the candidate list, or the files that were written.
+  *Superseded (recorded 2026-11-27)*: 007 keeps one subject at a time as screen
+  states; written files are a strip inside results (007 FR-024).
 - **FR-005**: Every mark on the timeline MUST be positioned from the candidate's
   start and end against the session duration, the same numbers the list renders.
   No mark may be positioned from anything else.
@@ -160,6 +166,8 @@ that file.
 - **FR-016**: The interface MUST avoid the tell-tales of a web page in a
   window: no pointer cursor on buttons or rows, no text selection on chrome,
   and system-drawn scrollbars.
+  *Superseded (recorded 2026-11-27)*: 007 keeps no hand cursor and unselectable
+  chrome; system scrollbars are unchanged.
 - **FR-018**: Every clickable thing MUST look clickable: a control carries a
   visible boundary or a permanent underline in its resting state, and answers
   both hover and press. An unbounded text label MUST NOT be the only thing that
