@@ -185,10 +185,12 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           mode={{ mode: 'heuristic' }}
           offsetMs={0}
           busy={false}
-          settingsOpen={false}
+          settingsOpen={name === 'settings'}
           onLang={noop}
           onSettings={noop}
           onChangeFile={noop}
+          alignmentOpen={false}
+          onAlignment={noop}
         />
       )}
       {render ? render(copy[lang]) : <p className="p-6">Unknown state: {name}</p>}
