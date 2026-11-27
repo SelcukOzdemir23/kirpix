@@ -115,7 +115,16 @@ recordings and the threshold used to check it.
 - **The plan passes the constitution.** A planned decision that violates an
   article stops the plan. Amendments go through Governance; workarounds do not.
 - **One task, one commit.** Each task leaves the application buildable and
-  runnable. A task that cannot be reviewed alone is too large.
+  runnable. A task that cannot be reviewed alone is too large. Merges keep the
+  task commits: merge commits, not squashes.
+- **One feature in flight, in number order.** A spec may be written ahead;
+  code for feature N+1 waits until feature N is merged. A merged feature is
+  not reopened: a change to its behaviour is a new numbered slice.
+- **Chores are not features.** A change with no behaviour change (records,
+  docs, formatting, lint, tooling) may go without a spec, on its own branch,
+  through a pull request.
+- **Checks before merge.** `scripts/check.sh` passes, and branch protection is
+  not bypassed.
 
 ## Governance
 
@@ -129,4 +138,13 @@ recordings and the threshold used to check it.
   records the outcome. Skipping the check is a governance failure, not a
   shortcut.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-17 | **Last Amended**: 2026-11-17
+**Version**: 1.1.0 | **Ratified**: 2026-11-17 | **Last Amended**: 2026-11-27
+
+### Amendment log
+
+- **1.1.0** (2026-11-27), MINOR: four workflow rules added under Development
+  Workflow (merge commits, one feature in flight in order, chores, checks
+  before merge). *Reason*: features 003 and 005 were reopened or coded out of
+  order, two merges squashed several task commits into one, and two used an
+  admin bypass. *Effect on existing specs*: none are rewritten. 001 to 006 stay
+  as merged; the history is not rewritten. The rules apply from 007 on.

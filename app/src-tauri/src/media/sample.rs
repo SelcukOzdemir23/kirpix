@@ -62,7 +62,9 @@ mod tests {
     use std::path::PathBuf;
 
     fn eval(path: &str) -> PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../eval").join(path)
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../eval")
+            .join(path)
     }
 
     #[test]

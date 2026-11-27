@@ -108,11 +108,13 @@ pub fn cut_one(
         }
     }
 
-    let output = child.wait_with_output().map_err(|err| KirpixError::FfmpegFailed {
-        clip: target.display().to_string(),
-        code: -1,
-        tail: err.to_string(),
-    })?;
+    let output = child
+        .wait_with_output()
+        .map_err(|err| KirpixError::FfmpegFailed {
+            clip: target.display().to_string(),
+            code: -1,
+            tail: err.to_string(),
+        })?;
 
     if !output.status.success() {
         let _ = std::fs::remove_file(&target);
@@ -144,7 +146,9 @@ pub fn cut_batch(
     let mut results = Vec::with_capacity(requests.len());
 
     for (index, request) in requests.iter().enumerate() {
-        match cut_one(video, request, out_dir, |percent| on_progress(index, percent)) {
+        match cut_one(video, request, out_dir, |percent| {
+            on_progress(index, percent)
+        }) {
             Ok(path) => match ffmpeg::probe(&path) {
                 Ok(info) => results.push(CutResult::ok(path, info.duration_ms)),
                 Err(err) => results.push(CutResult::failed(err.to_string())),
@@ -193,7 +197,9 @@ mod tests {
     use std::path::Path;
 
     fn eval(path: &str) -> PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../eval").join(path)
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../eval")
+            .join(path)
     }
 
     fn scratch(name: &str) -> PathBuf {
@@ -211,8 +217,17 @@ mod tests {
 
     #[test]
     fn refuses_an_empty_range() {
-        let request = ClipRequest { start_ms: 5_000, end_ms: 5_000 };
-        let err = cut_one(Path::new("/nonexistent.mp4"), &request, Path::new("/tmp"), |_| {}).unwrap_err();
+        let request = ClipRequest {
+            start_ms: 5_000,
+            end_ms: 5_000,
+        };
+        let err = cut_one(
+            Path::new("/nonexistent.mp4"),
+            &request,
+            Path::new("/tmp"),
+            |_| {},
+        )
+        .unwrap_err();
         assert!(matches!(err, KirpixError::EmptyRange { .. }));
     }
 
@@ -224,10 +239,14 @@ mod tests {
             return;
         }
         let out = scratch("cut");
-        let request = ClipRequest { start_ms: 213_656, end_ms: 255_536 };
+        let request = ClipRequest {
+            start_ms: 213_656,
+            end_ms: 255_536,
+        };
 
         let mut percents = Vec::new();
-        let path = cut_one(&video, &request, &out, |percent| percents.push(percent)).expect("cut should succeed");
+        let path = cut_one(&video, &request, &out, |percent| percents.push(percent))
+            .expect("cut should succeed");
 
         let info = ffmpeg::probe(&path).expect("the cut file should probe");
         let expected = request.end_ms - request.start_ms;
@@ -237,7 +256,12 @@ mod tests {
             info.duration_ms,
             expected
         );
-        assert!(path.file_name().unwrap().to_str().unwrap().ends_with(".mp4"));
+        assert!(path
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .ends_with(".mp4"));
         assert!(!percents.is_empty(), "progress should have been reported");
         assert!(percents.iter().all(|percent| *percent <= 100));
     }
@@ -250,7 +274,10 @@ mod tests {
             return;
         }
         let out = scratch("collision");
-        let request = ClipRequest { start_ms: 213_656, end_ms: 219_000 };
+        let request = ClipRequest {
+            start_ms: 213_656,
+            end_ms: 219_000,
+        };
 
         let first = cut_one(&video, &request, &out, |_| {}).expect("first cut");
         let second = cut_one(&video, &request, &out, |_| {}).expect("second cut");
@@ -268,8 +295,14 @@ mod tests {
         }
         let out = scratch("batch");
         let requests = [
-            ClipRequest { start_ms: 0, end_ms: 0 },          // empty, refused
-            ClipRequest { start_ms: 213_656, end_ms: 219_000 }, // real
+            ClipRequest {
+                start_ms: 0,
+                end_ms: 0,
+            }, // empty, refused
+            ClipRequest {
+                start_ms: 213_656,
+                end_ms: 219_000,
+            }, // real
         ];
 
         let results = cut_batch(&video, &requests, &out, |_, _| {});

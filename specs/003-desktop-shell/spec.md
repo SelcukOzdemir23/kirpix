@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-17
 
-**Status**: Draft
+**Status**: Merged (#3, #4, #8, #12). Open: T002, two pointer checks in a real window.
 
 **Input**: Give the application a desktop shape — layout, typography, file
 picking — before it is shown to anyone.

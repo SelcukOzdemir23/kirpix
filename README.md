@@ -9,18 +9,26 @@ and Kirpix returns candidate clips as cards. Each card carries a timecode, the
 subtitle lines it was built from, and a reason. You keep the ones you want,
 adjust the boundaries, and cut.
 
-**Status: in development.** The project site is live and the decisions are
-written down. The application is being built; nothing is released yet.
+**Status: in development, nothing released.** The application runs from source.
+What works today: open a video with a subtitle file or an embedded text track,
+shift the subtitles to match the sound, search by topic, preview a candidate,
+adjust its boundaries and cut it with FFmpeg. A local model (Ollama, LM Studio
+or any OpenAI-compatible server) or DeepSeek can rank the candidates and give
+a reason, after a confirmation. Not built yet: the duration, arc, hook and
+free-sentence criteria, Whisper transcription, and packaged installers.
 
 ## Repository layout
 
 ```
 site/          the project site (Astro, static, Turkish and English)
-app/           the desktop application (Tauri 2 + React), not scaffolded yet
+app/           the desktop application (Tauri 2, Rust, React)
 specs/         one folder per feature, written before the code
 eval/          fixed evaluation recordings, fixtures and ground truth
 .specify/      Spec Kit templates, scripts and the constitution
+scripts/       check.sh runs every check a pull request must pass
 AGENTS.md      how to work in this repository
+LICENSE        MIT
+THIRD_PARTY.md fonts, FFmpeg and models, and what each license asks
 ```
 
 ## The constitution
@@ -53,14 +61,30 @@ Static output, no backend, no runtime. Deploy by uploading `site/dist`.
 
 ## Working on the application
 
-Not started. The order is set by `specs/`: subtitle ingest and alignment first,
-then the criteria engine, then the provider layer, then Whisper.
+```sh
+cd app
+npm install
+npm run tauri dev    # opens the window; the first run compiles the Rust side
+```
 
-Requirements for a build: Rust (stable), Node 20+, and the Tauri Linux
-dependencies (`webkit2gtk-4.1`, `javascriptcoregtk-4.1`, `gtk+-3.0`). FFmpeg is
-bundled with the app, so no system FFmpeg is needed at runtime.
+Requirements: Rust stable with `rustfmt` and `clippy`, Node 20+, the Tauri
+Linux dependencies (`webkit2gtk-4.1`, `javascriptcoregtk-4.1`, `gtk+-3.0`), and
+FFmpeg on `PATH`. FFmpeg is not bundled yet; the window says so when it falls
+back to the system copy. On Wayland with an NVIDIA GPU, a blank window or a
+black preview is usually WebKitGTK's DMA-BUF renderer:
+`WEBKIT_DISABLE_DMABUF_RENDERER=1 npm run tauri dev`.
+
+Before opening a pull request:
+
+```sh
+./scripts/check.sh   # rustfmt, clippy, cargo test, app build, site build
+```
+
+Feature order and status live in `specs/`; each `tasks.md` says what is done
+and which checks still need a person at a desktop.
 
 ## License
 
-MIT. The evaluation recordings in `eval/` are licensed separately; see
+MIT, see `LICENSE`. Fonts, FFmpeg and models are covered in `THIRD_PARTY.md`.
+The evaluation recordings in `eval/` are licensed separately; see
 `eval/README.md`.

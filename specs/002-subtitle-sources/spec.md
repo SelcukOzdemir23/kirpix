@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-17
 
-**Status**: Draft
+**Status**: Merged (#3). Open: T008, the manual half of verification.
 
 **Input**: Use the subtitle tracks a video already carries, and let the user line them up with the sound before searching.
 

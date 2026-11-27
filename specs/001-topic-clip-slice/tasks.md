@@ -176,6 +176,10 @@ Paths are relative to `app/` unless stated.
   confirm it starts and ends where the card said (SC-002); run the whole flow
   with the network interface down (SC-005); and flip `eval/gold/*.json` from
   `proposed` to `reviewed` once the ranges have been read.
+  *Desktop session (CachyOS, KWin on Wayland, reported by the owner)*: a clip cut
+  from the Turkish recording was played and starts and ends where its card
+  said. Still owed: one clip from the English recording, the offline run, and
+  the gold review.
   This box stays open until those three are done, because a spec that says
   "verified" while half of it has not been looked at is worse than one that
   says exactly what is left.

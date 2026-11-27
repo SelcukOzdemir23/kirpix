@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-17
 
-**Status**: Draft
+**Status**: Merged (#1). Open: T015, the manual half of verification.
 
 **Input**: Pick clips by topic from a subtitled video and cut them, deterministically, with no model.
 

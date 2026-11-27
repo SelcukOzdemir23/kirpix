@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-17
 
-**Status**: Draft
+**Status**: Done. Merged (#7); playback confirmed in a desktop session.
 
 **Input**: Watching a timecode is not the same as watching the clip. Let the user
 see a candidate before deciding to cut it.

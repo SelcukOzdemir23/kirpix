@@ -335,10 +335,7 @@ mod tests {
 
     #[test]
     fn splits_when_the_gap_is_too_wide() {
-        let t = table(&[
-            (10_000, 12_000, "kaygı"),
-            (40_000, 42_000, "kaygı"),
-        ]);
+        let t = table(&[(10_000, 12_000, "kaygı"), (40_000, 42_000, "kaygı")]);
         let candidates = find(&t, &terms(&["kaygı"]), Bounds::default(), MEDIA).unwrap();
         assert_eq!(candidates.len(), 2);
         assert_eq!(candidates[0].start_ms, 9_500);
@@ -357,7 +354,9 @@ mod tests {
             (15_000, 16_000, "kaygı"),
         ]);
         assert_eq!(
-            find(&t, &terms(&["kaygı"]), Bounds::default(), MEDIA).unwrap().len(),
+            find(&t, &terms(&["kaygı"]), Bounds::default(), MEDIA)
+                .unwrap()
+                .len(),
             1
         );
     }
@@ -372,7 +371,9 @@ mod tests {
         cues.push((20_000, 21_000, "kaygı"));
         let t = table(&cues);
         assert_eq!(
-            find(&t, &terms(&["kaygı"]), Bounds::default(), MEDIA).unwrap().len(),
+            find(&t, &terms(&["kaygı"]), Bounds::default(), MEDIA)
+                .unwrap()
+                .len(),
             2
         );
     }
@@ -399,7 +400,10 @@ mod tests {
         let beyond = table(&[(109_000, 110_000, "kaygı")]);
         let candidates = find(&beyond, &terms(&["kaygı"]), Bounds::default(), 110_000).unwrap();
         assert_eq!(candidates[0].end_ms, 110_000);
-        assert_eq!(candidates[0].start_ms, 102_000, "stretched back to the minimum");
+        assert_eq!(
+            candidates[0].start_ms, 102_000,
+            "stretched back to the minimum"
+        );
     }
 
     #[test]
@@ -419,11 +423,21 @@ mod tests {
             cues.push((start, start + 2_900, "kaygı"));
         }
         let t = table(&cues);
-        let bounds = Bounds { min_ms: 8_000, max_ms: 30_000 };
+        let bounds = Bounds {
+            min_ms: 8_000,
+            max_ms: 30_000,
+        };
         let candidates = find(&t, &terms(&["kaygı"]), bounds, MEDIA).unwrap();
-        assert!(candidates.len() > 1, "a forty-cue run must be cut into pieces");
+        assert!(
+            candidates.len() > 1,
+            "a forty-cue run must be cut into pieces"
+        );
         for candidate in &candidates {
-            assert!(candidate.duration_ms <= 30_000, "{} exceeded the maximum", candidate.duration_ms);
+            assert!(
+                candidate.duration_ms <= 30_000,
+                "{} exceeded the maximum",
+                candidate.duration_ms
+            );
             assert!(candidate.duration_ms >= 8_000);
         }
     }
@@ -446,8 +460,8 @@ mod tests {
         use crate::subtitle::{decode, parse_cues};
         use std::path::Path;
 
-        let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../eval/fixtures/tr-tedx-kaygi.tr.vtt");
+        let fixture =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../eval/fixtures/tr-tedx-kaygi.tr.vtt");
         if !fixture.is_file() {
             eprintln!("skipped: evaluation files are not present");
             return;
@@ -499,7 +513,8 @@ mod tests {
             .map(|value| value.as_str().unwrap_or_default().to_string())
             .collect();
 
-        let candidates = find(&table, &terms, Bounds::default(), 877_650).expect("search should run");
+        let candidates =
+            find(&table, &terms, Bounds::default(), 877_650).expect("search should run");
         assert!(!candidates.is_empty(), "the search found nothing");
 
         let mut best_overlap = 0.0f64;
@@ -533,7 +548,13 @@ mod tests {
     #[test]
     fn a_repeated_term_does_not_count_twice() {
         let t = table(&[(10_000, 12_000, "kaygı")]);
-        let candidates = find(&t, &terms(&["kaygı", "Kaygı", "KAYGI"]), Bounds::default(), MEDIA).unwrap();
+        let candidates = find(
+            &t,
+            &terms(&["kaygı", "Kaygı", "KAYGI"]),
+            Bounds::default(),
+            MEDIA,
+        )
+        .unwrap();
         assert_eq!(candidates[0].matched_terms.len(), 1);
     }
 }

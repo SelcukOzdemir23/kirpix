@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use crate::error::KirpixError;
 use crate::media::{extract_track, ffmpeg, MediaInfo};
-use crate::subtitle::{read_file, parse_table, CueTable};
+use crate::subtitle::{parse_table, read_file, CueTable};
 
 /// Where the cues came from. Both paths end in the same cue table, which is the
 /// point: nothing downstream cares how the subtitles arrived.
@@ -198,7 +198,9 @@ mod tests {
     use std::path::Path;
 
     fn eval(path: &str) -> PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../eval").join(path)
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../eval")
+            .join(path)
     }
 
     #[test]
@@ -265,7 +267,10 @@ mod tests {
         }
 
         let err = open_embedded(&video, 42).unwrap_err();
-        assert!(matches!(err, KirpixError::TrackMissing { stream_index: 42 }));
+        assert!(matches!(
+            err,
+            KirpixError::TrackMissing { stream_index: 42 }
+        ));
     }
 
     fn open_fixture() -> Option<Session> {

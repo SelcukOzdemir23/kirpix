@@ -60,7 +60,11 @@ impl OpenAiClient {
         Self::build(base.into(), model.into(), None, RETRY_WAIT)
     }
 
-    pub fn cloud(base: impl Into<String>, model: impl Into<String>, key: impl Into<String>) -> Self {
+    pub fn cloud(
+        base: impl Into<String>,
+        model: impl Into<String>,
+        key: impl Into<String>,
+    ) -> Self {
         Self::build(base.into(), model.into(), Some(key.into()), RETRY_WAIT)
     }
 
@@ -158,9 +162,12 @@ impl ModelClient for OpenAiClient {
             return Err(self.status_error(status, response));
         }
 
-        let body: serde_json::Value = response.json().map_err(|err| ProviderError::MalformedAnswer {
-            detail: err.to_string(),
-        })?;
+        let body: serde_json::Value =
+            response
+                .json()
+                .map_err(|err| ProviderError::MalformedAnswer {
+                    detail: err.to_string(),
+                })?;
 
         Ok(body["data"]
             .as_array()
@@ -195,9 +202,12 @@ impl ModelClient for OpenAiClient {
             return Err(self.status_error(status, response));
         }
 
-        let body: serde_json::Value = response.json().map_err(|err| ProviderError::MalformedAnswer {
-            detail: err.to_string(),
-        })?;
+        let body: serde_json::Value =
+            response
+                .json()
+                .map_err(|err| ProviderError::MalformedAnswer {
+                    detail: err.to_string(),
+                })?;
 
         let content = body["choices"][0]["message"]["content"]
             .as_str()
@@ -334,7 +344,11 @@ mod tests {
 
         let requests = stub.requests();
         assert_eq!(requests.len(), 1);
-        assert!(requests[0].url.ends_with("/v1/chat/completions"), "{}", requests[0].url);
+        assert!(
+            requests[0].url.ends_with("/v1/chat/completions"),
+            "{}",
+            requests[0].url
+        );
 
         let body = &requests[0].body;
         assert!(body.contains(r#""model":"test-model""#), "{body}");
@@ -405,11 +419,15 @@ mod tests {
     fn a_cloud_request_carries_the_key_and_the_identical_body() {
         let local = Stub::start(vec![reply(200, &chat_response(ANSWER))]);
         let local_client = OpenAiClient::local(&local.base, "deepseek-chat");
-        local_client.rank(&shortlist()).expect("the local stub answers");
+        local_client
+            .rank(&shortlist())
+            .expect("the local stub answers");
 
         let cloud = Stub::start(vec![reply(200, &chat_response(ANSWER))]);
         let cloud_client = OpenAiClient::cloud(&cloud.base, "deepseek-chat", "sk-test");
-        cloud_client.rank(&shortlist()).expect("the cloud stub answers");
+        cloud_client
+            .rank(&shortlist())
+            .expect("the cloud stub answers");
 
         let local_request = &local.requests()[0];
         let cloud_request = &cloud.requests()[0];
@@ -434,10 +452,7 @@ mod tests {
 
     #[test]
     fn a_refused_key_is_not_repeated_back_in_the_error() {
-        let stub = Stub::start(vec![reply(
-            401,
-            r#"{"error":"invalid api key sk-test"}"#,
-        )]);
+        let stub = Stub::start(vec![reply(401, r#"{"error":"invalid api key sk-test"}"#)]);
 
         let client = OpenAiClient::cloud(&stub.base, "test-model", "sk-test");
         let error = client.rank(&shortlist()).unwrap_err();
@@ -484,7 +499,10 @@ mod tests {
         let client = OpenAiClient::local(&stub.base, "test-model");
         let models = client.models().expect("the stub lists its models");
 
-        assert_eq!(models, vec!["qwen2.5:7b".to_string(), "llama3.2".to_string()]);
+        assert_eq!(
+            models,
+            vec!["qwen2.5:7b".to_string(), "llama3.2".to_string()]
+        );
         assert!(stub.requests()[0].url.ends_with("/v1/models"));
     }
 }

@@ -28,7 +28,10 @@ static SEQUENCE: AtomicU64 = AtomicU64::new(0);
 /// Where the encoder writes. Unique per call, in the system temp directory.
 pub fn temp_path() -> PathBuf {
     let sequence = SEQUENCE.fetch_add(1, Ordering::Relaxed);
-    std::env::temp_dir().join(format!("kirpix-preview-{}-{sequence}.mp4", std::process::id()))
+    std::env::temp_dir().join(format!(
+        "kirpix-preview-{}-{sequence}.mp4",
+        std::process::id()
+    ))
 }
 
 /// A short, small copy of one range, as the bytes of an MP4.
@@ -66,8 +69,16 @@ pub fn encode_to(
         .args(["-t", &format!("{:.3}", duration_ms as f64 / 1000.0)])
         .args(["-vf", &format!("scale=-2:{HEIGHT}")])
         .args([
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "32", "-profile:v", "main",
-            "-pix_fmt", "yuv420p",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryfast",
+            "-crf",
+            "32",
+            "-profile:v",
+            "main",
+            "-pix_fmt",
+            "yuv420p",
         ])
         .args(["-c:a", "aac", "-b:a", "96k", "-ac", "2"])
         .args(["-movflags", "+faststart"])
@@ -121,7 +132,9 @@ mod tests {
     use super::*;
 
     fn eval(path: &str) -> PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../eval").join(path)
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../eval")
+            .join(path)
     }
 
     fn fixture() -> Option<PathBuf> {
@@ -146,7 +159,11 @@ mod tests {
 
         let encoded = encode(&video, 214_000, 226_000).expect("a preview should be produced");
 
-        assert_eq!(&encoded.bytes[4..8], b"ftyp", "the MP4 header should be present");
+        assert_eq!(
+            &encoded.bytes[4..8],
+            b"ftyp",
+            "the MP4 header should be present"
+        );
         assert!(has_box(&encoded.bytes, b"moov"), "the file needs its index");
         assert!(has_box(&encoded.bytes, b"mdat"), "the file needs its data");
         assert_eq!(encoded.duration_ms, 12_000);
@@ -165,7 +182,10 @@ mod tests {
         let encoded = encode(&video, 60_000, 240_000).expect("a preview should be produced");
 
         assert_eq!(encoded.duration_ms, LIMIT_MS);
-        assert!(encoded.truncated, "a cut range must be reported as truncated");
+        assert!(
+            encoded.truncated,
+            "a cut range must be reported as truncated"
+        );
     }
 
     #[test]
@@ -177,7 +197,11 @@ mod tests {
 
         encode_to(&video, 214_000, 226_000, &target).expect("a preview should be produced");
 
-        assert!(!target.exists(), "{} should have been deleted", target.display());
+        assert!(
+            !target.exists(),
+            "{} should have been deleted",
+            target.display()
+        );
     }
 
     #[test]

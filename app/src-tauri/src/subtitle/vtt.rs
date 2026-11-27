@@ -65,14 +65,9 @@ impl Builder {
             return;
         }
 
-        let repeated = self
-            .cues
-            .last()
-            .is_some_and(|last| {
-                last.start_ms == pending.start_ms
-                    && last.end_ms == pending.end_ms
-                    && last.text == text
-            });
+        let repeated = self.cues.last().is_some_and(|last| {
+            last.start_ms == pending.start_ms && last.end_ms == pending.end_ms && last.text == text
+        });
         if repeated {
             return;
         }
@@ -169,8 +164,13 @@ mod tests {
         // blocks collapse and a run-on timestamp starts a new cue.
         assert_eq!(cues.len(), 357, "cue count changed");
         assert_eq!(cues[0].index, 1);
-        assert!(cues[37].text.starts_with("Because all I had read were books"));
-        assert!(!cues.iter().any(|c| c.text.contains("-->")), "a timestamp leaked into cue text");
+        assert!(cues[37]
+            .text
+            .starts_with("Because all I had read were books"));
+        assert!(
+            !cues.iter().any(|c| c.text.contains("-->")),
+            "a timestamp leaked into cue text"
+        );
         assert!(
             !cues.windows(2).any(|w| w[0].start_ms == w[1].start_ms
                 && w[0].end_ms == w[1].end_ms
@@ -186,7 +186,9 @@ mod tests {
         };
         let cues = parse(&text);
         assert_eq!(cues.len(), 239, "cue count changed");
-        assert!(cues[58].text.starts_with("Yaklaşık 2-3 dakika sonra o korku"));
+        assert!(cues[58]
+            .text
+            .starts_with("Yaklaşık 2-3 dakika sonra o korku"));
     }
 
     #[test]
@@ -221,7 +223,11 @@ mod tests {
         let (text, _) = decode::read_file(&path).expect("edge fixture should decode");
         let cues = parse(&text);
 
-        assert_eq!(cues.len(), 2, "a repeat and an empty cue should both be dropped");
+        assert_eq!(
+            cues.len(),
+            2,
+            "a repeat and an empty cue should both be dropped"
+        );
         assert_eq!(cues[0].text, "kaygı ve endişe");
         assert_eq!(cues[0].start_ms, 1000);
         assert_eq!(cues[1].text, "Yalnızca bu satır kalmalı.");

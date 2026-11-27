@@ -5,8 +5,13 @@
 **Rule**: one task, one commit, and the application still builds and runs after
 each.
 
-**Status**: prepared, not started. Nothing below is ticked; the spec's three
-open questions come first.
+**Status**: implemented and merged (#9, #10, #11). T001 to T009 are done;
+T005b is a later slice by decision. The checks that need a person are listed
+under T009.
+
+*Correction (housekeeping)*: T004 to T007 were implemented in `ec09733`
+(T004, T005) and `e013bc6` (T006, T007) and merged in #10, but their boxes
+were left unticked. They are ticked now; their evidence was already written.
 
 ## Phase 1: The seam
 
@@ -76,7 +81,7 @@ open questions come first.
 
 ## Phase 2: Talking to a model
 
-- [ ] **T004** Implement the OpenAI-compatible client and point it at a local
+- [x] **T004** Implement the OpenAI-compatible client and point it at a local
   server: list the models it serves, rank the shortlist, one retry on 429 and
   5xx, timeout, and `Unreachable` naming the address when nothing answers. The
   same client carries DeepSeek, with a key from T006 and the gate from T007.
@@ -97,7 +102,7 @@ open questions come first.
   was broken when the server was.
   *Depends on*: T002, T003.
 
-- [ ] **T005** Point the same client at DeepSeek: fixed address, key from the
+- [x] **T005** Point the same client at DeepSeek: fixed address, key from the
   keychain, the same ranking path. Its answer is validated by the same code.
   *Done when*: the stub sees the DeepSeek address, the key travels as a bearer
   header, and the recorded body is byte-identical to the local request for the
@@ -113,11 +118,11 @@ open questions come first.
   T007; until then nothing in the application calls this client.
   *Depends on*: T004.
 
-- [ ] **T005b** *(later slice, not this one)* The Anthropic messages shape and
+- **T005b** *(deferred to a later slice, not a task of this one)* The Anthropic messages shape and
   OpenAI's own endpoint. Recorded so the omission is a decision and not an
   oversight.
 
-- [ ] **T006** Move keys to the OS keychain behind `KeyStore`, with set, read
+- [x] **T006** Move keys to the OS keychain behind `KeyStore`, with set, read
   and clear, and a redaction rule for provider messages.
   *Done when*: the in-memory store covers the tests; an authentication failure
   whose message contains the key produces an error without it; a test asserts
@@ -139,7 +144,7 @@ open questions come first.
 
 ## Phase 3: The gate and the screen
 
-- [ ] **T007** Add the confirmation gate: the command compares the payload it is
+- [x] **T007** Add the confirmation gate: the command compares the payload it is
   about to send against the confirmed provider, model, cue count and character
   count, and refuses with `Unconfirmed` when they differ.
   *Done when*: a test confirms one payload and sends a different one, and
