@@ -44,7 +44,7 @@ and the fixture page. No screen changes shape until this phase is done.
 - [x] T007 Move plan, confirmation and ranking into `src/state/useRanking.ts`, and preview into `src/state/usePreview.ts` (one at a time, superseded answers dropped, as 005). No visible change.
 - [x] T008 Move output folder, cut progress and written files into `src/state/useCut.ts`. `src/App.tsx` now holds only composition and the old JSX. Run the determinism and cut tests unchanged (SC-005).
 - [x] T009 Apply the approved identity (FR-015, FR-017, FR-022) to the old screen: the tokens of research R3 (with `edge` and `on-marker`) in `src/styles.css` for light, dark and system (FR-017), and `src/components/Button.tsx` with the five kinds of research R4; replace ad-hoc button classes with it.
-- [ ] T010 Add the fixture page: `screens.html`, `src/dev/screens.tsx`, `src/dev/fixtures.ts` (the Turkish evaluation search for "kaygı, endişe"), a second Vite entry used only by `npm run screens`, rendering a named state at a given size and theme (research R6, FR-019). It renders the old screens until Phase 3 replaces them.
+- [x] T010 Add the fixture page: `screens.html`, `src/dev/screens.tsx`, `src/dev/fixtures.ts` (the Turkish evaluation search for "kaygı, endişe"), a second Vite entry used only by `npm run screens`, rendering a named state at a given size and theme (research R6, FR-019). It renders the old screens until Phase 3 replaces them.
 
 **Checkpoint**: behaviour is where it was, in the new look, with state in hooks.
 
