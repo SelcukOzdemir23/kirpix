@@ -18,8 +18,25 @@ plans and code, and every plan review checks the work against it.
 
 ## Process
 
-This repository follows the Spec Kit sequence: constitution, specify, plan,
-tasks, implement. One feature folder per slice.
+This repository follows the Spec Kit sequence, run through its commands
+(Spec Kit 1.4.5, Claude integration, skills in `.claude/skills/`):
+
+| Step | Command | Output |
+| --- | --- | --- |
+| Specify | `/speckit-specify` | `specs/NNN-name/spec.md` and the branch |
+| Clarify | `/speckit-clarify` | the owner's answers written into the spec |
+| Plan | `/speckit-plan` | `plan.md` and its design notes, checked against the constitution |
+| Tasks | `/speckit-tasks` | `tasks.md` |
+| Analyze | `/speckit-analyze` | a consistency report across spec, plan and tasks, before any code |
+| Implement | `/speckit-implement` | one commit per task |
+| Converge | `/speckit-converge` | the code held against the spec; gaps appended as tasks |
+
+Clarify and Analyze are not optional here: the owner answers the questions,
+and no code is written while Analyze reports a critical issue. Bugs go through
+`/speckit-bug-assess`, `/speckit-bug-fix`, `/speckit-bug-test` (reports under
+`.specify/bugs/`). Do not edit files under `.specify/scripts`,
+`.specify/templates` or `.claude/skills` by hand; `specify integration upgrade`
+manages them. One feature folder per slice.
 
 - No implementation task without a spec that states its acceptance criteria.
 - Every acceptance criterion maps to a test or a documented manual check against
