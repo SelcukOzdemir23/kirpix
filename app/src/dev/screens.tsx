@@ -177,22 +177,20 @@ const render = states[name];
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-ink text-text">
-      {name !== 'start' && (
-        <TopBar
-          t={copy[lang]}
-          lang={lang}
-          session={fixture.session}
-          mode={{ mode: 'heuristic' }}
-          offsetMs={0}
-          busy={false}
-          settingsOpen={name === 'settings'}
-          onLang={noop}
-          onSettings={noop}
-          onChangeFile={noop}
-          alignmentOpen={false}
-          onAlignment={noop}
-        />
-      )}
+      <TopBar
+        t={copy[lang]}
+        lang={lang}
+        session={name === 'start' ? null : fixture.session}
+        mode={{ mode: 'heuristic' }}
+        offsetMs={0}
+        busy={false}
+        settingsOpen={name === 'settings'}
+        onLang={noop}
+        onSettings={noop}
+        onChangeFile={noop}
+        alignmentOpen={false}
+        onAlignment={noop}
+      />
       {render ? render(copy[lang]) : <p className="p-6">Unknown state: {name}</p>}
     </div>
   </React.StrictMode>,

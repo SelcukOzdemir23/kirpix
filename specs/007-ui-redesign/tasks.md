@@ -99,7 +99,7 @@ alignment control, the first cue moves and a sample plays (spec US3).
 
 - [x] T026 Add the 300-line rule for `app/src/**/*.{ts,tsx}` to `scripts/check.sh`, naming any file over (FR-018, SC-006, research R8).
 - [x] T027 [P] Screenshots from the fixture page of `start`, `tracks`, `criterion`, `results`, `results-cut`, `results-empty`, `settings` at 880×600 and 1100×760, light and dark, into `specs/007-ui-redesign/evidence/` (SC-002, SC-003).
-- [ ] T028 [P] Contrast table from the final token values (SC-007) and the enumeration of every control on the results screen with its kind and visible difference, both languages (SC-008, FR-016), and a table of every action that exists today with the screen it is reached from (FR-013), in `specs/007-ui-redesign/evidence/README.md`.
+- [x] T028 [P] Contrast table from the final token values (SC-007) and the enumeration of every control on the results screen with its kind and visible difference, both languages (SC-008, FR-016), and a table of every action that exists today with the screen it is reached from (FR-013), in `specs/007-ui-redesign/evidence/README.md`.
 - [ ] T029 Records: superseded notes on 003 FR-001, FR-002, FR-004, FR-016 (rail, faces, pane subjects, cursor) where 007 replaces them; `README.md` describes the new screen.
 - [ ] T030 *Verified by the machine*: `./scripts/check.sh` passes; SC-004, SC-005, SC-006 by test; SC-002, SC-003, SC-007, SC-008 by the evidence above. Ticked with the results written here.
 - [ ] T031 *Owed to a person, at a desktop*:
