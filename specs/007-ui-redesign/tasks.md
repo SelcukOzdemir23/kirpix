@@ -68,7 +68,7 @@ at 880×600 and 1100×760 (spec US1).
 - [x] T017 [P] [US1] `src/components/CueLines.tsx`: lines with timecodes, matched words wrapped as marks from `Cue.marks` (data-model.md), semibold and `on-marker` on `marker`, listen action per line (FR-007, FR-008); `src/state/useSearch.ts` requests the selected candidate's cues with the terms.
 - [x] T018 [P] [US1] `src/components/Ruler.tsx`: quarter ticks, one mark per candidate positioned from its times (003 FR-005), each mark a button that selects its candidate and scrolls its row into view, kept and dropped marks distinct (FR-023).
 - [x] T019 [US1] `src/components/CandidateDetail.tsx` and `src/screens/ResultsScreen.tsx`: player (preview only on request, FR-014), boundary area as today, lines; bar, list, detail and ruler laid out per the approved identity; the system-FFmpeg note beside the player when the backend reports one (FR-010, constitution Media); `src/App.tsx` shows it in the `results` state; the no-match message replaces the list (spec edge case).
-- [ ] T020 [US1] Remove what Phase 3 replaced: `CandidateCard.tsx`, `TimelineStrip.tsx`, `CriteriaForm.tsx`, `SectionLabel.tsx`, the old rail and pane JSX in `src/App.tsx`; strings no longer used leave `src/i18n/copy.ts`; every new string exists in Turkish and English there (FR-020).
+- [x] T020 [US1] Remove what Phase 3 replaced: `CandidateCard.tsx`, `TimelineStrip.tsx`, `CriteriaForm.tsx`, `SectionLabel.tsx`, the old rail and pane JSX in `src/App.tsx`; strings no longer used leave `src/i18n/copy.ts`; every new string exists in Turkish and English there (FR-020).
 
 **Checkpoint**: US1's independent test passes from the fixture page and in the window.
 

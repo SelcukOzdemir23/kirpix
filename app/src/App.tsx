@@ -14,7 +14,6 @@ import CandidateList from './components/CandidateList';
 import CriterionBar from './components/CriterionBar';
 import Ruler from './components/Ruler';
 import { stepEdge, type Edge, type Step } from './state/edges';
-import CriteriaForm from './components/CriteriaForm';
 import SectionLabel from './components/SectionLabel';
 import SettingsView from './components/SettingsView';
 import TrackChooser from './components/TrackChooser';
@@ -183,103 +182,6 @@ export default function App() {
       )}
 
       <div className="flex min-h-0 flex-1">
-        <aside className="flex w-[320px] shrink-0 flex-col border-r border-line bg-surface/25">
-          <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 pt-5 pb-4">
-            <section className="flex flex-col gap-2.5">
-              <SectionLabel>{t.sourceSection}</SectionLabel>
-
-              {session || pendingVideo ? (
-                <>
-                  <span
-                    className="truncate text-[15px] font-medium"
-                    title={session?.videoPath ?? pendingVideo ?? ''}
-                  >
-                    {fileName(session?.videoPath ?? pendingVideo ?? '')}
-                  </span>
-
-                  {session ? (
-                    <>
-                      <div className="flex items-baseline gap-2 text-[13.5px] text-muted">
-                        <span className="font-mono tabular-nums">{timecode(session.durationMs)}</span>
-                        <span>·</span>
-                        <span className="font-mono tabular-nums">
-                          {session.cueCount} {t.cues.toLowerCase()}
-                        </span>
-                        <span className="ml-auto font-mono text-[12px] text-muted/70 uppercase">
-                          {session.encoding}
-                        </span>
-                      </div>
-
-                      <div className="flex items-baseline gap-2">
-                        <span className="min-w-0 flex-1 truncate text-[13.5px] text-muted" title={session.subtitleLabel}>
-                          {session.subtitleLabel}
-                        </span>
-                        {session.subtitleSource === 'embedded' && (
-                          <span className="shrink-0 rounded-[4px] border border-line px-1.5 py-0.5 text-[12px] text-muted">
-                            {t.embedded}
-                          </span>
-                        )}
-                      </div>
-                    </>
-                  ) : null}
-
-                  <Button kind="quiet" onClick={pickVideo} disabled={busy} className="self-start">
-                    {t.another}
-                  </Button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={pickVideo}
-                  disabled={busy}
-                  className="flex min-h-[92px] flex-col items-center justify-center gap-1.5 rounded-[8px] border border-dashed border-text/20 px-3 py-4 text-center transition-colors hover:border-accent/50 hover:bg-surface-2/60 disabled:opacity-50"
-                >
-                  <span className="text-[14.5px]">{dropReady ? t.dropHere : busy ? t.opening : t.pick}</span>
-                  {dropReady && !busy && <span className="text-[13px] text-muted">{t.dropOrPick}</span>}
-                </button>
-              )}
-            </section>
-
-            {session && (
-              <div className="flex items-baseline gap-2 text-[13.5px]">
-                <span className="shrink-0 font-mono text-[12px] tracking-[0.13em] text-muted uppercase">
-                  {t.engineSection}
-                </span>
-                <span className="min-w-0 flex-1 truncate text-right" title={engineTitle(mode)}>
-                  {engineLabel(mode, t)}
-                </span>
-              </div>
-            )}
-
-
-            {session?.mediaSource === 'systemPath' && (
-              <p className="mt-auto border-t border-line pt-3 text-[12.5px] leading-relaxed text-muted/80">
-                {t.systemMedia}
-              </p>
-            )}
-          </div>
-
-          {/* The action stays reachable however short the window is. */}
-          {session && (
-            <div className="shrink-0 border-t border-line bg-ink px-5 pt-4 pb-5">
-              <SectionLabel>{t.searchSection}</SectionLabel>
-              <div className="mt-2.5">
-                <CriteriaForm
-                  t={t}
-                  terms={terms}
-                  minSec={minSec}
-                  maxSec={maxSec}
-                  searching={searching}
-                  onTerms={setTerms}
-                  onMin={setMinSec}
-                  onMax={setMaxSec}
-                  onSearch={runSearch}
-                />
-              </div>
-            </div>
-          )}
-        </aside>
-
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           {settingsOpen ? (
             <SettingsView
@@ -427,29 +329,11 @@ export default function App() {
   );
 }
 
-/** The rail's one line: which engine the next search will use. */
-function engineLabel(mode: Mode, t: (typeof copy)['tr']): string {
-  if (mode.mode === 'local') return `${t.modeLocal} · ${mode.model || mode.address}`;
-  if (mode.mode === 'cloud') return `${t.modeCloud} · ${mode.model}`;
-  return t.modeHeuristic;
-}
-
-/** The same line, widened for the tooltip when the rail has to truncate it. */
-function engineTitle(mode: Mode): string {
-  if (mode.mode === 'local') return `${mode.address}${mode.model ? ` · ${mode.model}` : ''}`;
-  if (mode.mode === 'cloud') return `${mode.provider} · ${mode.model}`;
-  return '';
-}
-
 /** The name the badge shows for a mode: the model, not the transport. */
 function modeLabel(mode: Mode): string {
   if (mode.mode === 'local') return mode.model || mode.address;
   if (mode.mode === 'cloud') return mode.model;
   return '';
-}
-
-function RailSection({ children }: { children: ReactNode }) {
-  return <section className="flex flex-col gap-3 border-t border-line pt-4">{children}</section>;
 }
 
 function Centered({ title, body }: { title: string; body: string }) {

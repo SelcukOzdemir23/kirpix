@@ -123,10 +123,6 @@ export function useSearch(report: (error: unknown) => void) {
     });
   }
 
-  function reject(id: number) {
-    setRejected((current) => [...current, id]);
-  }
-
   /** Tick or untick a candidate: an unticked one stays in the list and is not cut. */
   function toggleKeep(id: number) {
     setRejected((current) =>
@@ -152,7 +148,6 @@ export function useSearch(report: (error: unknown) => void) {
     run,
     moveEdges,
     resetEdges,
-    reject,
     toggleKeep,
   };
 }
