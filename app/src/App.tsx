@@ -21,8 +21,8 @@ import SettingsView from './components/SettingsView';
 import OffsetControls from './components/OffsetControls';
 import TimelineStrip, { type Bounds } from './components/TimelineStrip';
 import TrackChooser from './components/TrackChooser';
-import { readAppearance, saveAppearance, type Appearance } from './theme';
-import { useDropZone } from './useDropZone';
+import { useDrop } from './state/useDrop';
+import { useSettings } from './state/useSettings';
 
 const VIDEO_FILTERS = [{ name: 'Video', extensions: ['mp4', 'mkv', 'mov', 'webm'] }];
 const SUBTITLE_FILTERS = [{ name: 'Subtitles', extensions: ['srt', 'vtt'] }];
@@ -36,17 +36,17 @@ const SUBTITLE_EXT = /\.(srt|vtt)$/i;
 */
 
 export default function App() {
-  const [lang, setLang] = useState<Lang>('tr');
+  // Errors are kept as the backend sent them and worded at render time, so a
+  // language switch rewords the message that is on screen.
+  const [error, setError] = useState<unknown>(null);
+  const settings = useSettings(setError);
+  const { lang, setLang, mode } = settings;
   const t = copy[lang];
-
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [settingsPath, setSettingsPath] = useState<string | null>(null);
-  const [settingsLoadError, setSettingsLoadError] = useState<string | null>(null);
-  const [appearance, setAppearance] = useState<Appearance>(() => readAppearance());
+  const settingsOpen = settings.open;
+  const setSettingsOpen = settings.setOpen;
 
   const [session, setSession] = useState<SessionInfo | null>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [pendingVideo, setPendingVideo] = useState<string | null>(null);
   const [tracks, setTracks] = useState<SubtitleTrack[]>([]);
@@ -66,7 +66,6 @@ export default function App() {
   const [progress, setProgress] = useState<{ index: number; percent: number } | null>(null);
   const [results, setResults] = useState<CutResult[] | null>(null);
   const [writtenOpen, setWrittenOpen] = useState(false);
-  const [mode, setMode] = useState<Mode>({ mode: 'heuristic' });
   const [plan, setPlan] = useState<RequestPlan | null>(null);
   const [ranking, setRanking] = useState<{ order: number[]; reasons: Record<number, string> } | null>(
     null,
@@ -76,45 +75,12 @@ export default function App() {
   const [previewingId, setPreviewingId] = useState<number | null>(null);
   const previewSeq = useRef(0);
 
-  function chooseAppearance(next: Appearance) {
-    setAppearance(next);
-    saveAppearance(next);
-  }
-
   function chooseMode(next: Mode) {
-    setMode(next);
+    settings.chooseMode(next);
     setRanking(null);
-    // Read the file back rather than trusting what was sent: a write that failed
-    // half way is exactly the case this line exists for, and the failure now has
-    // somewhere to show itself.
-    void api
-      .setMode(next)
-      .then(() => api.getSettings())
-      .then((report) => {
-        setSettingsPath(report.path);
-        setSettingsLoadError(report.loadError);
-      })
-      .catch((err) => setError(errorMessage(err, lang)));
   }
 
-  const dropReady = useDropZone((paths) => void acceptDropped(paths));
-
-  useEffect(() => {
-    // The mode comes from the settings file, so a choice made yesterday is the
-    // engine that runs today. A failure here is stated rather than swallowed:
-    // the fallback is heuristic, and the screen says the request did not land.
-    void api
-      .getSettings()
-      .then((report) => {
-        setMode(report.mode);
-        setSettingsPath(report.path);
-        setSettingsLoadError(report.loadError);
-      })
-      .catch((err) => {
-        setMode({ mode: 'heuristic' });
-        setError(errorMessage(err, lang));
-      });
-  }, []);
+  const dropReady = useDrop((paths) => void acceptDropped(paths));
 
   // Escape dismisses whatever is on top. Today that is the error bar.
   useEffect(() => {
@@ -158,7 +124,7 @@ export default function App() {
       setPreview(null);
       setPreviewingId(null);
     } catch (err) {
-      setError(errorMessage(err, lang));
+      setError(err);
     }
   }
 
@@ -170,7 +136,7 @@ export default function App() {
         await audioRef.current.play();
       }
     } catch (err) {
-      setError(errorMessage(err, lang));
+      setError(err);
     }
   }
 
@@ -194,7 +160,7 @@ export default function App() {
         await acceptSubtitleFile(video);
       }
     } catch (err) {
-      setError(errorMessage(err, lang));
+      setError(err);
     } finally {
       setBusy(false);
     }
@@ -211,7 +177,7 @@ export default function App() {
       applySession(await api.openSession(video, subtitle));
     } catch (err) {
       setSession(null);
-      setError(errorMessage(err, lang));
+      setError(err);
     } finally {
       setBusy(false);
     }
@@ -223,7 +189,7 @@ export default function App() {
       applySession(await api.openFromTrack(video, streamIndex));
     } catch (err) {
       setSession(null);
-      setError(errorMessage(err, lang));
+      setError(err);
     } finally {
       setBusy(false);
     }
@@ -256,7 +222,7 @@ export default function App() {
       }
     } catch (err) {
       if (previewSeq.current === ticket) {
-        setError(errorMessage(err, lang));
+        setError(err);
       }
     } finally {
       if (previewSeq.current === ticket) {
@@ -309,7 +275,7 @@ export default function App() {
       }
     } catch (err) {
       setCandidates(null);
-      setError(errorMessage(err, lang));
+      setError(err);
     } finally {
       setSearching(false);
     }
@@ -337,7 +303,7 @@ export default function App() {
       });
       setPlan(null);
     } catch (err) {
-      setError(errorMessage(err, lang));
+      setError(err);
       setPlan(null);
     } finally {
       setRankingBusy(false);
@@ -367,7 +333,7 @@ export default function App() {
       setResults(written);
       setWrittenOpen(true);
     } catch (err) {
-      setError(errorMessage(err, lang));
+      setError(err);
     } finally {
       stopListening();
       setProgress(null);
@@ -433,12 +399,14 @@ export default function App() {
         </div>
       </header>
 
-      {error && (
+      {error != null && (
         <div
           role="alert"
           className="flex shrink-0 items-start gap-3 border-b border-danger/30 bg-danger/10 px-5 py-2.5"
         >
-          <p className="flex-1 text-[14px] leading-relaxed text-danger">{error}</p>
+          <p className="flex-1 text-[14px] leading-relaxed text-danger">
+            {errorMessage(error, lang)}
+          </p>
           <button
             type="button"
             aria-label={t.dismiss}
@@ -567,13 +535,13 @@ export default function App() {
           {settingsOpen ? (
             <SettingsView
               t={t}
-              appearance={appearance}
-              onAppearance={chooseAppearance}
+              appearance={settings.appearance}
+              onAppearance={settings.chooseAppearance}
               mode={mode}
               onMode={chooseMode}
-              onError={(err) => setError(errorMessage(err, lang))}
-              loadError={settingsLoadError}
-              path={settingsPath}
+              onError={setError}
+              loadError={settings.loadError}
+              path={settings.path}
             />
           ) : pendingVideo && tracks.length > 0 ? (
             <div className="min-h-0 flex-1 overflow-y-auto">
