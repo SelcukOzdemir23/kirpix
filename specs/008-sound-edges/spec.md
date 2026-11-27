@@ -76,8 +76,8 @@ the times FFmpeg reports them, and the selected clip shows its pauses.
 **Acceptance Scenarios**:
 
 1. **Given** a recording whose sound was read, **When** the ruler is drawn,
-   **Then** pauses are drawn at their measured times, distinct from the
-   candidate marks.
+   **Then** pauses of half a second or longer are drawn faintly at their
+   measured times, distinct from the candidate marks.
 2. **Given** a selected candidate, **When** the detail area is shown, **Then**
    the pauses inside and around its range are visible against its edges.
 
@@ -130,17 +130,20 @@ be read.
   pauses so the result can be reproduced.
 - **FR-003**: Reading the sound MUST be deterministic: the same file gives the
   same pauses (constitution VII).
-- **FR-004**: Each candidate edge MUST be moved into the nearest pause within a
-  maximum distance, outward or inward, provided the candidate keeps every
+- **FR-004**: Each candidate edge MUST be moved, automatically after every
+  search, into the nearest pause within 1.5 seconds, outward or inward, provided the candidate keeps every
   matched line and stays within the duration bounds of 001.
-- **FR-005**: An edge with no pause within the maximum distance MUST stay at
+- **FR-005**: An edge with no pause within 1.5 seconds MUST stay at
   its subtitle position, and the candidate MUST say which edge is not on a
   pause.
+- **FR-013**: Each candidate row MUST show how far each placed edge moved from
+  its subtitle position, so the automatic move is never silent (article IX).
 - **FR-006**: The placement MUST be computed from pause times and cue indices,
   never from a model (constitution V, VI).
-- **FR-007**: The ruler MUST show pauses distinctly from candidate marks.
-- **FR-008**: The detail area MUST show the pauses inside and around the
-  selected candidate's range.
+- **FR-007**: The ruler MUST show only pauses of half a second or longer,
+  faintly and distinctly from candidate marks, so the marks stay readable.
+- **FR-008**: The detail area MUST show every pause inside and around the
+  selected candidate's range, the ones an edge move can aim for.
 - **FR-009**: When the sound cannot be read (no audio, a decode failure), the
   search MUST still work on subtitle edges, and the screen MUST say once, where
   the results are, that edges were not placed and why (constitution IX).
@@ -150,13 +153,6 @@ be read.
   edge and MUST be kept as before; reset returns to the placed edge.
 - **FR-012**: The pause data MUST be available to later criteria as data, not
   only as drawing, with its threshold and the recording it belongs to.
-
-[NEEDS CLARIFICATION: Should edges be placed in pauses automatically for every
-candidate, or only when the user asks for it (per candidate, or for all)?]
-
-[NEEDS CLARIFICATION: What is the maximum distance an edge may move to reach a
-pause? The measurement above puts four of eight edges within 0.65 s and the
-furthest at 3.3 s.]
 
 ### Key Entities
 
@@ -186,6 +182,21 @@ furthest at 3.3 s.]
 - **SC-006**: With the silent copy of the Turkish recording, search works and
   the screen names the missing sound. Checked by test and screenshot.
 - **SC-007**: The whole flow still completes with the network interface down.
+
+## Clarifications
+
+### Session 2026-11-27
+
+- Q: Should edges be placed in pauses automatically, or only when the user
+  asks? → A: Automatically, after every search, for every candidate (FR-004);
+  each row shows how far its edges moved (FR-013).
+- Q: How far may an edge move to reach a pause? → A: 1.5 seconds (FR-004,
+  FR-005). On the measurement above that places six of the eight edges; the
+  two further away stay on their subtitle times and say so.
+- Q: Which pauses does the ruler show? → A: Only pauses of half a second or
+  longer, faintly; the selected clip's detail shows all of them (FR-007,
+  FR-008). The owner asked for a minimal screen; the recording has more than
+  350 short pauses.
 
 ## Assumptions
 

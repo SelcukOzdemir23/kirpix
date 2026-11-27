@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,8 +31,8 @@
 
 ## Notes
 
-- Two markers remain, both the owner's: automatic or on-demand placement, and
-  the maximum distance an edge may move.
+- Both markers answered by the owner in /speckit-clarify: automatic placement,
+  1.5 seconds. A third answer fixed which pauses the ruler shows.
 - FFmpeg is named in the Why and Assumptions sections as the measuring
   instrument already in the product, with the measurements that motivate the
   slice; requirements and success criteria do not depend on it.
