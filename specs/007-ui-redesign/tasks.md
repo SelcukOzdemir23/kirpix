@@ -67,7 +67,7 @@ at 880×600 and 1100×760 (spec US1).
 - [ ] T016 [P] [US1] `src/components/CandidateList.tsx`: rows with keep box, range, duration, reason sentence without dotted strings, the model's reason and order when ranked (004), selected row marked by bar and tint (FR-006, FR-009).
 - [ ] T017 [P] [US1] `src/components/CueLines.tsx`: lines with timecodes, matched words wrapped as marks from `Cue.marks` (data-model.md), semibold and `on-marker` on `marker`, listen action per line (FR-007, FR-008); `src/state/useSearch.ts` requests the selected candidate's cues with the terms.
 - [ ] T018 [P] [US1] `src/components/Ruler.tsx`: quarter ticks, one mark per candidate positioned from its times (003 FR-005), each mark a button that selects its candidate and scrolls its row into view, kept and dropped marks distinct (FR-023).
-- [ ] T019 [US1] `src/components/CandidateDetail.tsx` and `src/screens/ResultsScreen.tsx`: player (preview only on request, FR-014), boundary area as today, lines; bar, list, detail and ruler laid out per the approved identity; `src/App.tsx` shows it in the `results` state; the no-match message replaces the list (spec edge case).
+- [ ] T019 [US1] `src/components/CandidateDetail.tsx` and `src/screens/ResultsScreen.tsx`: player (preview only on request, FR-014), boundary area as today, lines; bar, list, detail and ruler laid out per the approved identity; the system-FFmpeg note beside the player when the backend reports one (FR-010, constitution Media); `src/App.tsx` shows it in the `results` state; the no-match message replaces the list (spec edge case).
 - [ ] T020 [US1] Remove what Phase 3 replaced: `CandidateCard.tsx`, `TimelineStrip.tsx`, `CriteriaForm.tsx`, `SectionLabel.tsx`, the old rail and pane JSX in `src/App.tsx`; strings no longer used leave `src/i18n/copy.ts`; every new string exists in Turkish and English there (FR-020).
 
 **Checkpoint**: US1's independent test passes from the fixture page and in the window.
@@ -80,7 +80,7 @@ at 880×600 and 1100×760 (spec US1).
 cut, find two files whose durations match their rows (spec US2).
 
 - [ ] T021 [P] [US2] `src/components/BoundaryControls.tsx`: one step choice (1 sn / 1 satır) and a minus and plus per edge, reset only after a move, original edges kept on the ruler (FR-025, 001 FR-015, 003 FR-007; data-model.md `Selection.bounds`).
-- [ ] T022 [US2] The cut action in the list footer: label states the number of kept candidates (data-model.md `Selection.kept`), disabled at zero, folder shown and changeable beside it (FR-012, FR-024).
+- [ ] T022 [US2] The cut action in the list footer: label states the number of kept candidates (data-model.md `Selection.kept`), disabled at zero, folder shown and changeable beside it, and the system-FFmpeg note there when reported (FR-012, FR-024, FR-010).
 - [ ] T023 [US2] `src/components/CutStrip.tsx`: written files, folder, failures with reasons, progress while cutting, closable, candidates stay (FR-024).
 
 ---
@@ -99,7 +99,7 @@ alignment control, the first cue moves and a sample plays (spec US3).
 
 - [ ] T026 Add the 300-line rule for `app/src/**/*.{ts,tsx}` to `scripts/check.sh`, naming any file over (FR-018, SC-006, research R8).
 - [ ] T027 [P] Screenshots from the fixture page of `start`, `tracks`, `criterion`, `results`, `results-cut`, `results-empty`, `settings` at 880×600 and 1100×760, light and dark, into `specs/007-ui-redesign/evidence/` (SC-002, SC-003).
-- [ ] T028 [P] Contrast table from the final token values (SC-007) and the enumeration of every control on the results screen with its kind and visible difference, both languages (SC-008, FR-016), in `specs/007-ui-redesign/evidence/README.md`.
+- [ ] T028 [P] Contrast table from the final token values (SC-007) and the enumeration of every control on the results screen with its kind and visible difference, both languages (SC-008, FR-016), and a table of every action that exists today with the screen it is reached from (FR-013), in `specs/007-ui-redesign/evidence/README.md`.
 - [ ] T029 Records: superseded notes on 003 FR-001, FR-002, FR-004, FR-016 (rail, faces, pane subjects, cursor) where 007 replaces them; `README.md` describes the new screen.
 - [ ] T030 *Verified by the machine*: `./scripts/check.sh` passes; SC-004, SC-005, SC-006 by test; SC-002, SC-003, SC-007, SC-008 by the evidence above. Ticked with the results written here.
 - [ ] T031 *Owed to a person, at a desktop*:
