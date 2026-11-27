@@ -9,7 +9,7 @@ plans and code, and every plan review checks the work against it.
   Turkish at `/`, English at `/en/`. All copy lives in `site/src/content/copy.ts`.
 - `app/` the desktop application. Tauri 2 shell, Rust for filesystem, process
   control, keychain and FFmpeg invocation, React and TypeScript for the
-  interface. Not scaffolded yet.
+  interface. Run with `cd app && npm run tauri dev`.
 - `specs/` one folder per feature, numbered, written before the code.
 - `eval/` the fixed evaluation set. `manifest.json` is the source of truth;
   `eval/media/` is gitignored. See `eval/README.md`.
@@ -29,7 +29,20 @@ tasks, implement. One feature folder per slice.
 - One task, one commit, and the app stays runnable after each commit.
 - One feature at a time, in number order. A spec may be written ahead, code may
   not: finish and merge feature N before starting feature N+1. No two features
-  in flight at once.
+  in flight at once. A merged feature is not reopened; a fix to it is the next
+  numbered slice, or a chore if it changes no behaviour.
+- The cycle, every time: spec (with the owner's answers to its open
+  questions), plan, tasks, then a branch named after the spec
+  (`NNN-short-name`), one commit per task, a pull request, merge, delete the
+  branch. Then the next spec.
+- Merge with a merge commit, never squash, so the task commits stay on
+  `master`. Never merge with `--admin`; if protection blocks a merge, fix the
+  reason.
+- A chore (`chore-*` branch) changes no behaviour: records, docs, formatting,
+  lint, tooling. It needs no spec but goes through a pull request.
+- `./scripts/check.sh` passes before every pull request.
+- A task box is ticked in the commit that does the task. A box whose check
+  needs a person stays open and says exactly what is owed.
 - Specs, code, comments and commit messages in English. The interface ships in
   Turkish and English.
 
@@ -38,6 +51,8 @@ tasks, implement. One feature folder per slice.
 ```sh
 cd site && npm install && npm run dev      # site, http://localhost:4321
 cd site && npm run build                   # -> site/dist
+cd app && npm install && npm run tauri dev # the desktop app
+./scripts/check.sh                         # every check, before a PR
 ```
 
 Rust is installed under `~/.cargo` (rustup, minimal profile). Add it to the
