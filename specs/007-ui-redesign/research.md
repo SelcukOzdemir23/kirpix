@@ -164,8 +164,12 @@ one place every feature edits).
 
 ## R8. The 300-line rule as a check (SC-006)
 
-**Decision**: `scripts/check.sh` fails when any `.ts` or `.tsx` file under
-`app/src/` exceeds 300 lines, and names the file.
+**Decision**: `scripts/check.sh` fails when any component (`.tsx`) or hook
+(`state/*.ts`) under `app/src/` exceeds 300 lines, and names the file.
+
+*Amended during T026*: the first wording said every `.ts` file. The strings
+module and the fixture data are over 300 lines and are data, not components;
+the constitution's rule is about components, and so is SC-006.
 
 ## R9. Rejected for this slice
 

@@ -51,6 +51,19 @@ if [ "$skipped" -gt 0 ]; then
   printf 'WARNING: %s tests skipped because eval/ input is missing (see eval/README.md)\n' "$skipped"
 fi
 
+step "app: component size"
+# Constitution, code structure: a component file above 300 lines is a defect
+# (feature 007, SC-006). Components (.tsx) and the hooks that hold their state
+# are measured; data modules (strings, fixtures) are not components.
+oversize=$(find app/src -name '*.tsx' -o -path 'app/src/state/*.ts' | xargs wc -l \
+  | awk '$2 != "total" && $1 > 300 {print $2 " (" $1 " lines)"}')
+if [ -n "$oversize" ]; then
+  echo "over 300 lines:" >&2
+  echo "$oversize" >&2
+  exit 1
+fi
+echo "every component and hook is 300 lines or fewer"
+
 step "app: typecheck and build"
 (cd app && npx tsc --noEmit && npm run build --silent)
 

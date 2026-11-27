@@ -16,6 +16,13 @@ export function engineName(mode: Mode, t: (typeof copy)['tr']): string {
   return t.modeHeuristic;
 }
 
+/** Which engine produced the list on screen: heuristic, or the model and whether it ranked (004). */
+export function resultBadge(mode: Mode, ranked: boolean, t: (typeof copy)['tr']): string {
+  if (mode.mode === 'heuristic') return t.heuristicBadge;
+  const model = engineName(mode, t);
+  return ranked ? t.rankedBy(model) : model;
+}
+
 /**
  * The open recording in one line (FR-010): its name, its length, the engine
  * the next search will use, and the subtitle shift when there is one. Cue

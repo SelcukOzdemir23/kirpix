@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { type Candidate, type Mode } from './api';
-import { copy, errorMessage, type Lang } from './i18n/copy';
+import { copy } from './i18n/copy';
 import Button from './components/Button';
 import ConfirmDialog from './components/ConfirmDialog';
 import TopBar from './components/TopBar';
+import ErrorBar from './components/ErrorBar';
+import NoMatch from './components/NoMatch';
+import { resultBadge } from './components/RecordingLine';
 import AlignmentPanel from './components/AlignmentPanel';
 import StartScreen from './screens/StartScreen';
 import CriterionScreen from './screens/CriterionScreen';
@@ -78,18 +81,6 @@ export default function App() {
 
   const dropReady = useDrop((paths) => void acceptDropped(paths));
 
-  // Escape dismisses whatever is on top. Today that is the error bar.
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape' && error) {
-        event.preventDefault();
-        setError(null);
-      }
-    }
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [error]);
-
   /** Everything measured on the cue times: a new recording or offset clears it. */
   function clearResults() {
     search.clear();
@@ -158,152 +149,127 @@ export default function App() {
         />
       )}
 
-      {error != null && (
-        <div
-          role="alert"
-          className="flex shrink-0 items-start gap-3 border-b border-danger/30 bg-danger/10 px-5 py-2.5"
-        >
-          <p className="flex-1 text-[14px] leading-relaxed text-danger">
-            {errorMessage(error, lang)}
-          </p>
-          <button
-            type="button"
-            aria-label={t.dismiss}
-            onClick={() => setError(null)}
-            className="rounded-[4px] border border-danger/30 px-1.5 text-[16px] leading-5 text-danger/70 transition-colors hover:border-danger/60 hover:text-danger"
-          >
-            ×
-          </button>
-        </div>
-      )}
+      {error != null && <ErrorBar t={t} lang={lang} error={error} onDismiss={() => setError(null)} />}
 
-      <div className="flex min-h-0 flex-1">
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-          {settingsOpen ? (
-            <SettingsScreen
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+        {settingsOpen ? (
+          <SettingsScreen
+            t={t}
+            appearance={settings.appearance}
+            onAppearance={settings.chooseAppearance}
+            mode={mode}
+            onMode={chooseMode}
+            onError={setError}
+            loadError={settings.loadError}
+            path={settings.path}
+          />
+        ) : pendingVideo && tracks.length > 0 ? (
+          <TrackScreen
+            t={t}
+            videoPath={pendingVideo}
+            tracks={tracks}
+            busy={busy}
+            onTrack={(streamIndex) => openFromTrack(pendingVideo, streamIndex)}
+            onFile={() => void chooseSubtitleFile(pendingVideo)}
+          />
+        ) : session ? (
+          candidates === null ? (
+            <CriterionScreen
               t={t}
-              appearance={settings.appearance}
-              onAppearance={settings.chooseAppearance}
-              mode={mode}
-              onMode={chooseMode}
-              onError={setError}
-              loadError={settings.loadError}
-              path={settings.path}
+              terms={terms}
+              minSec={minSec}
+              maxSec={maxSec}
+              searching={searching}
+              onTerms={setTerms}
+              onMin={setMinSec}
+              onMax={setMaxSec}
+              onSearch={() => void runSearch()}
             />
-          ) : pendingVideo && tracks.length > 0 ? (
-            <TrackScreen
-              t={t}
-              videoPath={pendingVideo}
-              tracks={tracks}
-              busy={busy}
-              onTrack={(streamIndex) => openFromTrack(pendingVideo, streamIndex)}
-              onFile={() => void chooseSubtitleFile(pendingVideo)}
-            />
-          ) : session ? (
-            candidates === null ? (
-              <CriterionScreen
-                t={t}
-                terms={terms}
-                minSec={minSec}
-                maxSec={maxSec}
-                searching={searching}
-                onTerms={setTerms}
-                onMin={setMinSec}
-                onMax={setMaxSec}
-                onSearch={() => void runSearch()}
-              />
-            ) : (
-              <ResultsScreen
-                strip={
-                  writtenOpen &&
-                  results && <CutStrip t={t} results={results} onClose={() => setWrittenOpen(false)} />
-                }
-                bar={
-                  <CriterionBar
+          ) : (
+            <ResultsScreen
+              strip={
+                writtenOpen &&
+                results && <CutStrip t={t} results={results} onClose={() => setWrittenOpen(false)} />
+              }
+              bar={
+                <CriterionBar
+                  t={t}
+                  terms={terms}
+                  minSec={minSec}
+                  maxSec={maxSec}
+                  searching={searching}
+                  onTerms={setTerms}
+                  onSearch={() => void runSearch()}
+                />
+              }
+              list={
+                candidates.length === 0 ? (
+                  <NoMatch t={t} />
+                ) : (
+                  <CandidateList
                     t={t}
-                    terms={terms}
-                    minSec={minSec}
-                    maxSec={maxSec}
-                    searching={searching}
-                    onTerms={setTerms}
-                    onSearch={() => void runSearch()}
-                  />
-                }
-                list={
-                  candidates.length === 0 ? (
-                    <Centered title={t.noMatch} body={t.noMatchHint} />
-                  ) : (
-                    <CandidateList
-                      t={t}
-                      candidates={listed}
-                      bounds={bounds}
-                      dropped={rejected}
-                      selectedId={activeId}
-                      reasons={ranking?.reasons ?? null}
-                      badge={
-                        mode.mode === 'heuristic'
-                          ? t.heuristicBadge
-                          : ranking
-                            ? t.rankedBy(modeLabel(mode))
-                            : modeLabel(mode)
-                      }
-                      onSelect={setActiveId}
-                      onToggleKeep={search.toggleKeep}
-                      footer={
-                        <CutBar
-                          t={t}
-                          kept={visible.length}
-                          folder={cut.folder}
-                          cutting={cutting}
-                          progress={progress}
-                          systemMedia={session.mediaSource === 'systemPath'}
-                          onChooseFolder={() => void cut.chooseFolder()}
-                          onCut={runCut}
-                        />
-                      }
-                    />
-                  )
-                }
-                detail={
-                  selected && (
-                    <CandidateDetail
-                      t={t}
-                      candidate={selected}
-                      edges={edgesOf(selected, bounds)}
-                      lines={search.lines}
-                      preview={preview?.candidateId === selected.id ? preview : null}
-                      previewing={previewState.pendingId === selected.id}
-                      systemMedia={session.mediaSource === 'systemPath'}
-                      step={step}
-                      onStep={setStep}
-                      onPreview={() => void previewState.toggle(selected.id, edgesOf(selected, bounds))}
-                      onMove={(edge, direction) => moveEdge(selected, edge, direction)}
-                      onReset={() => {
-                        previewState.reset();
-                        search.resetEdges(selected.id);
-                      }}
-                      onListen={(cueIndex) => void playCue(cueIndex)}
-                    />
-                  )
-                }
-                ruler={
-                  <Ruler
-                    t={t}
-                    durationMs={session.durationMs}
                     candidates={listed}
                     bounds={bounds}
                     dropped={rejected}
                     selectedId={activeId}
+                    reasons={ranking?.reasons ?? null}
+                    badge={resultBadge(mode, ranking !== null, t)}
                     onSelect={setActiveId}
+                    onToggleKeep={search.toggleKeep}
+                    footer={
+                      <CutBar
+                        t={t}
+                        kept={visible.length}
+                        folder={cut.folder}
+                        cutting={cutting}
+                        progress={progress}
+                        systemMedia={session.mediaSource === 'systemPath'}
+                        onChooseFolder={() => void cut.chooseFolder()}
+                        onCut={runCut}
+                      />
+                    }
                   />
-                }
-              />
-            )
-          ) : (
-            <StartScreen t={t} dropReady={dropReady} busy={busy} onPick={() => void pickVideo()} />
-          )}
-        </main>
-      </div>
+                )
+              }
+              detail={
+                selected && (
+                  <CandidateDetail
+                    t={t}
+                    candidate={selected}
+                    edges={edgesOf(selected, bounds)}
+                    lines={search.lines}
+                    preview={preview?.candidateId === selected.id ? preview : null}
+                    previewing={previewState.pendingId === selected.id}
+                    systemMedia={session.mediaSource === 'systemPath'}
+                    step={step}
+                    onStep={setStep}
+                    onPreview={() => void previewState.toggle(selected.id, edgesOf(selected, bounds))}
+                    onMove={(edge, direction) => moveEdge(selected, edge, direction)}
+                    onReset={() => {
+                      previewState.reset();
+                      search.resetEdges(selected.id);
+                    }}
+                    onListen={(cueIndex) => void playCue(cueIndex)}
+                  />
+                )
+              }
+              ruler={
+                <Ruler
+                  t={t}
+                  durationMs={session.durationMs}
+                  candidates={listed}
+                  bounds={bounds}
+                  dropped={rejected}
+                  selectedId={activeId}
+                  onSelect={setActiveId}
+                />
+              }
+            />
+          )
+        ) : (
+          <StartScreen t={t} dropReady={dropReady} busy={busy} onPick={() => void pickVideo()} />
+        )}
+      </main>
 
       {plan && (
         <ConfirmDialog
@@ -324,19 +290,3 @@ export default function App() {
 }
 
 /** The name the badge shows for a mode: the model, not the transport. */
-function modeLabel(mode: Mode): string {
-  if (mode.mode === 'local') return mode.model || mode.address;
-  if (mode.mode === 'cloud') return mode.model;
-  return '';
-}
-
-function Centered({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="grid h-full min-h-[240px] place-items-center px-8">
-      <div className="flex max-w-[420px] flex-col gap-2 text-center">
-        <p className="text-[16px] leading-relaxed">{title}</p>
-        <p className="text-[14px] leading-relaxed text-muted">{body}</p>
-      </div>
-    </div>
-  );
-}
