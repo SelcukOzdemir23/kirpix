@@ -1,7 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
-import { type Candidate, type CutResult, type Mode } from './api';
+import { useEffect, useState } from 'react';
+import { type Candidate, type Mode } from './api';
 import { copy, errorMessage, type Lang } from './i18n/copy';
-import { fileName, folderOf, timecode } from './format';
 import Button from './components/Button';
 import ConfirmDialog from './components/ConfirmDialog';
 import TopBar from './components/TopBar';
@@ -14,8 +13,8 @@ import CandidateList from './components/CandidateList';
 import CriterionBar from './components/CriterionBar';
 import Ruler from './components/Ruler';
 import CutBar from './components/CutBar';
+import CutStrip from './components/CutStrip';
 import { stepEdge, type Edge, type Step } from './state/edges';
-import SectionLabel from './components/SectionLabel';
 import SettingsView from './components/SettingsView';
 import TrackChooser from './components/TrackChooser';
 import { useDrop } from './state/useDrop';
@@ -215,10 +214,12 @@ export default function App() {
                 onMax={setMaxSec}
                 onSearch={() => void runSearch()}
               />
-            ) : writtenOpen && results ? (
-              <WrittenFiles t={t} results={results} onBack={() => setWrittenOpen(false)} />
             ) : (
               <ResultsScreen
+                strip={
+                  writtenOpen &&
+                  results && <CutStrip t={t} results={results} onClose={() => setWrittenOpen(false)} />
+                }
                 bar={
                   <CriterionBar
                     t={t}
@@ -337,72 +338,6 @@ function Centered({ title, body }: { title: string; body: string }) {
       <div className="flex max-w-[420px] flex-col gap-2 text-center">
         <p className="text-[16px] leading-relaxed">{title}</p>
         <p className="text-[14px] leading-relaxed text-muted">{body}</p>
-      </div>
-    </div>
-  );
-}
-
-function WrittenFiles({
-  t,
-  results,
-  onBack,
-}: {
-  t: (typeof copy)['tr'];
-  results: CutResult[];
-  onBack: () => void;
-}) {
-  const ok = results.filter((result) => result.status === 'ok').length;
-  const failed = results.length - ok;
-
-  return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 items-baseline justify-between gap-4 border-b border-line px-5 py-2.5">
-        <SectionLabel>{t.written}</SectionLabel>
-        <button
-          type="button"
-          onClick={onBack}
-          className="text-[13.5px] text-muted underline decoration-line underline-offset-4 transition-colors hover:text-text hover:decoration-text"
-        >
-          {t.backToCandidates}
-        </button>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3.5">
-        <p className="text-[14px] text-muted">
-          {failed > 0
-            ? t.cutPartial(ok, failed)
-            : results.length === 0
-              ? t.cutNothing
-              : t.cutDone(results.length)}
-        </p>
-
-        {results.length > 0 && (
-          <p className="mt-1.5 flex gap-2 text-[13px] text-muted/75">
-            <span className="shrink-0">{t.writtenTo}</span>
-            <span className="truncate font-mono" title={folderOf(results[0].path)}>
-              {folderOf(results[0].path)}
-            </span>
-          </p>
-        )}
-
-        <ul className="mt-3 divide-y divide-line">
-          {results.map((result, position) => (
-            <li
-              key={`${result.path}-${position}`}
-              className="grid grid-cols-[1fr_auto] items-baseline gap-3 py-2.5"
-            >
-              <span
-                className="truncate font-mono text-[14px] text-text/90 selectable"
-                title={result.path}
-              >
-                {result.status === 'ok' ? fileName(result.path) : result.message}
-              </span>
-              <span className="font-mono text-[13.5px] tabular-nums text-muted">
-                {result.status === 'ok' ? timecode(result.durationMs) : t.failed}
-              </span>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

@@ -24,6 +24,7 @@ import CandidateList from '../components/CandidateList';
 import CandidateDetail from '../components/CandidateDetail';
 import Ruler from '../components/Ruler';
 import CutBar from '../components/CutBar';
+import CutStrip from '../components/CutStrip';
 import { edgesOf } from '../state/useSearch';
 import * as fixture from './fixtures';
 
@@ -31,7 +32,7 @@ type Text = (typeof copy)['tr'];
 const noop = () => {};
 
 /** Every state the page can show. */
-function results(t: Text, options: { dropped?: number[] } = {}) {
+function results(t: Text, options: { dropped?: number[]; cut?: boolean } = {}) {
   const selected = fixture.candidates[0];
   const dropped = options.dropped ?? [fixture.candidates[3].id];
   const lines = fixture.cues.filter(
@@ -39,6 +40,7 @@ function results(t: Text, options: { dropped?: number[] } = {}) {
   );
   return (
     <ResultsScreen
+      strip={options.cut && <CutStrip t={t} results={fixture.cutResults} onClose={noop} />}
       bar={
         <CriterionBar
           t={t}
@@ -109,6 +111,7 @@ function results(t: Text, options: { dropped?: number[] } = {}) {
 
 export const states: Record<string, (t: Text) => ReactNode> = {
   results: (t) => results(t),
+  'results-cut': (t) => results(t, { cut: true }),
   criterion: (t) => (
     <CriterionScreen
       t={t}

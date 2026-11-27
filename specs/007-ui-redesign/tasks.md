@@ -81,7 +81,7 @@ cut, find two files whose durations match their rows (spec US2).
 
 - [x] T021 [P] [US2] `src/components/BoundaryControls.tsx`: one step choice (1 sn / 1 satır) and a minus and plus per edge, reset only after a move, original edges kept on the ruler (FR-025, 001 FR-015, 003 FR-007; data-model.md `Selection.bounds`).
 - [x] T022 [US2] The cut action in the list footer: label states the number of kept candidates (data-model.md `Selection.kept`), disabled at zero, folder shown and changeable beside it, and the system-FFmpeg note there when reported (FR-012, FR-024, FR-010).
-- [ ] T023 [US2] `src/components/CutStrip.tsx`: written files, folder, failures with reasons, progress while cutting, closable, candidates stay (FR-024).
+- [x] T023 [US2] `src/components/CutStrip.tsx`: written files, folder, failures with reasons, progress while cutting, closable, candidates stay (FR-024).
 
 ---
 
