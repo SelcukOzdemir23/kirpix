@@ -216,6 +216,10 @@ plays.
   difference MUST NOT rest on colour alone.
 - **FR-017**: The light, dark and system appearances of 006 MUST keep working,
   with every token defined for both.
+- **FR-022**: The identity MUST draw on the subject's own material (subtitle
+  lines, timecodes, the cut) rather than a generic dashboard look. The plan
+  lists the generic patterns it rejects, and the owner's review of the plan's
+  screenshots is the check.
 
 **Code structure** (constitution 1.2.0)
 
@@ -226,11 +230,8 @@ plays.
 - **FR-020**: All copy MUST stay in Turkish and English in the copy module,
   with no hardcoded user-facing string (003 FR-012).
 
-**[NEEDS CLARIFICATION: Constitution article VIII says "no scaffolding for
-unbuilt modes". The four inactive criterion cards (FR-003) are exactly the
-owner's choice and they are inert, but read literally they are scaffolding for
-unbuilt modes. Amend article VIII to allow an inert, labelled roadmap entry
-(PATCH or MINOR), or drop the inactive cards from this slice?]**
+- **FR-021**: An inactive criterion card MUST have no code path behind it: it
+  renders its text and nothing else (constitution 1.3.0, article VIII).
 
 ### Key Entities
 
@@ -269,6 +270,18 @@ unbuilt modes. Amend article VIII to allow an inert, labelled roadmap entry
 - **SC-008**: Each control on the results screen is listed with its kind
   (primary, secondary, inactive, destructive) and the visible difference that
   marks it, in both languages. Checked by enumeration, as 003 SC-011 did.
+
+## Clarifications
+
+### Session 2026-11-27
+
+- Q: Article VIII forbids scaffolding for unbuilt modes; may the four inactive
+  criterion cards be shown? → A: Yes. Article VIII is amended (1.3.0) to allow
+  an entry that cannot be chosen, names its roadmap number, and has no code
+  behind it (FR-021).
+- Q: Should the redesign avoid the generic look of generated interfaces? → A:
+  Yes. The owner asked for an interface that is comfortable and distinct
+  without being overdone, and that does not read as generated.
 
 ## Assumptions
 

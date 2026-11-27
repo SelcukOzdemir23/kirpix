@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,8 +31,8 @@
 
 ## Notes
 
-- One marker remains: whether article VIII allows inert "coming" cards. It is a
-  constitution question, so it is the owner's.
+- The one marker (article VIII and the inactive cards) was answered by the
+  owner: constitution 1.3.0, FR-021.
 - FR-018/FR-019 and SC-006 name code structure. They are kept on purpose: the
   constitution (1.2.0) makes code structure a requirement of every slice, and
   this slice exists partly to meet it. They state limits, not a design.
