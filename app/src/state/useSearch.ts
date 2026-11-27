@@ -104,6 +104,13 @@ export function useSearch(report: (error: unknown) => void) {
     setRejected((current) => [...current, id]);
   }
 
+  /** Tick or untick a candidate: an unticked one stays in the list and is not cut. */
+  function toggleKeep(id: number) {
+    setRejected((current) =>
+      current.includes(id) ? current.filter((other) => other !== id) : [...current, id],
+    );
+  }
+
   return {
     terms,
     setTerms,
@@ -122,5 +129,6 @@ export function useSearch(report: (error: unknown) => void) {
     moveEdges,
     resetEdges,
     reject,
+    toggleKeep,
   };
 }
