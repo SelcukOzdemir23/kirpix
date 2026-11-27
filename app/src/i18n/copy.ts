@@ -58,7 +58,7 @@ const tr = {
   confirmCancel: 'Vazgeç',
   confirmSend: 'Gönder',
   confirmLines: (cues: number, chars: number) =>
-    `${cues} satır · ${chars.toLocaleString('tr-TR')} karakter`,
+    `${cues} satır, ${chars.toLocaleString('tr-TR')} karakter`,
   confirmLeftOut: (count: number) => `${count} aday bütçeye sığmadı`,
   confirmShortened: (count: number) => `${count} adayın satırları kısaltıldı`,
   rankedBy: (model: string) => `${model} sıraladı`,
@@ -210,7 +210,7 @@ const en: typeof tr = {
   confirmCancel: 'Cancel',
   confirmSend: 'Send',
   confirmLines: (cues: number, chars: number) =>
-    `${cues} lines · ${chars.toLocaleString('en-US')} characters`,
+    `${cues} lines, ${chars.toLocaleString('en-US')} characters`,
   confirmLeftOut: (count: number) => `${count} candidates did not fit the budget`,
   confirmShortened: (count: number) => `${count} candidates had their lines shortened`,
   rankedBy: (model: string) => `ranked by ${model}`,
