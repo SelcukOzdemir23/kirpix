@@ -127,7 +127,7 @@ mod tests {
     fn the_fixture_search_fits_the_budget() {
         let path = eval("fixtures/tr-tedx-kaygi.srt");
         if !path.is_file() {
-            eprintln!("skipped: the subtitle fixture is not present");
+            crate::testing::skip("the subtitle fixture is not present");
             return;
         }
 

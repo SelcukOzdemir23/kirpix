@@ -235,7 +235,7 @@ mod tests {
     fn cuts_a_real_clip_and_measures_it() {
         let video = eval("media/tr-tedx-kaygi.mp4");
         if !video.is_file() {
-            eprintln!("skipped: evaluation media is not present");
+            crate::testing::skip("evaluation media is not present");
             return;
         }
         let out = scratch("cut");
@@ -270,7 +270,7 @@ mod tests {
     fn never_overwrites_an_existing_file() {
         let video = eval("media/tr-tedx-kaygi.mp4");
         if !video.is_file() {
-            eprintln!("skipped: evaluation media is not present");
+            crate::testing::skip("evaluation media is not present");
             return;
         }
         let out = scratch("collision");
@@ -290,7 +290,7 @@ mod tests {
     fn one_failure_does_not_stop_the_batch() {
         let video = eval("media/tr-tedx-kaygi.mp4");
         if !video.is_file() {
-            eprintln!("skipped: evaluation media is not present");
+            crate::testing::skip("evaluation media is not present");
             return;
         }
         let out = scratch("batch");

@@ -134,7 +134,7 @@ mod tests {
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../eval/fixtures/tr-tedx-kaygi.srt");
         if !path.is_file() {
-            eprintln!("skipped: the subtitle fixture is not present");
+            crate::testing::skip("the subtitle fixture is not present");
             return;
         }
 

@@ -6,6 +6,8 @@ pub mod provider;
 pub mod session;
 pub mod settings;
 pub mod subtitle;
+#[cfg(test)]
+pub mod testing;
 
 use std::sync::Mutex;
 

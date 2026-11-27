@@ -71,7 +71,7 @@ mod tests {
     fn produces_a_four_second_wav_under_a_megabyte() {
         let video = eval("media/tr-tedx-kaygi.mp4");
         if !video.is_file() {
-            eprintln!("skipped: evaluation media is not present");
+            crate::testing::skip("evaluation media is not present");
             return;
         }
 
@@ -94,7 +94,7 @@ mod tests {
     fn refuses_a_file_with_no_audio() {
         let video = eval("media/tr-tedx-kaygi.mp4");
         if !video.is_file() {
-            eprintln!("skipped: evaluation media is not present");
+            crate::testing::skip("evaluation media is not present");
             return;
         }
 
@@ -108,7 +108,7 @@ mod tests {
             .status()
             .expect("ffmpeg should run");
         if !status.success() {
-            eprintln!("skipped: could not build a silent copy");
+            crate::testing::skip("could not build a silent copy");
             return;
         }
 

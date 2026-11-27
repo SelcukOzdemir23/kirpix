@@ -208,7 +208,7 @@ mod tests {
         let video = eval("media/tr-tedx-kaygi.mp4");
         let subs = eval("fixtures/tr-tedx-kaygi.tr.vtt");
         if !video.is_file() || !subs.is_file() {
-            eprintln!("skipped: evaluation files are not present");
+            crate::testing::skip("evaluation files are not present");
             return;
         }
 
@@ -226,7 +226,7 @@ mod tests {
         let video = eval("media/tr-tedx-kaygi.mp4");
         let subs = eval("fixtures/tr-tedx-kaygi.tr.vtt");
         if !video.is_file() || !subs.is_file() {
-            eprintln!("skipped: evaluation files are not present");
+            crate::testing::skip("evaluation files are not present");
             return;
         }
 
@@ -245,7 +245,7 @@ mod tests {
     fn opens_from_the_embedded_track() {
         let video = eval("media/tr-tedx-kaygi.mkv");
         if !video.is_file() {
-            eprintln!("skipped: evaluation media is not present");
+            crate::testing::skip("evaluation media is not present");
             return;
         }
 
@@ -262,7 +262,7 @@ mod tests {
     fn names_a_track_that_is_not_there() {
         let video = eval("media/tr-tedx-kaygi.mkv");
         if !video.is_file() {
-            eprintln!("skipped: evaluation media is not present");
+            crate::testing::skip("evaluation media is not present");
             return;
         }
 
@@ -277,7 +277,7 @@ mod tests {
         let video = eval("media/tr-tedx-kaygi.mp4");
         let subs = eval("fixtures/tr-tedx-kaygi.tr.vtt");
         if !video.is_file() || !subs.is_file() {
-            eprintln!("skipped: evaluation files are not present");
+            crate::testing::skip("evaluation files are not present");
             return None;
         }
         Some(open(&video, &subs).expect("session should open"))
@@ -370,7 +370,7 @@ mod tests {
         let shifted = eval("fixtures/tr-tedx-kaygi-shifted.srt");
         let original = eval("fixtures/tr-tedx-kaygi.srt");
         if !video.is_file() || !shifted.is_file() || !original.is_file() {
-            eprintln!("skipped: evaluation files are not present");
+            crate::testing::skip("evaluation files are not present");
             return;
         }
 

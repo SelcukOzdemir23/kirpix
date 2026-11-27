@@ -238,7 +238,7 @@ mod tests {
     fn probes_the_turkish_recording() {
         let path = eval_media();
         if !path.is_file() {
-            eprintln!("skipped: {} is not present", path.display());
+            crate::testing::skip(&format!("{} is not present", path.display()));
             return;
         }
         let info = probe(&path).expect("probe should succeed");
@@ -256,7 +256,7 @@ mod tests {
     fn lists_the_subtitle_tracks_the_container_carries() {
         let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../eval/media/tr-tedx-kaygi.mkv");
         if !path.is_file() {
-            eprintln!("skipped: {} is not present", path.display());
+            crate::testing::skip(&format!("{} is not present", path.display()));
             return;
         }
 

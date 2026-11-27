@@ -463,7 +463,7 @@ mod tests {
         let fixture =
             Path::new(env!("CARGO_MANIFEST_DIR")).join("../../eval/fixtures/tr-tedx-kaygi.tr.vtt");
         if !fixture.is_file() {
-            eprintln!("skipped: evaluation files are not present");
+            crate::testing::skip("evaluation files are not present");
             return;
         }
 
@@ -494,7 +494,7 @@ mod tests {
         let fixture = root.join("eval/fixtures/tr-tedx-kaygi.tr.vtt");
         let gold_path = root.join("eval/gold/tr-tedx-kaygi.json");
         if !fixture.is_file() || !gold_path.is_file() {
-            eprintln!("skipped: evaluation files are not present");
+            crate::testing::skip("evaluation files are not present");
             return;
         }
 

@@ -142,7 +142,7 @@ mod tests {
         if video.is_file() {
             Some(video)
         } else {
-            eprintln!("skipped: evaluation media is not present");
+            crate::testing::skip("evaluation media is not present");
             None
         }
     }
