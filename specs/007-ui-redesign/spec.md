@@ -188,7 +188,10 @@ plays.
   view in the list. The ruler MUST NOT seek the player.
 - **FR-010**: The recording MUST be named in a line at the top of the window
   with its duration and the engine of 006 (article III), and the offset when
-  it is not zero. Nothing else is in that line.
+  it is not zero. Nothing else is in that line. The system-FFmpeg note
+  (constitution, Media) is not in that line: it is shown where media work
+  happens, beside the player and beside the cut action, whenever the backend
+  reports a system FFmpeg.
 - **FR-011**: The offset controls of 002 MUST move into an alignment control
   opened from that line, which also shows the cue count and the subtitle
   source. Their behaviour MUST NOT change.

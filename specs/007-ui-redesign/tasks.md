@@ -38,13 +38,13 @@ and the fixture page. No screen changes shape until this phase is done.
 
 - [ ] T002 Add `term_spans(text, terms) -> Vec<(usize, usize)>` in `app/src-tauri/src/criterion/marks.rs` (pure, UTF-16 offsets, sorted, non-overlapping, built on `normalize::matches_token`), export it from `criterion/mod.rs`, and test it: Turkish suffixes and case, a token matching two terms gives one span, punctuation is not marked, and over every cue of both evaluation fixtures a cue has spans exactly when the topic search counts it as matching (SC-004, contracts/ipc.md invariant).
 - [ ] T003 Pass the terms through: `session_cues` in `app/src-tauri/src/commands.rs` takes optional `terms` and returns `marks` per cue (data-model.md `Cue.marks`); add `marks` to `Cue` and the optional argument to `api.sessionCues` in `src/api.ts`. The interface does not use the field yet.
-- [ ] T004 Move language, appearance, mode and the settings report into `src/state/useSettings.ts`, and drag and drop into `src/state/useDrop.ts`; `src/App.tsx` calls them. No visible change.
+- [ ] T004 (FR-019) Move language, appearance, mode and the settings report into `src/state/useSettings.ts`, and drag and drop into `src/state/useDrop.ts`; `src/App.tsx` calls them. No visible change.
 - [ ] T005 Move opening, track choice, offset and cue samples into `src/state/useSession.ts`. No visible change.
 - [ ] T006 Move criterion inputs, candidates, bounds, kept set and selection into `src/state/useSearch.ts`, with selection following data-model.md `Selection.selectedId` (first candidate on arrival, null only when empty). No visible change apart from the first candidate being selected.
 - [ ] T007 Move plan, confirmation and ranking into `src/state/useRanking.ts`, and preview into `src/state/usePreview.ts` (one at a time, superseded answers dropped, as 005). No visible change.
 - [ ] T008 Move output folder, cut progress and written files into `src/state/useCut.ts`. `src/App.tsx` now holds only composition and the old JSX. Run the determinism and cut tests unchanged (SC-005).
-- [ ] T009 Apply the approved identity to the old screen: the tokens of research R3 (with `edge` and `on-marker`) in `src/styles.css` for light, dark and system, and `src/components/Button.tsx` with the five kinds of research R4; replace ad-hoc button classes with it.
-- [ ] T010 Add the fixture page: `screens.html`, `src/dev/screens.tsx`, `src/dev/fixtures.ts` (the Turkish evaluation search for "kaygı, endişe"), a second Vite entry used only by `npm run screens`, rendering a named state at a given size and theme (research R6). It renders the old screens until Phase 3 replaces them.
+- [ ] T009 Apply the approved identity (FR-015, FR-017, FR-022) to the old screen: the tokens of research R3 (with `edge` and `on-marker`) in `src/styles.css` for light, dark and system (FR-017), and `src/components/Button.tsx` with the five kinds of research R4; replace ad-hoc button classes with it.
+- [ ] T010 Add the fixture page: `screens.html`, `src/dev/screens.tsx`, `src/dev/fixtures.ts` (the Turkish evaluation search for "kaygı, endişe"), a second Vite entry used only by `npm run screens`, rendering a named state at a given size and theme (research R6, FR-019). It renders the old screens until Phase 3 replaces them.
 
 **Checkpoint**: behaviour is where it was, in the new look, with state in hooks.
 
@@ -61,14 +61,14 @@ at 880×600 and 1100×760 (spec US1).
 
 - [ ] T011 [P] [US1] `src/components/TopBar.tsx` and `src/components/RecordingLine.tsx`: name, duration, engine, offset when not zero, Altyazı hizası, Ayarlar, language (FR-010). Used by the old screen in place of its header.
 - [ ] T012 [P] [US1] `src/screens/StartScreen.tsx`: drop area, file picker as the only primary action, one sentence on what Kirpix does (FR-001).
-- [ ] T013 [P] [US1] `src/components/CriterionCards.tsx` and `src/components/TopicInputs.tsx`: five cards in order from data-model.md `CriterionCard.id`, only `built` cards selectable, unbuilt cards inert text with "Henüz yok" and `CriterionCard.roadmap` (FR-002, FR-003, FR-021); topic terms and bounds (FR-004).
+- [ ] T013 [P] [US1] `src/components/CriterionCards.tsx` and `src/components/TopicInputs.tsx`: five cards in order from data-model.md `CriterionCard.id`, only cards with data-model.md `CriterionCard.built` selectable, unbuilt cards inert text with "Henüz yok" and `CriterionCard.roadmap` (FR-002, FR-003, FR-021); topic terms and bounds (FR-004).
 - [ ] T014 [US1] `src/screens/CriterionScreen.tsx` composing T013 with "Kesitleri bul" as its primary action; `src/App.tsx` shows it in the `criterion` state of data-model.md.
 - [ ] T015 [P] [US1] `src/components/CriterionBar.tsx`: the chosen criterion, its terms editable, bounds as text, "Yeniden ara" (FR-005).
 - [ ] T016 [P] [US1] `src/components/CandidateList.tsx`: rows with keep box, range, duration, reason sentence without dotted strings, the model's reason and order when ranked (004), selected row marked by bar and tint (FR-006, FR-009).
 - [ ] T017 [P] [US1] `src/components/CueLines.tsx`: lines with timecodes, matched words wrapped as marks from `Cue.marks` (data-model.md), semibold and `on-marker` on `marker`, listen action per line (FR-007, FR-008); `src/state/useSearch.ts` requests the selected candidate's cues with the terms.
 - [ ] T018 [P] [US1] `src/components/Ruler.tsx`: quarter ticks, one mark per candidate positioned from its times (003 FR-005), each mark a button that selects its candidate and scrolls its row into view, kept and dropped marks distinct (FR-023).
 - [ ] T019 [US1] `src/components/CandidateDetail.tsx` and `src/screens/ResultsScreen.tsx`: player (preview only on request, FR-014), boundary area as today, lines; bar, list, detail and ruler laid out per the approved identity; `src/App.tsx` shows it in the `results` state; the no-match message replaces the list (spec edge case).
-- [ ] T020 [US1] Remove what Phase 3 replaced: `CandidateCard.tsx`, `TimelineStrip.tsx`, `CriteriaForm.tsx`, `SectionLabel.tsx`, the old rail and pane JSX in `src/App.tsx`; strings no longer used leave `src/i18n/copy.ts`.
+- [ ] T020 [US1] Remove what Phase 3 replaced: `CandidateCard.tsx`, `TimelineStrip.tsx`, `CriteriaForm.tsx`, `SectionLabel.tsx`, the old rail and pane JSX in `src/App.tsx`; strings no longer used leave `src/i18n/copy.ts`; every new string exists in Turkish and English there (FR-020).
 
 **Checkpoint**: US1's independent test passes from the fixture page and in the window.
 
@@ -97,7 +97,7 @@ alignment control, the first cue moves and a sample plays (spec US3).
 
 ## Phase 6: Polish and verification
 
-- [ ] T026 Add the 300-line rule for `app/src/**/*.{ts,tsx}` to `scripts/check.sh`, naming any file over (SC-006, research R8).
+- [ ] T026 Add the 300-line rule for `app/src/**/*.{ts,tsx}` to `scripts/check.sh`, naming any file over (FR-018, SC-006, research R8).
 - [ ] T027 [P] Screenshots from the fixture page of `start`, `tracks`, `criterion`, `results`, `results-cut`, `results-empty`, `settings` at 880×600 and 1100×760, light and dark, into `specs/007-ui-redesign/evidence/` (SC-002, SC-003).
 - [ ] T028 [P] Contrast table from the final token values (SC-007) and the enumeration of every control on the results screen with its kind and visible difference, both languages (SC-008, FR-016), in `specs/007-ui-redesign/evidence/README.md`.
 - [ ] T029 Records: superseded notes on 003 FR-001, FR-002, FR-004, FR-016 (rail, faces, pane subjects, cursor) where 007 replaces them; `README.md` describes the new screen.

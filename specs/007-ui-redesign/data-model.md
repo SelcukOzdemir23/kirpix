@@ -6,7 +6,9 @@ except `Cue.marks`.
 
 ## Screen state
 
-Exactly one at a time (spec › Key Entities):
+Exactly one at a time (spec › Key Entities). `results-cut` and `results-empty`
+on the fixture page are variants of `results` (the cut strip open; no
+candidate matched), not states of their own.
 
 | State | Shown when | Primary action |
 | --- | --- | --- |
@@ -21,7 +23,7 @@ chosen track; `criterion → results` on search; `results → results` on a new
 search from the criterion bar; any → `criterion` on an offset change while
 results exist (002: results are discarded); any ↔ `settings`.
 
-## Criterion card
+## CriterionCard
 
 | Field | Type | Rule |
 | --- | --- | --- |
