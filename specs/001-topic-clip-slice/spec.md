@@ -186,6 +186,10 @@ in the output folder with names that identify their ranges.
 - **FR-020**: The feature MUST perform no network requests.
 - **FR-021**: The feature MUST write nothing outside the chosen output folder and
   the application's own configuration directory.
+  *Superseded (recorded 2026-11-27)*: since 005 a preview may write one
+  temporary file in the operating system's temporary directory, deleted before
+  the command returns (005 FR-004). Since 006 the app also writes its settings
+  file in its configuration directory.
 - **FR-022**: Identical inputs and identical settings MUST produce an identical
   candidate list and identical output file names.
 

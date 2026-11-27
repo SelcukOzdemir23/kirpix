@@ -148,9 +148,12 @@ that file.
   component may hardcode a user-facing string.
 - **FR-013**: The slice MUST NOT add a video preview, a model call, or any
   network request.
+  *Superseded (recorded 2026-11-27)*: 005 added a video preview.
 - **FR-014**: The interface MUST follow the operating system's colour scheme,
   offering a light and a dark appearance from one set of tokens, and MUST switch
   when the system switches without a relaunch.
+  *Superseded (recorded 2026-11-27)*: 006 FR-003 to FR-005 replace this: the
+  user chooses `Sistem`, `Açık` or `Koyu`; `Sistem` keeps this behaviour.
 - **FR-015**: Body text MUST be legible at arm's length on a desktop display:
   15px for list content, 16px for timecodes, 13–14.5px for secondary text, and
   no interface text below 12px.
@@ -243,5 +246,5 @@ that file.
 - Video preview remains out of scope, as it has been since feature 001.
 - Both typefaces are under the SIL Open Font License. The constitution asks for
   third-party licences to be documented in the repository; that documentation
-  does not exist yet, for the site either. Recorded here as a follow-up rather
+  does not exist yet, for the site either (*done since*: `THIRD_PARTY.md`). Recorded here as a follow-up rather
   than silently added to this slice.

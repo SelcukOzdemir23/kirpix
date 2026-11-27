@@ -181,6 +181,8 @@ were left unticked. They are ticked now; their evidence was already written.
   the command layer's own tests. A live request needs a real window and a real
   server — T009 names it.
   *Depends on*: T004, T007.
+  *Superseded (recorded 2026-11-27)*: 006 moved the model section from the
+  rail to the settings view (006 FR-008); the rail shows one engine line.
 
 - [x] **T009** Verify against the evaluation set and record what a person must
   still check: heuristic mode with the network down on a real recording, and one

@@ -68,12 +68,18 @@ No violations, so no complexity justification is required.
 6. **No video preview in this slice.** The interface shows the cue text, not the
    picture. That sidesteps the WebKitGTK H.264 problem entirely, and the user
    can open the produced file. A preview is a later feature with its own risk.
+   *Superseded (recorded 2026-11-27)*: 005 added a preview.
 7. **Session state in Rust.** One loaded video and cue table at a time, held in
    Tauri managed state. The interface never re-sends 400 cues to search.
 8. **Progress from `-progress pipe:1`.** Machine-readable key/value lines on
    stdout, not log scraping on stderr.
 
 ## Project Structure
+
+*Superseded (recorded 2026-11-27)*: the interface files below were never split
+out; `App.tsx` holds them. The reason sentence moved from Rust to the
+interface (T009), so `Candidate.reason` in the IPC sketch does not exist.
+Feature 007 plans the interface structure again.
 
 ```
 app/
@@ -166,7 +172,7 @@ interface never invents text (article IX).
 | --- | --- | --- |
 | Parser | Both fixtures produce 357 and 239 cues; the repeated block and the run-on timestamp are handled per FR-003 | `cargo test`, reading `eval/fixtures/` |
 | Normalization | `KAYGI` matches `kaygı`; `endişe` matches `endişesi`; unrelated words do not match within the four-character limit | unit tests |
-| Candidates | Merge within two seconds, pad half a second, clamp, bounds, ordering | unit tests on small hand-built tables |
+| Candidates | Merge within twenty seconds and eight cues (FR-008 as amended in T008), pad half a second, clamp, bounds, ordering | unit tests on small hand-built tables |
 | Golden | Search on both recordings overlaps a gold range by at least 80 percent of its duration (SC-001) | `cargo test` reading `eval/gold/` |
 | Determinism | Two runs produce identical candidate JSON (SC-004) | unit test |
 | Manual | A cut file plays and matches the card duration within 0.25 s (SC-002) | one row per recording in the PR |
