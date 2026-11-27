@@ -50,16 +50,10 @@ each.
   T004.
   *Depends on*: T002.
 
-- [ ] **T004** Verify: screenshots of the row with a player, the failure path,
+- [x] **T004** Verify: screenshots of the row with a player, the failure path,
   and what a person must still check in a real window — playback on WebKitGTK,
   which is not the engine the screenshots use.
-  *State*: the screenshot half is done; playback is not. This stays open because
-  the one thing that decides whether the feature works — does the window play the
-  bytes — cannot be checked from here.
-  *What a person has to do*: `cd app && npm run tauri dev`, open the fixture MKV,
-  search, press `Göster` on a candidate, and confirm the picture plays and the
-  sound matches the line under it. If it stays black, the next suspect is the
-  `data:` media policy in a WebKit container, then the MP4's `faststart` layout.
-  Also worth a look: press show on two rows in a row quickly, and confirm only
-  one player ends up on screen.
+  *State*: done. The screenshot half was done here; playback was checked by the
+  owner in a desktop session (CachyOS, KWin on Wayland): the preview plays in the
+  row, and pressing it on two rows quickly leaves one player on screen.
   *Depends on*: T003.

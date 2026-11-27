@@ -106,6 +106,10 @@ each.
   *Owed to a person*: play a sample and confirm it lines up with the cue
   (SC-003, the playback half); run the whole flow with the network down
   (SC-006); and correct the shifted fixture by ear rather than by arithmetic.
+  *Desktop session (CachyOS, KWin on Wayland, reported by the owner)*: the sample plays
+  (the media policy fix in 005 opened it), but whether it lines up with the cue
+  was "probably", not "yes". Still owed: a confident alignment check, the
+  offline run, and correcting the shifted fixture by ear.
   This box stays open until those three are done.
   *Depends on*: T005, T006, T007
 

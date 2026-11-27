@@ -119,3 +119,8 @@ each.
   browser can show the fallback (no drop wording) but not a real drop, and no
   screenshot can prove a hover pair. A headless Chromium screenshot is not
   evidence for any of it.
+  *Desktop session (CachyOS, KWin on Wayland, reported by the owner)*: dropping the
+  MKV works, dropping the MKV with the SRT uses the SRT, 880×600 keeps the
+  search button whole, buttons show no hand cursor, cue text is selectable and
+  labels are not. Still owed: an SRT dropped alone onto an open session, and the
+  row-to-mark hover pair.
