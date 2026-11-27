@@ -14,7 +14,8 @@ import React, { type ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import '../styles.css';
 import { copy, type Lang } from '../i18n/copy';
-import TrackChooser from '../components/TrackChooser';
+import TrackScreen from '../screens/TrackScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 import StartScreen from '../screens/StartScreen';
 import CriterionScreen from '../screens/CriterionScreen';
 import TopBar from '../components/TopBar';
@@ -111,6 +112,34 @@ function results(t: Text, options: { dropped?: number[]; cut?: boolean } = {}) {
 
 export const states: Record<string, (t: Text) => ReactNode> = {
   results: (t) => results(t),
+  'results-empty': (t) => (
+    <ResultsScreen
+      bar={
+        <CriterionBar t={t} terms="kaygısız" minSec={8} maxSec={120} searching={false} onTerms={noop} onSearch={noop} />
+      }
+      list={
+        <div className="grid flex-1 place-items-center px-8 text-center">
+          <p className="text-[16px]">{t.noMatch}</p>
+        </div>
+      }
+      detail={null}
+      ruler={
+        <Ruler t={t} durationMs={fixture.session.durationMs} candidates={[]} bounds={{}} dropped={[]} selectedId={null} onSelect={noop} />
+      }
+    />
+  ),
+  settings: (t) => (
+    <SettingsScreen
+      t={t}
+      appearance="system"
+      onAppearance={noop}
+      mode={{ mode: 'heuristic' }}
+      onMode={noop}
+      onError={noop}
+      loadError={null}
+      path={null}
+    />
+  ),
   'results-cut': (t) => results(t, { cut: true }),
   criterion: (t) => (
     <CriterionScreen
@@ -127,7 +156,7 @@ export const states: Record<string, (t: Text) => ReactNode> = {
   ),
   start: (t) => <StartScreen t={t} dropReady busy={false} onPick={noop} />,
   tracks: (t) => (
-    <TrackChooser
+    <TrackScreen
       t={t}
       videoPath={fixture.session.videoPath}
       tracks={fixture.tracks}

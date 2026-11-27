@@ -15,8 +15,8 @@ import Ruler from './components/Ruler';
 import CutBar from './components/CutBar';
 import CutStrip from './components/CutStrip';
 import { stepEdge, type Edge, type Step } from './state/edges';
-import SettingsView from './components/SettingsView';
-import TrackChooser from './components/TrackChooser';
+import SettingsScreen from './screens/SettingsScreen';
+import TrackScreen from './screens/TrackScreen';
 import { useDrop } from './state/useDrop';
 import { useSession } from './state/useSession';
 import { edgesOf, orderCandidates, parseTerms, useSearch } from './state/useSearch';
@@ -180,7 +180,7 @@ export default function App() {
       <div className="flex min-h-0 flex-1">
         <main className="flex min-h-0 min-w-0 flex-1 flex-col">
           {settingsOpen ? (
-            <SettingsView
+            <SettingsScreen
               t={t}
               appearance={settings.appearance}
               onAppearance={settings.chooseAppearance}
@@ -191,16 +191,14 @@ export default function App() {
               path={settings.path}
             />
           ) : pendingVideo && tracks.length > 0 ? (
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <TrackChooser
-                t={t}
-                videoPath={pendingVideo}
-                tracks={tracks}
-                busy={busy}
-                onTrack={(streamIndex) => openFromTrack(pendingVideo, streamIndex)}
-                onFile={() => void chooseSubtitleFile(pendingVideo)}
-              />
-            </div>
+            <TrackScreen
+              t={t}
+              videoPath={pendingVideo}
+              tracks={tracks}
+              busy={busy}
+              onTrack={(streamIndex) => openFromTrack(pendingVideo, streamIndex)}
+              onFile={() => void chooseSubtitleFile(pendingVideo)}
+            />
           ) : session ? (
             candidates === null ? (
               <CriterionScreen
