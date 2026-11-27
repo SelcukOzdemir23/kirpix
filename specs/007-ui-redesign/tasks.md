@@ -101,7 +101,19 @@ alignment control, the first cue moves and a sample plays (spec US3).
 - [x] T027 [P] Screenshots from the fixture page of `start`, `tracks`, `criterion`, `results`, `results-cut`, `results-empty`, `settings` at 880×600 and 1100×760, light and dark, into `specs/007-ui-redesign/evidence/` (SC-002, SC-003).
 - [x] T028 [P] Contrast table from the final token values (SC-007) and the enumeration of every control on the results screen with its kind and visible difference, both languages (SC-008, FR-016), and a table of every action that exists today with the screen it is reached from (FR-013), in `specs/007-ui-redesign/evidence/README.md`.
 - [x] T029 Records: superseded notes on 003 FR-001, FR-002, FR-004, FR-016 (rail, faces, pane subjects, cursor) where 007 replaces them; `README.md` describes the new screen.
-- [ ] T030 *Verified by the machine*: `./scripts/check.sh` passes; SC-004, SC-005, SC-006 by test; SC-002, SC-003, SC-007, SC-008 by the evidence above. Ticked with the results written here.
+- [x] T030 *Verified by the machine*: `./scripts/check.sh` passes; SC-004, SC-005, SC-006 by test; SC-002, SC-003, SC-007, SC-008 by the evidence above. Ticked with the results written here.
+  *Evidence (2026-11-27)*: `./scripts/check.sh` exits 0: rustfmt and clippy
+  clean; 183 undocumented public items, at the baseline; `cargo test` 118
+  passed, 1 ignored (the English golden test, a known failure from the
+  analysis), 23 skipped because this checkout has no `eval/media/`; every
+  component and hook is 300 lines or fewer (`App.tsx` 292, from 845);
+  typecheck, app build and site build pass. SC-004 by
+  `criterion::marks::tests::agrees_with_the_search_on_both_fixtures`, over
+  every cue of both fixtures. SC-005: the determinism test runs unchanged and
+  passes; the cut tests are among the 23 skipped here, untouched by this
+  slice. SC-002, SC-003, SC-007, SC-008 and FR-013 by `evidence/README.md`
+  and its 28 screenshots. `npm run tauri dev` builds and the window process
+  stays up; what it shows is T031's to check.
 - [ ] T031 *Owed to a person, at a desktop*:
   - [ ] SC-001: from a clean start, open the Turkish recording, search, cut one clip; name any unclear control; record the time (owner, familiar user);
   - [ ] fonts and layout in the real WebKitGTK window, light and dark;
