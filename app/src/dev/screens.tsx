@@ -15,6 +15,7 @@ import ReactDOM from 'react-dom/client';
 import '../styles.css';
 import { copy, type Lang } from '../i18n/copy';
 import TrackChooser from '../components/TrackChooser';
+import StartScreen from '../screens/StartScreen';
 import * as fixture from './fixtures';
 
 type Text = (typeof copy)['tr'];
@@ -22,6 +23,7 @@ const noop = () => {};
 
 /** Every state the page can show. */
 export const states: Record<string, (t: Text) => ReactNode> = {
+  start: (t) => <StartScreen t={t} dropReady busy={false} onPick={noop} />,
   tracks: (t) => (
     <TrackChooser
       t={t}

@@ -6,6 +6,7 @@ import CandidateCard from './components/CandidateCard';
 import Button from './components/Button';
 import ConfirmDialog from './components/ConfirmDialog';
 import TopBar from './components/TopBar';
+import StartScreen from './screens/StartScreen';
 import CriteriaForm from './components/CriteriaForm';
 import SectionLabel from './components/SectionLabel';
 import SettingsView from './components/SettingsView';
@@ -374,7 +375,7 @@ export default function App() {
               )}
             </>
           ) : (
-            <StartPane t={t} />
+            <StartScreen t={t} dropReady={dropReady} busy={busy} onPick={() => void pickVideo()} />
           )}
         </main>
       </div>
@@ -428,31 +429,6 @@ function Centered({ title, body }: { title: string; body: string }) {
       <div className="flex max-w-[420px] flex-col gap-2 text-center">
         <p className="text-[16px] leading-relaxed">{title}</p>
         <p className="text-[14px] leading-relaxed text-muted">{body}</p>
-      </div>
-    </div>
-  );
-}
-
-/* First run: what the app is, and the three things the user will do. */
-function StartPane({ t }: { t: (typeof copy)['tr'] }) {
-  return (
-    <div className="grid min-h-0 flex-1 place-items-center overflow-y-auto px-8 py-10">
-      <div className="w-full max-w-[440px]">
-        <p className="text-[16px] leading-relaxed">{t.tagline}</p>
-
-        <ol className="mt-6 border-b border-line">
-          {t.startSteps.map((step, index) => (
-            <li key={step.title} className="flex gap-3.5 border-t border-line py-3">
-              <span className="pt-0.5 font-mono text-[12.5px] tabular-nums text-accent">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <span className="flex flex-col gap-1">
-                <span className="text-[15px]">{step.title}</span>
-                <span className="text-[14px] leading-relaxed text-muted">{step.body}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
       </div>
     </div>
   );
