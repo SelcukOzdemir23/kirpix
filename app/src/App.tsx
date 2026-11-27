@@ -5,6 +5,7 @@ import { fileName, folderOf, timecode } from './format';
 import Button from './components/Button';
 import ConfirmDialog from './components/ConfirmDialog';
 import TopBar from './components/TopBar';
+import AlignmentPanel from './components/AlignmentPanel';
 import StartScreen from './screens/StartScreen';
 import CriterionScreen from './screens/CriterionScreen';
 import ResultsScreen from './screens/ResultsScreen';
@@ -16,7 +17,6 @@ import { stepEdge, type Edge, type Step } from './state/edges';
 import CriteriaForm from './components/CriteriaForm';
 import SectionLabel from './components/SectionLabel';
 import SettingsView from './components/SettingsView';
-import OffsetControls from './components/OffsetControls';
 import TrackChooser from './components/TrackChooser';
 import { useDrop } from './state/useDrop';
 import { useSession } from './state/useSession';
@@ -64,6 +64,7 @@ export default function App() {
   const activeId = search.selectedId;
   const setActiveId = search.select;
   const [step, setStep] = useState<Step>('second');
+  const [alignmentOpen, setAlignmentOpen] = useState(false);
   const cut = useCut(setError);
   const { cutting, progress, results, writtenOpen, setWrittenOpen } = cut;
   const rankingState = useRanking(setError);
@@ -132,7 +133,7 @@ export default function App() {
   }, 0);
 
   return (
-    <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-ink text-text">
+    <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-ink text-text">
       <audio ref={audioRef} hidden />
 
       <TopBar
@@ -146,7 +147,21 @@ export default function App() {
         onLang={setLang}
         onSettings={() => setSettingsOpen((open) => !open)}
         onChangeFile={() => void pickVideo()}
+        alignmentOpen={alignmentOpen}
+        onAlignment={() => setAlignmentOpen((open) => !open)}
       />
+
+      {session && alignmentOpen && (
+        <AlignmentPanel
+          t={t}
+          session={session}
+          offsetMs={offsetMs}
+          clampedCues={clampedCues}
+          hasResults={candidates !== null}
+          onChange={(next) => void applyOffset(next)}
+          onClose={() => setAlignmentOpen(false)}
+        />
+      )}
 
       {error != null && (
         <div
@@ -236,16 +251,6 @@ export default function App() {
               </div>
             )}
 
-            {session && (
-              <RailSection>
-                <OffsetControls
-                  t={t}
-                  offsetMs={offsetMs}
-                  clampedCues={clampedCues}
-                  onChange={applyOffset}
-                />
-              </RailSection>
-            )}
 
             {session?.mediaSource === 'systemPath' && (
               <p className="mt-auto border-t border-line pt-3 text-[12.5px] leading-relaxed text-muted/80">

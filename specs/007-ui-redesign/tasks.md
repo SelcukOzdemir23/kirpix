@@ -90,7 +90,7 @@ cut, find two files whose durations match their rows (spec US2).
 **Independent test**: open the shifted fixture, apply +3.5 s from the
 alignment control, the first cue moves and a sample plays (spec US3).
 
-- [ ] T024 [US3] `src/components/AlignmentPanel.tsx` opened from the recording line: offset steps, reset, clamped count, cue count and subtitle source (FR-011); results discarded on change with the 002 message; remove `OffsetControls.tsx`.
+- [x] T024 [US3] `src/components/AlignmentPanel.tsx` opened from the recording line: offset steps, reset, clamped count, cue count and subtitle source (FR-011); results discarded on change with the 002 message; remove `OffsetControls.tsx`.
 - [ ] T025 [P] [US3] `src/screens/TrackScreen.tsx` and `src/screens/SettingsScreen.tsx` in the new identity, settings returning the previous state unchanged (006 FR-013); remove `SettingsView.tsx`.
 
 ---

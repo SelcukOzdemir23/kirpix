@@ -35,7 +35,7 @@ export default function RecordingLine({ t, session, mode, offsetMs }: Props) {
       </span>
       {offsetMs !== 0 && (
         <span className="shrink-0 text-muted">
-          {t.alignmentOffset(`${offsetMs > 0 ? '+' : ''}${(offsetMs / 1000).toFixed(1)}`)}
+          {t.alignmentOffset(t.offsetValue(offsetMs))}
         </span>
       )}
     </div>
