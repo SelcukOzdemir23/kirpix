@@ -16,6 +16,7 @@ import '../styles.css';
 import { copy, type Lang } from '../i18n/copy';
 import TrackChooser from '../components/TrackChooser';
 import StartScreen from '../screens/StartScreen';
+import CriterionScreen from '../screens/CriterionScreen';
 import * as fixture from './fixtures';
 
 type Text = (typeof copy)['tr'];
@@ -23,6 +24,19 @@ const noop = () => {};
 
 /** Every state the page can show. */
 export const states: Record<string, (t: Text) => ReactNode> = {
+  criterion: (t) => (
+    <CriterionScreen
+      t={t}
+      terms={fixture.terms.join(', ')}
+      minSec={8}
+      maxSec={120}
+      searching={false}
+      onTerms={noop}
+      onMin={noop}
+      onMax={noop}
+      onSearch={noop}
+    />
+  ),
   start: (t) => <StartScreen t={t} dropReady busy={false} onPick={noop} />,
   tracks: (t) => (
     <TrackChooser

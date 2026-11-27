@@ -42,5 +42,5 @@ const SELECTED = 'border-l-[3px] border-l-accent bg-accent-dim font-semibold';
 
 export default function Button({ kind = 'secondary', selected, className = '', ...rest }: Props) {
   const classes = [BASE, KINDS[kind], selected ? SELECTED : '', className].join(' ');
-  return <button type="button" aria-pressed={selected} className={classes} {...rest} />;
+  return <button type="button" aria-pressed={selected} {...rest} className={classes} />;
 }

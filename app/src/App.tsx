@@ -7,6 +7,7 @@ import Button from './components/Button';
 import ConfirmDialog from './components/ConfirmDialog';
 import TopBar from './components/TopBar';
 import StartScreen from './screens/StartScreen';
+import CriterionScreen from './screens/CriterionScreen';
 import CriteriaForm from './components/CriteriaForm';
 import SectionLabel from './components/SectionLabel';
 import SettingsView from './components/SettingsView';
@@ -297,14 +298,24 @@ export default function App() {
                 />
               </div>
 
-              {writtenOpen && results ? (
+              {candidates === null ? (
+                <CriterionScreen
+                  t={t}
+                  terms={terms}
+                  minSec={minSec}
+                  maxSec={maxSec}
+                  searching={searching}
+                  onTerms={setTerms}
+                  onMin={setMinSec}
+                  onMax={setMaxSec}
+                  onSearch={() => void runSearch()}
+                />
+              ) : writtenOpen && results ? (
                 <WrittenFiles t={t} results={results} onBack={() => setWrittenOpen(false)} />
               ) : (
                 <>
                   <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3.5">
-                    {candidates === null ? (
-                      <Centered title={t.idleTitle} body={t.idleBody} />
-                    ) : candidates.length === 0 ? (
+                    {candidates.length === 0 ? (
                       <Centered title={t.noMatch} body={t.noMatchHint} />
                     ) : (
                       <>
