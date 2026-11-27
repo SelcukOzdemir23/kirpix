@@ -102,9 +102,9 @@ cut, and find two files whose durations match their rows.
 2. **Given** a selected candidate, **When** the user moves a boundary, **Then**
    the row, the ruler mark and the player range all show the new value, and the
    original edges stay visible as in 003.
-3. **Given** a cut has finished, **When** the results are shown, **Then** each
-   written file and its folder are named, and a failure names its clip and its
-   reason, as in 001.
+3. **Given** a cut has finished, **When** the results are shown, **Then** a
+   strip below the list names each written file and its folder, a failure
+   names its clip and its reason as in 001, and the candidates stay on screen.
 
 ---
 
@@ -183,6 +183,9 @@ plays.
   search (001 FR-006, FR-007), not from a second matcher.
 - **FR-009**: Exactly one candidate MUST be selected whenever the list is not
   empty; the first is selected when results arrive.
+- **FR-023**: Each candidate's mark on the ruler MUST be a control: activating
+  it, by pointer or keyboard, selects that candidate and brings its row into
+  view in the list. The ruler MUST NOT seek the player.
 - **FR-010**: The recording MUST be named in a line at the top of the window,
   with its duration, cue count, subtitle source, the engine of 006 and, when it
   is not zero, the offset.
@@ -194,6 +197,10 @@ plays.
 - **FR-012**: Each screen state MUST have exactly one primary action: pick a
   file; find clips; cut the kept clips. The cut action's label MUST state the
   number of kept candidates and MUST be disabled at zero.
+- **FR-024**: After a cut, the written files, their folder and any failed clip
+  with its reason MUST be listed in a closable strip below the candidate list.
+  The candidates MUST stay on screen. The output folder MUST be shown and
+  changeable beside the cut action.
 - **FR-013**: Every action that exists today MUST stay reachable: keep or drop a
   candidate, move each edge by one second or one cue, reset, preview, listen to
   a cue, choose a track, change file, open settings, switch language, choose the
@@ -236,7 +243,8 @@ plays.
 ### Key Entities
 
 - **Screen state**: one of no recording, choosing a track, choosing a
-  criterion, results, cut results, settings. Exactly one is shown.
+  criterion, results, settings. Cut results are a strip inside results, not a
+  state of their own. Exactly one is shown.
 - **Criterion card**: a criterion's name, one line on what it finds, whether it
   is built, and the roadmap number when it is not.
 - **Criterion bar**: the compact form of the chosen criterion and its inputs.
@@ -247,10 +255,11 @@ plays.
 
 ### Measurable Outcomes
 
-- **SC-001**: A person who has not seen Kirpix, given the Turkish evaluation
-  recording and the words "kaygı, endişe", cuts their first clip in under five
-  minutes from launch with no help. Recorded as a manual check, one row per
-  person (product measure "first clip in five minutes").
+- **SC-001**: From a clean start (settings reset), the owner opens the Turkish
+  evaluation recording, searches "kaygı, endişe" and cuts one clip without
+  help, and names no control whose job was unclear. The time taken is
+  recorded; it is not the gate. Recorded as a manual check marked "owner,
+  familiar user", because a first-time user was not tested.
 - **SC-002**: At 880×600 and at 1100×760, in light and dark, every screen state
   renders with no horizontal scroll and no clipped control. Checked by
   screenshot of each state from fixed data.
@@ -282,6 +291,21 @@ plays.
 - Q: Should the redesign avoid the generic look of generated interfaces? → A:
   Yes. The owner asked for an interface that is comfortable and distinct
   without being overdone, and that does not read as generated.
+- Q: Should the plan propose one visual identity or two to choose from? → A:
+  One. The plan proposes a single identity with screenshots; the owner approves
+  it or asks for changes before the interface tasks start.
+- Q: Does clicking a candidate's mark on the ruler select that candidate? → A:
+  Yes. A mark selects its candidate and scrolls it into view in the list; marks
+  are reachable by keyboard (FR-023).
+- Q: Who checks that a first-time user can cut a clip unaided (SC-001)? → A:
+  The owner, from a clean start with settings reset, recorded as "owner,
+  familiar user". The owner put clarity above the five-minute figure: the
+  check is that every control's job is clear without help; time is recorded
+  but is not the gate.
+- Q: Where are the written files listed after a cut? → A: In a strip below
+  the candidate list that names each file, the folder and any failure; the
+  candidates stay on screen and the strip can be closed. The output folder is
+  chosen beside the cut button (FR-024).
 
 ## Assumptions
 
@@ -290,8 +314,8 @@ plays.
   cards are visible by the owner's choice.
 - **The visual identity is open.** The owner asked for a change if a better one
   improves legibility and makes each control's job obvious. The plan proposes
-  it with screenshots, and the owner approves it before the interface tasks
-  start. Fonts stay bundled (003 FR-002) and their licences are recorded in
+  one identity with screenshots, and the owner approves it or asks for changes
+  before the interface tasks start. Fonts stay bundled (003 FR-002) and their licences are recorded in
   `THIRD_PARTY.md`.
 - **The empty screen does not show the criterion cards.** They appear once a
   recording is open, because before that there is nothing to search.
