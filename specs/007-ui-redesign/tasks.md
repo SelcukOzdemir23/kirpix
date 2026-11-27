@@ -145,3 +145,15 @@ alignment control, the first cue moves and a sample plays (spec US3).
   secondary screens), polish and evidence.
 - One commit per task, pushed as it lands; the pull request after T030, with
   T031 listed as owed.
+
+---
+
+## Phase 7: Convergence
+
+Appended by `/speckit-converge` (2026-11-27) after T001–T030. Each task traces
+to the spec or plan and names its gap type.
+
+- [ ] T032 Restyle `src/components/ConfirmDialog.tsx` in the approved identity: the cancel control uses the `edge` border of a secondary action instead of 1.4:1 `line`, the send action uses `Button` kind `primary`, the model, address and amount are text rather than monospace labels, and the amount reads as a sentence rather than a dotted string per FR-015, FR-016 and FR-022 (partial)
+- [ ] T033 Make the shortest and longest durations editable from `src/components/CriterionBar.tsx`, not only shown as text, so the criterion's inputs can all be changed without returning to the cards per FR-005 (partial)
+- [ ] T034 Record in `spec.md` › Clarifications that selecting a candidate loads its lines (`session_cues`) on selection rather than on an explicit "show lines", which FR-007 requires and FR-014's list of unchanged triggers did not name; no other request changed per FR-014 (contradicts)
+- [ ] T035 Record in `plan.md` that `App.tsx` ends at 292 lines, not the planned "< 150": it composes seven hooks and five screens and is within the constitution's 300-line rule; or move the results wiring into its own component per plan: Source Code (partial)
