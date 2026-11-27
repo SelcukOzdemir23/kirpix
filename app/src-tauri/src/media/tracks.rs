@@ -11,12 +11,7 @@ pub enum TrackKind {
 /// The codecs that store pictures. Everything else FFprobe reports as a
 /// subtitle is text, and if extraction then fails it fails with a named error
 /// rather than a guess.
-const PICTURE_CODECS: &[&str] = &[
-    "dvd_subtitle",
-    "dvb_subtitle",
-    "hdmv_pgs_subtitle",
-    "xsub",
-];
+const PICTURE_CODECS: &[&str] = &["dvd_subtitle", "dvb_subtitle", "hdmv_pgs_subtitle", "xsub"];
 
 pub fn classify(codec: &str) -> TrackKind {
     let lower = codec.to_ascii_lowercase();

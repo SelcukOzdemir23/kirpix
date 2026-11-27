@@ -108,7 +108,10 @@ mod tests {
         assert!(matches_token(&normalize("endişe"), &term));
         assert!(matches_token(&normalize("endişesi"), &term));
         assert!(matches_token(&normalize("ENDİŞELER"), &term));
-        assert!(!matches_token(&normalize("endişelerim"), &term), "five extra characters is too many");
+        assert!(
+            !matches_token(&normalize("endişelerim"), &term),
+            "five extra characters is too many"
+        );
     }
 
     #[test]
@@ -117,11 +120,17 @@ mod tests {
         assert!(!matches_token(&normalize("akaygı"), &term));
         assert!(!matches_token(&normalize("kay"), &term));
         assert!(!matches_token("", &term));
-        assert!(!matches_token(&normalize("kaygı"), ""), "an empty term matches nothing");
+        assert!(
+            !matches_token(&normalize("kaygı"), ""),
+            "an empty term matches nothing"
+        );
     }
 
     #[test]
     fn tokens_split_on_every_separator() {
-        assert_eq!(tokens("kaygı, endişe; korku."), vec!["kaygı", "endişe", "korku"]);
+        assert_eq!(
+            tokens("kaygı, endişe; korku."),
+            vec!["kaygı", "endişe", "korku"]
+        );
     }
 }

@@ -12,8 +12,10 @@ use crate::provider::{
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine as _;
 
-use crate::media::{cut, encode_preview, ffmpeg, wav_around, ClipRequest, CutResult, SubtitleTrack};
 use crate::error::KirpixError;
+use crate::media::{
+    cut, encode_preview, ffmpeg, wav_around, ClipRequest, CutResult, SubtitleTrack,
+};
 use crate::session::{self, OffsetInfo, Session, SessionInfo};
 use crate::subtitle::Cue;
 
@@ -33,7 +35,11 @@ pub fn open_session(
 }
 
 #[tauri::command]
-pub fn session_cues(state: SessionState<'_>, from: usize, to: usize) -> Result<Vec<Cue>, KirpixError> {
+pub fn session_cues(
+    state: SessionState<'_>,
+    from: usize,
+    to: usize,
+) -> Result<Vec<Cue>, KirpixError> {
     let guard = state.lock().expect("session lock");
     let session = guard.as_ref().ok_or(KirpixError::NoSession)?;
     Ok(session.cues(from, to))
@@ -239,7 +245,10 @@ pub fn list_models(address: String) -> Result<Vec<String>, ProviderError> {
 }
 
 #[tauri::command]
-pub fn has_key(state: ProviderStateRef<'_>, provider: CloudProvider) -> Result<bool, ProviderError> {
+pub fn has_key(
+    state: ProviderStateRef<'_>,
+    provider: CloudProvider,
+) -> Result<bool, ProviderError> {
     let guard = state.lock().expect("provider lock");
     Ok(guard.keys.get(provider)?.is_some())
 }
@@ -255,7 +264,10 @@ pub fn set_key(
 }
 
 #[tauri::command]
-pub fn clear_key(state: ProviderStateRef<'_>, provider: CloudProvider) -> Result<(), ProviderError> {
+pub fn clear_key(
+    state: ProviderStateRef<'_>,
+    provider: CloudProvider,
+) -> Result<(), ProviderError> {
     let mut guard = state.lock().expect("provider lock");
     guard.keys.clear(provider)
 }
@@ -290,7 +302,10 @@ fn plan_shortlist(
         })
         .collect();
 
-    Ok(crate::provider::shortlist::build(&terms.join(", "), candidates))
+    Ok(crate::provider::shortlist::build(
+        &terms.join(", "),
+        candidates,
+    ))
 }
 
 fn plan_of(mode: &Mode, shortlist: &Shortlist) -> RequestPlan {

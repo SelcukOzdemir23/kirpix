@@ -106,7 +106,8 @@ mod tests {
         };
 
         let confirmation = Confirmation::of(&mode, &list);
-        rank_confirmed(&client, &list, &mode, &confirmation).expect("the confirmed payload is sent");
+        rank_confirmed(&client, &list, &mode, &confirmation)
+            .expect("the confirmed payload is sent");
 
         assert_eq!(*client.calls.borrow(), 1);
     }
@@ -135,7 +136,10 @@ mod tests {
         let mut confirmation = Confirmation::of(&mode, &list);
         confirmation.cue_count = 99;
 
-        assert_eq!(check(&confirmation, &list, &mode), Err(ProviderError::Unconfirmed));
+        assert_eq!(
+            check(&confirmation, &list, &mode),
+            Err(ProviderError::Unconfirmed)
+        );
     }
 
     #[test]
@@ -151,7 +155,10 @@ mod tests {
         });
 
         let confirmation = Confirmation::of(&confirmed, &list);
-        assert_eq!(check(&confirmation, &list, &changed), Err(ProviderError::Unconfirmed));
+        assert_eq!(
+            check(&confirmation, &list, &changed),
+            Err(ProviderError::Unconfirmed)
+        );
     }
 
     #[test]
@@ -167,6 +174,9 @@ mod tests {
         });
 
         let confirmation = Confirmation::of(&cloud, &list);
-        assert_eq!(check(&confirmation, &list, &other), Err(ProviderError::Unconfirmed));
+        assert_eq!(
+            check(&confirmation, &list, &other),
+            Err(ProviderError::Unconfirmed)
+        );
     }
 }

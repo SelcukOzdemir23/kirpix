@@ -42,13 +42,17 @@ pub fn build(shortlist: &Shortlist) -> String {
     prompt.push_str("Answer with JSON only, in exactly this shape:\n");
     prompt.push_str(r#"{"order":[{"candidate":1,"reason":"...","cues":[1,2]}]}"#);
     prompt.push_str("\n\nRules:\n");
-    prompt.push_str("- Put every candidate you were given into the order, best first for the criterion.\n");
+    prompt.push_str(
+        "- Put every candidate you were given into the order, best first for the criterion.\n",
+    );
     prompt.push_str(&format!(
         "- Give one reason sentence per candidate, at most {MAX_REASON_CHARS} characters, in the \
          language of the subtitle text.\n"
     ));
     prompt.push_str("- Cite only line numbers that appear under that candidate.\n");
-    prompt.push_str("- Never write a timecode or a duration. The line numbers are the only coordinates.\n");
+    prompt.push_str(
+        "- Never write a timecode or a duration. The line numbers are the only coordinates.\n",
+    );
     prompt.push_str("- Do not invent candidates, and do not leave one out.\n");
 
     prompt
@@ -89,8 +93,12 @@ mod tests {
             }
             if *ch == ':' && (1..=2).contains(&run) {
                 // Two digits after the colon and a digit before it: a timecode.
-                if bytes.get(index + 1).is_some_and(|next| next.is_ascii_digit())
-                    && bytes.get(index + 2).is_some_and(|next| next.is_ascii_digit())
+                if bytes
+                    .get(index + 1)
+                    .is_some_and(|next| next.is_ascii_digit())
+                    && bytes
+                        .get(index + 2)
+                        .is_some_and(|next| next.is_ascii_digit())
                 {
                     return true;
                 }
@@ -161,7 +169,11 @@ mod tests {
             "the prompt is {} characters",
             prompt.chars().count()
         );
-        assert!(estimate_tokens(&prompt) <= 4_000, "{} tokens", estimate_tokens(&prompt));
+        assert!(
+            estimate_tokens(&prompt) <= 4_000,
+            "{} tokens",
+            estimate_tokens(&prompt)
+        );
         assert!(!contains_timecode(&prompt));
     }
 }

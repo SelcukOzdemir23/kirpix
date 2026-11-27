@@ -186,7 +186,10 @@ pub fn probe(file: &Path) -> Result<MediaInfo, KirpixError> {
         .iter()
         .filter(|s| s.codec_type.as_deref() == Some("subtitle"))
         .filter_map(|s| {
-            let codec = s.codec_name.clone().unwrap_or_else(|| "unknown".to_string());
+            let codec = s
+                .codec_name
+                .clone()
+                .unwrap_or_else(|| "unknown".to_string());
             let tag = |key: &str| {
                 s.tags
                     .as_ref()
@@ -258,7 +261,11 @@ mod tests {
         }
 
         let info = probe(&path).expect("probe should succeed");
-        assert_eq!(info.subtitle_tracks.len(), 2, "the fixture carries two text tracks");
+        assert_eq!(
+            info.subtitle_tracks.len(),
+            2,
+            "the fixture carries two text tracks"
+        );
 
         let codecs: Vec<&str> = info
             .subtitle_tracks

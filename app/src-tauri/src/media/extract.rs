@@ -33,10 +33,7 @@ pub fn extract_track(video: &Path, stream_index: usize) -> Result<CueTable, Kirp
             .last()
             .unwrap_or("no output")
             .to_string();
-        return Err(KirpixError::TrackNotText {
-            stream_index,
-            tail,
-        });
+        return Err(KirpixError::TrackNotText { stream_index, tail });
     }
 
     let text = String::from_utf8_lossy(&output.stdout).to_string();
@@ -57,7 +54,9 @@ mod tests {
     use crate::subtitle::read_file;
 
     fn eval(path: &str) -> std::path::PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../eval").join(path)
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../eval")
+            .join(path)
     }
 
     #[test]
@@ -74,11 +73,14 @@ mod tests {
         let from_file = parse_table(&text, encoding.as_str());
 
         assert_eq!(embedded.len(), 239);
-        assert_eq!(embedded.len(), from_file.len(), "embedded and sidecar disagree");
+        assert_eq!(
+            embedded.len(),
+            from_file.len(),
+            "embedded and sidecar disagree"
+        );
         assert_eq!(embedded.cues[0].text, from_file.cues[0].text);
         assert_eq!(
-            embedded.cues[238].text,
-            from_file.cues[238].text,
+            embedded.cues[238].text, from_file.cues[238].text,
             "the last line should match too"
         );
     }
@@ -93,7 +95,9 @@ mod tests {
 
         let table = extract_track(&mkv, 3).expect("the ass track should extract");
         assert!(table.len() > 200, "an ASS track should yield real lines");
-        assert!(table.cues[0].text.contains("Hepinize") || table.cues[0].text.contains("Transcriber"));
+        assert!(
+            table.cues[0].text.contains("Hepinize") || table.cues[0].text.contains("Transcriber")
+        );
     }
 
     #[test]
@@ -105,6 +109,12 @@ mod tests {
         }
 
         let err = extract_track(&mkv, 9).unwrap_err();
-        assert!(matches!(err, KirpixError::TrackNotText { stream_index: 9, .. }));
+        assert!(matches!(
+            err,
+            KirpixError::TrackNotText {
+                stream_index: 9,
+                ..
+            }
+        ));
     }
 }

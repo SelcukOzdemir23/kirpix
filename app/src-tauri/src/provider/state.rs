@@ -60,13 +60,11 @@ impl ProviderState {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::provider::{MemoryKeyStore, LocalConfig};
+    use crate::provider::{LocalConfig, MemoryKeyStore};
 
     fn scratch(name: &str) -> std::path::PathBuf {
-        let path = std::env::temp_dir().join(format!(
-            "kirpix-state-{name}-{}.json",
-            std::process::id()
-        ));
+        let path =
+            std::env::temp_dir().join(format!("kirpix-state-{name}-{}.json", std::process::id()));
         let _ = std::fs::remove_file(&path);
         path
     }
@@ -83,7 +81,8 @@ mod tests {
     fn a_chosen_mode_is_there_after_a_restart() {
         let path = scratch("restart");
         {
-            let mut first = ProviderState::with_store(Box::new(MemoryKeyStore::new()), Store::new(&path));
+            let mut first =
+                ProviderState::with_store(Box::new(MemoryKeyStore::new()), Store::new(&path));
             first.remember_mode(local()).expect("remember");
         }
         let second = ProviderState::with_store(Box::new(MemoryKeyStore::new()), Store::new(&path));
@@ -94,7 +93,10 @@ mod tests {
 
     #[test]
     fn a_first_run_starts_on_the_default_engine() {
-        let state = ProviderState::with_store(Box::new(MemoryKeyStore::new()), Store::new(scratch("first")));
+        let state = ProviderState::with_store(
+            Box::new(MemoryKeyStore::new()),
+            Store::new(scratch("first")),
+        );
         assert_eq!(state.mode, Mode::Heuristic);
         assert_eq!(state.load_error, None);
     }
@@ -103,9 +105,14 @@ mod tests {
     fn an_unreadable_file_is_kept_and_cleared_by_a_write() {
         let path = scratch("unreadable");
         std::fs::write(&path, "{ not json").expect("write");
-        let mut state = ProviderState::with_store(Box::new(MemoryKeyStore::new()), Store::new(&path));
+        let mut state =
+            ProviderState::with_store(Box::new(MemoryKeyStore::new()), Store::new(&path));
         assert_eq!(state.mode, Mode::Heuristic);
-        assert!(state.load_error.as_deref().unwrap_or_default().contains("settings"));
+        assert!(state
+            .load_error
+            .as_deref()
+            .unwrap_or_default()
+            .contains("settings"));
 
         state.remember_mode(local()).expect("remember");
         assert_eq!(state.load_error, None);

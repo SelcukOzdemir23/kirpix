@@ -25,18 +25,13 @@ pub const MAX_PROMPT_CHARS_FOR_TEST: usize = shortlist::MAX_PROMPT_CHARS;
 
 /// Which way results are produced. Heuristic is the default and is the only mode
 /// that cannot degrade: it needs no model, no key and no network.
-#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "mode", rename_all = "camelCase")]
 pub enum Mode {
+    #[default]
     Heuristic,
     Local(LocalConfig),
     Cloud(CloudConfig),
-}
-
-impl Default for Mode {
-    fn default() -> Self {
-        Self::Heuristic
-    }
 }
 
 /// A server on this machine. The address is visible and editable, so a server on
@@ -241,7 +236,10 @@ impl std::fmt::Display for ProviderError {
             Self::InvalidIndex { candidate, index } => {
                 write!(f, "candidate {candidate} does not contain cue {index}")
             }
-            Self::Unconfirmed => write!(f, "nothing was sent: the payload changed after confirmation"),
+            Self::Unconfirmed => write!(
+                f,
+                "nothing was sent: the payload changed after confirmation"
+            ),
             Self::MissingKey { provider } => write!(f, "no key is stored for {provider:?}"),
             Self::Http { status, message } => {
                 write!(f, "the provider answered {status}: {message}")
@@ -346,7 +344,10 @@ mod tests {
     #[test]
     fn a_mode_serialises_with_its_address_and_without_losing_the_default() {
         assert_eq!(Mode::default(), Mode::Heuristic);
-        assert_eq!(serde_json::to_string(&Mode::Heuristic).unwrap(), r#"{"mode":"heuristic"}"#);
+        assert_eq!(
+            serde_json::to_string(&Mode::Heuristic).unwrap(),
+            r#"{"mode":"heuristic"}"#
+        );
 
         let local = Mode::Local(LocalConfig {
             address: "http://127.0.0.1:11434/v1".into(),
@@ -354,7 +355,10 @@ mod tests {
         });
         let json = serde_json::to_string(&local).unwrap();
         assert!(json.contains(r#""mode":"local""#), "{json}");
-        assert!(json.contains(r#""address":"http://127.0.0.1:11434/v1""#), "{json}");
+        assert!(
+            json.contains(r#""address":"http://127.0.0.1:11434/v1""#),
+            "{json}"
+        );
         assert_eq!(serde_json::from_str::<Mode>(&json).unwrap(), local);
 
         let cloud = Mode::Cloud(CloudConfig {

@@ -24,9 +24,10 @@ pub fn run() {
             // than appearing to have been saved.
             let keys = Box::new(provider::keychain::KeychainStore);
             let state = match app.path().app_config_dir() {
-                Ok(directory) => {
-                    provider::state::ProviderState::with_store(keys, settings::Store::new(directory.join("settings.json")))
-                }
+                Ok(directory) => provider::state::ProviderState::with_store(
+                    keys,
+                    settings::Store::new(directory.join("settings.json")),
+                ),
                 Err(error) => {
                     let mut state = provider::state::ProviderState::new(keys);
                     state.load_error = Some(format!("no settings directory was found: {error}"));

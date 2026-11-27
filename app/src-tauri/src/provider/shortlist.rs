@@ -74,7 +74,9 @@ mod tests {
     use std::path::{Path, PathBuf};
 
     fn eval(path: &str) -> PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../eval").join(path)
+        Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../eval")
+            .join(path)
     }
 
     fn candidate(id: u64, cues: usize, chars: usize) -> Shortlisted {
@@ -94,7 +96,10 @@ mod tests {
         assert_eq!(list.left_out, 30 - MAX_CANDIDATES);
         // The deterministic order decides which ones fit.
         assert_eq!(list.candidates[0].candidate, 1);
-        assert_eq!(list.candidates[MAX_CANDIDATES - 1].candidate, MAX_CANDIDATES as u64);
+        assert_eq!(
+            list.candidates[MAX_CANDIDATES - 1].candidate,
+            MAX_CANDIDATES as u64
+        );
     }
 
     #[test]
@@ -108,7 +113,10 @@ mod tests {
     #[test]
     fn the_character_budget_stops_the_list_before_the_candidate_cap_does() {
         // 20 candidates of 5 000 characters is 100 000, well past the budget.
-        let list = build("kaygı", (1..=20).map(|id| candidate(id, 1, 5_000)).collect());
+        let list = build(
+            "kaygı",
+            (1..=20).map(|id| candidate(id, 1, 5_000)).collect(),
+        );
 
         assert!(list.candidates.len() < MAX_CANDIDATES);
         assert!(list.char_count() + INSTRUCTION_RESERVE_CHARS <= MAX_PROMPT_CHARS);
@@ -150,7 +158,10 @@ mod tests {
 
         let list = build("kaygı, endişe", candidates);
 
-        assert!(!list.candidates.is_empty(), "the fixture should keep something");
+        assert!(
+            !list.candidates.is_empty(),
+            "the fixture should keep something"
+        );
         assert!(
             list.candidates.len() + list.left_out == offered,
             "every candidate is either sent or counted"

@@ -22,7 +22,11 @@ pub enum KirpixError {
     /// A clip was requested with no duration.
     EmptyRange { start_ms: u64, end_ms: u64 },
     /// FFmpeg ran but did not produce a clip.
-    FfmpegFailed { clip: String, code: i32, tail: String },
+    FfmpegFailed {
+        clip: String,
+        code: i32,
+        tail: String,
+    },
     /// The output folder could not be written to.
     OutputNotWritable { dir: String, reason: String },
     /// A subtitle stream could not be converted to text, usually because it
@@ -40,7 +44,10 @@ impl fmt::Display for KirpixError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::FfmpegMissing { name } => {
-                write!(f, "{name} could not be found next to the application or in the project binaries")
+                write!(
+                    f,
+                    "{name} could not be found next to the application or in the project binaries"
+                )
             }
             Self::MediaUnreadable { path, reason } => {
                 write!(f, "{path} could not be read: {reason}")
@@ -66,7 +73,10 @@ impl fmt::Display for KirpixError {
                 write!(f, "{dir} could not be written to: {reason}")
             }
             Self::TrackNotText { stream_index, tail } => {
-                write!(f, "subtitle stream {stream_index} could not be read as text: {tail}")
+                write!(
+                    f,
+                    "subtitle stream {stream_index} could not be read as text: {tail}"
+                )
             }
             Self::TrackMissing { stream_index } => {
                 write!(f, "the file has no subtitle stream {stream_index}")
