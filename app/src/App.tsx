@@ -21,6 +21,7 @@ import TimelineStrip, { type Bounds } from './components/TimelineStrip';
 import TrackChooser from './components/TrackChooser';
 import { useDrop } from './state/useDrop';
 import { useSession } from './state/useSession';
+import { orderCandidates, parseTerms, useSearch } from './state/useSearch';
 import { useSettings } from './state/useSettings';
 
 /*
@@ -55,14 +56,11 @@ export default function App() {
     playCue,
   } = useSession(setError, clearResults);
 
-  const [terms, setTerms] = useState('');
-  const [minSec, setMinSec] = useState(8);
-  const [maxSec, setMaxSec] = useState(120);
-  const [searching, setSearching] = useState(false);
-  const [candidates, setCandidates] = useState<Candidate[] | null>(null);
-  const [bounds, setBounds] = useState<Record<number, Bounds>>({});
-  const [rejected, setRejected] = useState<number[]>([]);
-  const [activeId, setActiveId] = useState<number | null>(null);
+  const search = useSearch(setError);
+  const { terms, setTerms, minSec, setMinSec, maxSec, setMaxSec, searching } = search;
+  const { candidates, bounds, rejected } = search;
+  const activeId = search.selectedId;
+  const setActiveId = search.select;
   const [cutting, setCutting] = useState(false);
   const [progress, setProgress] = useState<{ index: number; percent: number } | null>(null);
   const [results, setResults] = useState<CutResult[] | null>(null);
@@ -97,12 +95,9 @@ export default function App() {
 
   /** Everything measured on the cue times: a new recording or offset clears it. */
   function clearResults() {
-    setCandidates(null);
-    setBounds({});
-    setRejected([]);
+    search.clear();
     setResults(null);
     setWrittenOpen(false);
-    setActiveId(null);
     previewSeq.current += 1;
     setPreview(null);
     setPreviewingId(null);
@@ -145,45 +140,31 @@ export default function App() {
   }
 
   async function runSearch() {
-    const parsed = terms
-      .split(',')
-      .map((term) => term.trim())
-      .filter(Boolean);
-    setError(null);
-    setSearching(true);
-    try {
-      const found = await api.searchTopic(parsed, minSec * 1000, maxSec * 1000);
-      setCandidates(found);
-      setBounds({});
-      setRejected([]);
-      setResults(null);
-      setWrittenOpen(false);
-      setActiveId(null);
-      setRanking(null);
-      previewSeq.current += 1;
-      setPreview(null);
-      setPreviewingId(null);
+    const parsed = await search.run();
+    if (!parsed) return;
+    setResults(null);
+    setWrittenOpen(false);
+    setRanking(null);
+    previewSeq.current += 1;
+    setPreview(null);
+    setPreviewingId(null);
 
-      if (mode.mode !== 'heuristic') {
-        // What would leave, stated before it leaves. The dialog's numbers come
-        // from the payload the backend actually built.
+    if (mode.mode !== 'heuristic') {
+      // What would leave, stated before it leaves. The dialog's numbers come
+      // from the payload the backend actually built.
+      try {
         setPlan(await api.planRequest(parsed, minSec * 1000, maxSec * 1000));
+      } catch (err) {
+        search.clear();
+        setError(err);
       }
-    } catch (err) {
-      setCandidates(null);
-      setError(err);
-    } finally {
-      setSearching(false);
     }
   }
 
   /** Send the payload the dialog described, then order the list by the answer. */
   async function sendToModel() {
     if (!plan) return;
-    const parsed = terms
-      .split(',')
-      .map((term) => term.trim())
-      .filter(Boolean);
+    const parsed = parseTerms(terms);
 
     setRankingBusy(true);
     try {
@@ -237,20 +218,7 @@ export default function App() {
     }
   }
 
-  const visible = (candidates ?? [])
-    .filter((candidate) => !rejected.includes(candidate.id))
-    .slice()
-    .sort((left, right) => {
-      if (!ranking) return 0;
-      const a = ranking.order.indexOf(left.id);
-      const b = ranking.order.indexOf(right.id);
-      // Candidates the model did not rank keep their deterministic order, after
-      // the ones it did.
-      if (a === -1 && b === -1) return 0;
-      if (a === -1) return 1;
-      if (b === -1) return -1;
-      return a - b;
-    });
+  const visible = orderCandidates(candidates, rejected, ranking);
   const keptDuration = visible.reduce((total, candidate) => {
     const current = bounds[candidate.id] ?? candidate;
     return total + (current.endMs - current.startMs);
@@ -516,19 +484,10 @@ export default function App() {
                                 previewSeq.current += 1;
                                 setPreview(null);
                                 setPreviewingId(null);
-                                setBounds((current) => ({
-                                  ...current,
-                                  [candidate.id]: { startMs, endMs },
-                                }));
+                                search.moveEdges(candidate.id, startMs, endMs);
                               }}
-                              onReset={() =>
-                                setBounds((current) => {
-                                  const next = { ...current };
-                                  delete next[candidate.id];
-                                  return next;
-                                })
-                              }
-                              onReject={() => setRejected((current) => [...current, candidate.id])}
+                              onReset={() => search.resetEdges(candidate.id)}
+                              onReject={() => search.reject(candidate.id)}
                               onPlayCue={playCue}
                               onActive={setActiveId}
                               onPreview={() => void togglePreview(candidate)}
