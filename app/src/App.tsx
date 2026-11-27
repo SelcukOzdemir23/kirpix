@@ -1,14 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { open } from '@tauri-apps/plugin-dialog';
-import { listen } from '@tauri-apps/api/event';
-import {
-  api,
-  type Candidate,
-  type ClipPreview,
-  type CutResult,
-  type Mode,
-  type RequestPlan,
-} from './api';
+import { useEffect, useState, type ReactNode } from 'react';
+import { type CutResult, type Mode } from './api';
 import { copy, errorMessage, type Lang } from './i18n/copy';
 import { fileName, folderOf, timecode } from './format';
 import CandidateCard from './components/CandidateCard';
@@ -17,13 +8,14 @@ import CriteriaForm from './components/CriteriaForm';
 import SectionLabel from './components/SectionLabel';
 import SettingsView from './components/SettingsView';
 import OffsetControls from './components/OffsetControls';
-import TimelineStrip, { type Bounds } from './components/TimelineStrip';
+import TimelineStrip from './components/TimelineStrip';
 import TrackChooser from './components/TrackChooser';
 import { useDrop } from './state/useDrop';
 import { useSession } from './state/useSession';
 import { edgesOf, orderCandidates, parseTerms, useSearch } from './state/useSearch';
 import { usePreview } from './state/usePreview';
 import { useRanking } from './state/useRanking';
+import { useCut } from './state/useCut';
 import { useSettings } from './state/useSettings';
 
 /*
@@ -63,10 +55,8 @@ export default function App() {
   const { candidates, bounds, rejected } = search;
   const activeId = search.selectedId;
   const setActiveId = search.select;
-  const [cutting, setCutting] = useState(false);
-  const [progress, setProgress] = useState<{ index: number; percent: number } | null>(null);
-  const [results, setResults] = useState<CutResult[] | null>(null);
-  const [writtenOpen, setWrittenOpen] = useState(false);
+  const cut = useCut(setError);
+  const { cutting, progress, results, writtenOpen, setWrittenOpen } = cut;
   const rankingState = useRanking(setError);
   const { plan, ranking } = rankingState;
   const previewState = usePreview(setError);
@@ -94,16 +84,14 @@ export default function App() {
   /** Everything measured on the cue times: a new recording or offset clears it. */
   function clearResults() {
     search.clear();
-    setResults(null);
-    setWrittenOpen(false);
+    cut.reset();
     previewState.reset();
   }
 
   async function runSearch() {
     const parsed = await search.run();
     if (!parsed) return;
-    setResults(null);
-    setWrittenOpen(false);
+    cut.reset();
     previewState.reset();
     if (!(await rankingState.propose(mode, parsed, minSec * 1000, maxSec * 1000))) {
       search.clear();
@@ -115,35 +103,8 @@ export default function App() {
     void rankingState.send(parseTerms(terms), minSec * 1000, maxSec * 1000);
   }
 
-  async function runCut() {
-    const folder = await open({ directory: true, multiple: false });
-    if (typeof folder !== 'string') return;
-
-    const clips = visible.map((candidate) => {
-      const current = bounds[candidate.id] ?? candidate;
-      return { startMs: current.startMs, endMs: current.endMs };
-    });
-
-    setError(null);
-    setCutting(true);
-    setResults(null);
-    setProgress(null);
-
-    const stopListening = await listen<{ index: number; percent: number }>('cut-progress', (event) => {
-      setProgress(event.payload);
-    });
-
-    try {
-      const written = await api.cutClips(clips, folder);
-      setResults(written);
-      setWrittenOpen(true);
-    } catch (err) {
-      setError(err);
-    } finally {
-      stopListening();
-      setProgress(null);
-      setCutting(false);
-    }
+  function runCut() {
+    void cut.run(visible.map((candidate) => edgesOf(candidate, bounds)));
   }
 
   const visible = orderCandidates(candidates, rejected, ranking);
