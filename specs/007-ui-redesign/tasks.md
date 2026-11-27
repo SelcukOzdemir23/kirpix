@@ -114,6 +114,10 @@ alignment control, the first cue moves and a sample plays (spec US3).
   slice. SC-002, SC-003, SC-007, SC-008 and FR-013 by `evidence/README.md`
   and its 28 screenshots. `npm run tauri dev` builds and the window process
   stays up; what it shows is T031's to check.
+  *Addendum (after merge, 2026-11-27)*: with `eval/media/` rebuilt from
+  `eval/README.md`, `KIRPIX_REQUIRE_EVAL=1 cargo test` runs all 118 tests and
+  skips none: the cut, preview, sample, probe and embedded-track tests that
+  were skipped above pass, on an AV1 and Opus source.
 - [ ] T031 *Owed to a person, at a desktop*:
   - [ ] SC-001: from a clean start, open the Turkish recording, search, cut one clip; name any unclear control; record the time (owner, familiar user);
   - [ ] fonts and layout in the real WebKitGTK window, light and dark;

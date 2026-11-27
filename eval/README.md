@@ -24,6 +24,28 @@ yt-dlp -f "bv*[height<=720]+ba/b[height<=720]" --merge-output-format mp4 \
   -o "eval/media/tr-tedx-kaygi.%(ext)s" "https://www.youtube.com/watch?v=xzo8DPcVRZw"
 ```
 
+The MKV with embedded subtitle tracks (feature 002) is built from the Turkish
+download and the committed SRT, so it needs no second download:
+
+```sh
+cd eval/media
+ffmpeg -i ../fixtures/tr-tedx-kaygi.srt tmp.ass
+ffmpeg -i tr-tedx-kaygi.mp4 -i ../fixtures/tr-tedx-kaygi.srt -i tmp.ass \
+  -map 0:v -map 0:a -map 1 -map 2 -c:v copy -c:a copy -c:s:0 srt -c:s:1 ass \
+  -metadata:s:s:0 language=tur -metadata:s:s:0 title=Metin \
+  -metadata:s:s:1 language=tur -metadata:s:s:1 title=ASS tr-tedx-kaygi.mkv
+rm tmp.ass
+```
+
+It yields the streams the manifest lists: AV1 video, Opus audio, SubRip at
+index 2 and ASS at index 3, both `tur`. The byte count differs slightly from
+the manifest's because muxer versions differ; the tests check streams and
+cues, not bytes.
+
+With the media present, `KIRPIX_REQUIRE_EVAL=1 cargo test` (in
+`app/src-tauri`) fails instead of skipping when a file is missing, so it
+proves every media test ran.
+
 `manifest.json` and `fixtures/` are checked in; if the checksums drift, the set
 is no longer fixed and the numbers stop being comparable.
 
