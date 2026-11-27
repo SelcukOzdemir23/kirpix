@@ -34,15 +34,37 @@ pub fn open_session(
     Ok(info)
 }
 
+/// A cue as the interface reads it: the cue itself, and where the search
+/// terms matched in its text (feature 007, contracts/ipc.md).
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MarkedCue {
+    #[serde(flatten)]
+    pub cue: Cue,
+    /// `[start, end)` spans of `text` in UTF-16 units; empty without terms.
+    pub marks: Vec<criterion::Span>,
+}
+
+/// A page of cues. With `terms`, each cue says where they matched, computed
+/// by the search's own rule so the interface marks what the search found.
 #[tauri::command]
 pub fn session_cues(
     state: SessionState<'_>,
     from: usize,
     to: usize,
-) -> Result<Vec<Cue>, KirpixError> {
+    terms: Option<Vec<String>>,
+) -> Result<Vec<MarkedCue>, KirpixError> {
     let guard = state.lock().expect("session lock");
     let session = guard.as_ref().ok_or(KirpixError::NoSession)?;
-    Ok(session.cues(from, to))
+    let terms = terms.unwrap_or_default();
+    Ok(session
+        .cues(from, to)
+        .into_iter()
+        .map(|cue| MarkedCue {
+            marks: criterion::term_spans(&cue.text, &terms),
+            cue,
+        })
+        .collect())
 }
 
 #[tauri::command]

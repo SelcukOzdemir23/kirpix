@@ -7,13 +7,15 @@ as files or binaries, or that change what a distributor owes, are listed here.
 
 ## Fonts
 
-Bundled with both the application (`app/`) and the site (`site/`) through
-Fontsource packages, served from the build output, never from a remote host.
+Bundled through Fontsource packages, served from the build output, never from
+a remote host.
 
-| Font | Package | License |
-| --- | --- | --- |
-| Familjen Grotesk | `@fontsource-variable/familjen-grotesk` | SIL Open Font License 1.1 |
-| JetBrains Mono | `@fontsource-variable/jetbrains-mono` | SIL Open Font License 1.1 |
+| Font | Package | Used by | License |
+| --- | --- | --- | --- |
+| Atkinson Hyperlegible Next | `@fontsource-variable/atkinson-hyperlegible-next` | application | SIL Open Font License 1.1 |
+| Atkinson Hyperlegible Mono | `@fontsource-variable/atkinson-hyperlegible-mono` | application (timecodes) | SIL Open Font License 1.1 |
+| Familjen Grotesk | `@fontsource-variable/familjen-grotesk` | site | SIL Open Font License 1.1 |
+| JetBrains Mono | `@fontsource-variable/jetbrains-mono` | site | SIL Open Font License 1.1 |
 
 The full license text ships inside each package (`node_modules/<package>/LICENSE`).
 The OFL allows bundling and redistribution with software; it forbids selling the

@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
  * the event). A drop target that never receives a drop is a false promise, so
  * callers show the drop wording only when this returns true.
  */
-export function useDropZone(onDrop: (paths: string[]) => void): boolean {
+export function useDrop(onDrop: (paths: string[]) => void): boolean {
   const [ready, setReady] = useState(false);
   const handler = useRef(onDrop);
 

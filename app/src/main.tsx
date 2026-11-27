@@ -1,5 +1,5 @@
-import '@fontsource-variable/familjen-grotesk/wght.css';
-import '@fontsource-variable/jetbrains-mono/wght.css';
+import '@fontsource-variable/atkinson-hyperlegible-next/wght.css';
+import '@fontsource-variable/atkinson-hyperlegible-mono/wght.css';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';

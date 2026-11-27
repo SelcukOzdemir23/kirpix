@@ -1,33 +1,32 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { open } from '@tauri-apps/plugin-dialog';
-import { listen } from '@tauri-apps/api/event';
-import {
-  api,
-  type Candidate,
-  type ClipPreview,
-  type CutResult,
-  type Mode,
-  type RequestPlan,
-  type SessionInfo,
-  type SubtitleTrack,
-} from './api';
-import { copy, errorMessage, type Lang } from './i18n/copy';
-import { fileName, folderOf, timecode } from './format';
-import CandidateCard from './components/CandidateCard';
+import { useState } from 'react';
+import { type Candidate, type Mode } from './api';
+import { copy } from './i18n/copy';
+import Button from './components/Button';
 import ConfirmDialog from './components/ConfirmDialog';
-import CriteriaForm from './components/CriteriaForm';
-import SectionLabel from './components/SectionLabel';
-import SettingsView from './components/SettingsView';
-import OffsetControls from './components/OffsetControls';
-import TimelineStrip, { type Bounds } from './components/TimelineStrip';
-import TrackChooser from './components/TrackChooser';
-import { readAppearance, saveAppearance, type Appearance } from './theme';
-import { useDropZone } from './useDropZone';
-
-const VIDEO_FILTERS = [{ name: 'Video', extensions: ['mp4', 'mkv', 'mov', 'webm'] }];
-const SUBTITLE_FILTERS = [{ name: 'Subtitles', extensions: ['srt', 'vtt'] }];
-const VIDEO_EXT = /\.(mp4|mkv|mov|webm)$/i;
-const SUBTITLE_EXT = /\.(srt|vtt)$/i;
+import TopBar from './components/TopBar';
+import ErrorBar from './components/ErrorBar';
+import NoMatch from './components/NoMatch';
+import { resultBadge } from './components/RecordingLine';
+import AlignmentPanel from './components/AlignmentPanel';
+import StartScreen from './screens/StartScreen';
+import CriterionScreen from './screens/CriterionScreen';
+import ResultsScreen from './screens/ResultsScreen';
+import CandidateDetail from './components/CandidateDetail';
+import CandidateList from './components/CandidateList';
+import CriterionBar from './components/CriterionBar';
+import Ruler from './components/Ruler';
+import CutBar from './components/CutBar';
+import CutStrip from './components/CutStrip';
+import { stepEdge, type Edge, type Step } from './state/edges';
+import SettingsScreen from './screens/SettingsScreen';
+import TrackScreen from './screens/TrackScreen';
+import { useDrop } from './state/useDrop';
+import { useSession } from './state/useSession';
+import { edgesOf, orderCandidates, parseTerms, useSearch } from './state/useSearch';
+import { usePreview } from './state/usePreview';
+import { useRanking } from './state/useRanking';
+import { useCut } from './state/useCut';
+import { useSettings } from './state/useSettings';
 
 /*
   Two panes, the way a desktop tool reads: everything you set on the left, what
@@ -36,518 +35,164 @@ const SUBTITLE_EXT = /\.(srt|vtt)$/i;
 */
 
 export default function App() {
-  const [lang, setLang] = useState<Lang>('tr');
+  // Errors are kept as the backend sent them and worded at render time, so a
+  // language switch rewords the message that is on screen.
+  const [error, setError] = useState<unknown>(null);
+  const settings = useSettings(setError);
+  const { lang, setLang, mode } = settings;
   const t = copy[lang];
+  const settingsOpen = settings.open;
+  const setSettingsOpen = settings.setOpen;
 
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [settingsPath, setSettingsPath] = useState<string | null>(null);
-  const [settingsLoadError, setSettingsLoadError] = useState<string | null>(null);
-  const [appearance, setAppearance] = useState<Appearance>(() => readAppearance());
+  const {
+    session,
+    busy,
+    pendingVideo,
+    tracks,
+    offsetMs,
+    clampedCues,
+    audioRef,
+    pickVideo,
+    chooseSubtitleFile,
+    openFromTrack,
+    acceptDropped,
+    applyOffset,
+    playCue,
+  } = useSession(setError, clearResults);
 
-  const [session, setSession] = useState<SessionInfo | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [pendingVideo, setPendingVideo] = useState<string | null>(null);
-  const [tracks, setTracks] = useState<SubtitleTrack[]>([]);
-
-  const [terms, setTerms] = useState('');
-  const [minSec, setMinSec] = useState(8);
-  const [maxSec, setMaxSec] = useState(120);
-  const [searching, setSearching] = useState(false);
-  const [candidates, setCandidates] = useState<Candidate[] | null>(null);
-  const [bounds, setBounds] = useState<Record<number, Bounds>>({});
-  const [rejected, setRejected] = useState<number[]>([]);
-  const [activeId, setActiveId] = useState<number | null>(null);
-  const [offsetMs, setOffsetMs] = useState(0);
-  const [clampedCues, setClampedCues] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [cutting, setCutting] = useState(false);
-  const [progress, setProgress] = useState<{ index: number; percent: number } | null>(null);
-  const [results, setResults] = useState<CutResult[] | null>(null);
-  const [writtenOpen, setWrittenOpen] = useState(false);
-  const [mode, setMode] = useState<Mode>({ mode: 'heuristic' });
-  const [plan, setPlan] = useState<RequestPlan | null>(null);
-  const [ranking, setRanking] = useState<{ order: number[]; reasons: Record<number, string> } | null>(
-    null,
-  );
-  const [rankingBusy, setRankingBusy] = useState(false);
-  const [preview, setPreview] = useState<(ClipPreview & { candidateId: number }) | null>(null);
-  const [previewingId, setPreviewingId] = useState<number | null>(null);
-  const previewSeq = useRef(0);
-
-  function chooseAppearance(next: Appearance) {
-    setAppearance(next);
-    saveAppearance(next);
-  }
+  const search = useSearch(setError);
+  const { terms, setTerms, minSec, setMinSec, maxSec, setMaxSec, searching } = search;
+  const { candidates, bounds, rejected } = search;
+  const activeId = search.selectedId;
+  const setActiveId = search.select;
+  const [step, setStep] = useState<Step>('second');
+  const [alignmentOpen, setAlignmentOpen] = useState(false);
+  const cut = useCut(setError);
+  const { cutting, progress, results, writtenOpen, setWrittenOpen } = cut;
+  const rankingState = useRanking(setError);
+  const { plan, ranking } = rankingState;
+  const previewState = usePreview(setError);
+  const { preview } = previewState;
 
   function chooseMode(next: Mode) {
-    setMode(next);
-    setRanking(null);
-    // Read the file back rather than trusting what was sent: a write that failed
-    // half way is exactly the case this line exists for, and the failure now has
-    // somewhere to show itself.
-    void api
-      .setMode(next)
-      .then(() => api.getSettings())
-      .then((report) => {
-        setSettingsPath(report.path);
-        setSettingsLoadError(report.loadError);
-      })
-      .catch((err) => setError(errorMessage(err, lang)));
+    settings.chooseMode(next);
+    rankingState.reset();
   }
 
-  const dropReady = useDropZone((paths) => void acceptDropped(paths));
+  const dropReady = useDrop((paths) => void acceptDropped(paths));
 
-  useEffect(() => {
-    // The mode comes from the settings file, so a choice made yesterday is the
-    // engine that runs today. A failure here is stated rather than swallowed:
-    // the fallback is heuristic, and the screen says the request did not land.
-    void api
-      .getSettings()
-      .then((report) => {
-        setMode(report.mode);
-        setSettingsPath(report.path);
-        setSettingsLoadError(report.loadError);
-      })
-      .catch((err) => {
-        setMode({ mode: 'heuristic' });
-        setError(errorMessage(err, lang));
-      });
-  }, []);
-
-  // Escape dismisses whatever is on top. Today that is the error bar.
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape' && error) {
-        event.preventDefault();
-        setError(null);
-      }
-    }
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [error]);
-
-  function applySession(info: SessionInfo) {
-    setSession(info);
-    setPendingVideo(null);
-    setTracks([]);
-    setCandidates(null);
-    setBounds({});
-    setRejected([]);
-    setResults(null);
-    setWrittenOpen(false);
-    setError(null);
-    setOffsetMs(info.offsetMs);
-    setClampedCues(0);
-    setActiveId(null);
-  }
-
-  async function applyOffset(next: number) {
-    try {
-      const info = await api.setOffset(next);
-      setOffsetMs(info.offsetMs);
-      setClampedCues(info.clampedCues);
-      // The previous results were measured on the old times.
-      setCandidates(null);
-      setBounds({});
-      setResults(null);
-      setWrittenOpen(false);
-      setActiveId(null);
-      previewSeq.current += 1;
-      setPreview(null);
-      setPreviewingId(null);
-    } catch (err) {
-      setError(errorMessage(err, lang));
-    }
-  }
-
-  async function playCue(cueIndex: number) {
-    try {
-      const url = await api.cueSample(cueIndex, 4);
-      if (audioRef.current) {
-        audioRef.current.src = url;
-        await audioRef.current.play();
-      }
-    } catch (err) {
-      setError(errorMessage(err, lang));
-    }
-  }
-
-  async function pickVideo() {
-    setError(null);
-    const video = await open({ multiple: false, directory: false, filters: VIDEO_FILTERS });
-    if (typeof video === 'string') await acceptVideo(video);
-  }
-
-  /** A container may already carry its subtitles. Ask which text before asking for a file. */
-  async function acceptVideo(video: string) {
-    setError(null);
-    setBusy(true);
-    try {
-      const found = await api.listTracks(video);
-      if (found.length > 0) {
-        setPendingVideo(video);
-        setTracks(found);
-        setSession(null);
-      } else {
-        await acceptSubtitleFile(video);
-      }
-    } catch (err) {
-      setError(errorMessage(err, lang));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function acceptSubtitleFile(video: string) {
-    const subtitle = await open({ multiple: false, directory: false, filters: SUBTITLE_FILTERS });
-    if (typeof subtitle === 'string') await openWith(video, subtitle);
-  }
-
-  async function openWith(video: string, subtitle: string) {
-    setBusy(true);
-    try {
-      applySession(await api.openSession(video, subtitle));
-    } catch (err) {
-      setSession(null);
-      setError(errorMessage(err, lang));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function openFromTrack(video: string, streamIndex: number) {
-    setBusy(true);
-    try {
-      applySession(await api.openFromTrack(video, streamIndex));
-    } catch (err) {
-      setSession(null);
-      setError(errorMessage(err, lang));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  /**
-   * Ask for a preview of one candidate, or close the one already showing.
-   *
-   * Every request takes a ticket. An answer whose ticket is no longer current is
-   * dropped, so a slow encode cannot paint over a preview the user asked for
-   * afterwards — the same reason the counter is bumped when the bounds move.
-   */
-  async function togglePreview(candidate: Candidate) {
-    if (preview?.candidateId === candidate.id) {
-      previewSeq.current += 1;
-      setPreview(null);
-      setPreviewingId(null);
-      return;
-    }
-
-    const current = bounds[candidate.id] ?? candidate;
-    const ticket = (previewSeq.current += 1);
-    setPreview(null);
-    setPreviewingId(candidate.id);
-
-    try {
-      const clip = await api.previewClip(current.startMs, current.endMs);
-      if (previewSeq.current === ticket) {
-        setPreview({ ...clip, candidateId: candidate.id });
-      }
-    } catch (err) {
-      if (previewSeq.current === ticket) {
-        setError(errorMessage(err, lang));
-      }
-    } finally {
-      if (previewSeq.current === ticket) {
-        setPreviewingId(null);
-      }
-    }
-  }
-
-  /** A dropped file is the same choice as a picked one; an explicit subtitle wins over the container's own. */
-  async function acceptDropped(paths: string[]) {
-    const video = paths.find((path) => VIDEO_EXT.test(path));
-    const subtitle = paths.find((path) => SUBTITLE_EXT.test(path));
-
-    if (video) {
-      if (subtitle) await openWith(video, subtitle);
-      else await acceptVideo(video);
-      return;
-    }
-
-    if (subtitle) {
-      const known = pendingVideo ?? session?.videoPath;
-      if (known) await openWith(known, subtitle);
-    }
+  /** Everything measured on the cue times: a new recording or offset clears it. */
+  function clearResults() {
+    search.clear();
+    cut.reset();
+    previewState.reset();
   }
 
   async function runSearch() {
-    const parsed = terms
-      .split(',')
-      .map((term) => term.trim())
-      .filter(Boolean);
-    setError(null);
-    setSearching(true);
-    try {
-      const found = await api.searchTopic(parsed, minSec * 1000, maxSec * 1000);
-      setCandidates(found);
-      setBounds({});
-      setRejected([]);
-      setResults(null);
-      setWrittenOpen(false);
-      setActiveId(null);
-      setRanking(null);
-      previewSeq.current += 1;
-      setPreview(null);
-      setPreviewingId(null);
-
-      if (mode.mode !== 'heuristic') {
-        // What would leave, stated before it leaves. The dialog's numbers come
-        // from the payload the backend actually built.
-        setPlan(await api.planRequest(parsed, minSec * 1000, maxSec * 1000));
-      }
-    } catch (err) {
-      setCandidates(null);
-      setError(errorMessage(err, lang));
-    } finally {
-      setSearching(false);
+    const parsed = await search.run();
+    if (!parsed) return;
+    cut.reset();
+    previewState.reset();
+    if (!(await rankingState.propose(mode, parsed, minSec * 1000, maxSec * 1000))) {
+      search.clear();
     }
   }
 
   /** Send the payload the dialog described, then order the list by the answer. */
-  async function sendToModel() {
-    if (!plan) return;
-    const parsed = terms
-      .split(',')
-      .map((term) => term.trim())
-      .filter(Boolean);
-
-    setRankingBusy(true);
-    try {
-      const answer = await api.rankCandidates(parsed, minSec * 1000, maxSec * 1000, {
-        mode: plan.mode,
-        cueCount: plan.cueCount,
-        charCount: plan.charCount,
-      });
-
-      setRanking({
-        order: answer.map((entry) => entry.candidate),
-        reasons: Object.fromEntries(answer.map((entry) => [entry.candidate, entry.reason])),
-      });
-      setPlan(null);
-    } catch (err) {
-      setError(errorMessage(err, lang));
-      setPlan(null);
-    } finally {
-      setRankingBusy(false);
-    }
+  function sendToModel() {
+    void rankingState.send(parseTerms(terms), minSec * 1000, maxSec * 1000);
   }
 
-  async function runCut() {
-    const folder = await open({ directory: true, multiple: false });
-    if (typeof folder !== 'string') return;
-
-    const clips = visible.map((candidate) => {
-      const current = bounds[candidate.id] ?? candidate;
-      return { startMs: current.startMs, endMs: current.endMs };
-    });
-
-    setError(null);
-    setCutting(true);
-    setResults(null);
-    setProgress(null);
-
-    const stopListening = await listen<{ index: number; percent: number }>('cut-progress', (event) => {
-      setProgress(event.payload);
-    });
-
-    try {
-      const written = await api.cutClips(clips, folder);
-      setResults(written);
-      setWrittenOpen(true);
-    } catch (err) {
-      setError(errorMessage(err, lang));
-    } finally {
-      stopListening();
-      setProgress(null);
-      setCutting(false);
-    }
+  function runCut() {
+    void cut.run(visible.map((candidate) => edgesOf(candidate, bounds)));
   }
 
-  const visible = (candidates ?? [])
-    .filter((candidate) => !rejected.includes(candidate.id))
-    .slice()
-    .sort((left, right) => {
-      if (!ranking) return 0;
-      const a = ranking.order.indexOf(left.id);
-      const b = ranking.order.indexOf(right.id);
-      // Candidates the model did not rank keep their deterministic order, after
-      // the ones it did.
-      if (a === -1 && b === -1) return 0;
-      if (a === -1) return 1;
-      if (b === -1) return -1;
-      return a - b;
-    });
-  const keptDuration = visible.reduce((total, candidate) => {
-    const current = bounds[candidate.id] ?? candidate;
-    return total + (current.endMs - current.startMs);
-  }, 0);
+  const visible = orderCandidates(candidates, rejected, ranking);
+  const listed = orderCandidates(candidates, [], ranking);
+  const selected = listed.find((candidate) => candidate.id === activeId) ?? null;
+
+  function moveEdge(candidate: Candidate, edge: Edge, direction: -1 | 1) {
+    const next = stepEdge(edgesOf(candidate, bounds), edge, direction, step, search.lines ?? []);
+    // The player would be showing a range the row no longer names.
+    previewState.reset();
+    search.moveEdges(candidate.id, next.startMs, next.endMs);
+  }
 
   return (
-    <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-ink text-text">
+    <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-ink text-text">
       <audio ref={audioRef} hidden />
 
-      <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-line px-5">
-        <span className="text-[16.5px] font-semibold tracking-[-0.015em]">Kirpix</span>
+      <TopBar
+        t={t}
+        lang={lang}
+        session={session}
+        mode={mode}
+        offsetMs={offsetMs}
+        busy={busy}
+        settingsOpen={settingsOpen}
+        onLang={setLang}
+        onSettings={() => setSettingsOpen((open) => !open)}
+        onChangeFile={() => void pickVideo()}
+        alignmentOpen={alignmentOpen}
+        onAlignment={() => setAlignmentOpen((open) => !open)}
+      />
 
-        <div className="flex shrink-0 items-center gap-3">
-          {busy && <span className="font-mono text-[13px] text-muted">{t.opening}</span>}
-          <button
-            type="button"
-            onClick={() => setSettingsOpen((open) => !open)}
-            aria-pressed={settingsOpen}
-            className={`rounded-[6px] border px-3 py-1.5 text-[13.5px] transition-colors ${
-              settingsOpen
-                ? 'border-accent/40 bg-accent/10 text-accent'
-                : 'border-line text-text/85 hover:border-text/25 hover:bg-surface-2'
-            }`}
-          >
-            {settingsOpen ? t.settingsClose : t.settingsOpen}
-          </button>
-          <div className="flex items-center gap-0.5 rounded-[6px] border border-line p-0.5">
-            {(['tr', 'en'] as Lang[]).map((code) => (
-              <button
-                key={code}
-                type="button"
-                onClick={() => setLang(code)}
-                aria-pressed={lang === code}
-                className={`rounded-[4px] px-2.5 py-1 font-mono text-[12.5px] tracking-[0.06em] transition-colors ${
-                  lang === code ? 'bg-surface-2 text-text' : 'text-muted hover:text-text'
-                }`}
-              >
-                {code.toUpperCase()}
-              </button>
-            ))}
-          </div>
-        </div>
-      </header>
-
-      {error && (
-        <div
-          role="alert"
-          className="flex shrink-0 items-start gap-3 border-b border-danger/30 bg-danger/10 px-5 py-2.5"
-        >
-          <p className="flex-1 text-[14px] leading-relaxed text-danger">{error}</p>
-          <button
-            type="button"
-            aria-label={t.dismiss}
-            onClick={() => setError(null)}
-            className="rounded-[4px] border border-danger/30 px-1.5 text-[16px] leading-5 text-danger/70 transition-colors hover:border-danger/60 hover:text-danger"
-          >
-            ×
-          </button>
-        </div>
+      {session && alignmentOpen && (
+        <AlignmentPanel
+          t={t}
+          session={session}
+          offsetMs={offsetMs}
+          clampedCues={clampedCues}
+          hasResults={candidates !== null}
+          onChange={(next) => void applyOffset(next)}
+          onClose={() => setAlignmentOpen(false)}
+        />
       )}
 
-      <div className="flex min-h-0 flex-1">
-        <aside className="flex w-[320px] shrink-0 flex-col border-r border-line bg-surface/25">
-          <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 pt-5 pb-4">
-            <section className="flex flex-col gap-2.5">
-              <SectionLabel>{t.sourceSection}</SectionLabel>
+      {error != null && <ErrorBar t={t} lang={lang} error={error} onDismiss={() => setError(null)} />}
 
-              {session || pendingVideo ? (
-                <>
-                  <span
-                    className="truncate text-[15px] font-medium"
-                    title={session?.videoPath ?? pendingVideo ?? ''}
-                  >
-                    {fileName(session?.videoPath ?? pendingVideo ?? '')}
-                  </span>
-
-                  {session ? (
-                    <>
-                      <div className="flex items-baseline gap-2 text-[13.5px] text-muted">
-                        <span className="font-mono tabular-nums">{timecode(session.durationMs)}</span>
-                        <span>·</span>
-                        <span className="font-mono tabular-nums">
-                          {session.cueCount} {t.cues.toLowerCase()}
-                        </span>
-                        <span className="ml-auto font-mono text-[12px] text-muted/70 uppercase">
-                          {session.encoding}
-                        </span>
-                      </div>
-
-                      <div className="flex items-baseline gap-2">
-                        <span className="min-w-0 flex-1 truncate text-[13.5px] text-muted" title={session.subtitleLabel}>
-                          {session.subtitleLabel}
-                        </span>
-                        {session.subtitleSource === 'embedded' && (
-                          <span className="shrink-0 rounded-[4px] border border-line px-1.5 py-0.5 text-[12px] text-muted">
-                            {t.embedded}
-                          </span>
-                        )}
-                      </div>
-                    </>
-                  ) : null}
-
-                  <button
-                    type="button"
-                    onClick={pickVideo}
-                    disabled={busy}
-                    className="self-start text-[13.5px] text-muted underline decoration-line underline-offset-4 transition-colors hover:text-text hover:decoration-text disabled:opacity-50"
-                  >
-                    {t.another}
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={pickVideo}
-                  disabled={busy}
-                  className="flex min-h-[92px] flex-col items-center justify-center gap-1.5 rounded-[8px] border border-dashed border-text/20 px-3 py-4 text-center transition-colors hover:border-accent/50 hover:bg-surface-2/60 disabled:opacity-50"
-                >
-                  <span className="text-[14.5px]">{dropReady ? t.dropHere : busy ? t.opening : t.pick}</span>
-                  {dropReady && !busy && <span className="text-[13px] text-muted">{t.dropOrPick}</span>}
-                </button>
-              )}
-            </section>
-
-            {session && (
-              <div className="flex items-baseline gap-2 text-[13.5px]">
-                <span className="shrink-0 font-mono text-[12px] tracking-[0.13em] text-muted uppercase">
-                  {t.engineSection}
-                </span>
-                <span className="min-w-0 flex-1 truncate text-right" title={engineTitle(mode)}>
-                  {engineLabel(mode, t)}
-                </span>
-              </div>
-            )}
-
-            {session && (
-              <RailSection>
-                <OffsetControls
-                  t={t}
-                  offsetMs={offsetMs}
-                  clampedCues={clampedCues}
-                  onChange={applyOffset}
-                />
-              </RailSection>
-            )}
-
-            {session?.mediaSource === 'systemPath' && (
-              <p className="mt-auto border-t border-line pt-3 text-[12.5px] leading-relaxed text-muted/80">
-                {t.systemMedia}
-              </p>
-            )}
-          </div>
-
-          {/* The action stays reachable however short the window is. */}
-          {session && (
-            <div className="shrink-0 border-t border-line bg-ink px-5 pt-4 pb-5">
-              <SectionLabel>{t.searchSection}</SectionLabel>
-              <div className="mt-2.5">
-                <CriteriaForm
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+        {settingsOpen ? (
+          <SettingsScreen
+            t={t}
+            appearance={settings.appearance}
+            onAppearance={settings.chooseAppearance}
+            mode={mode}
+            onMode={chooseMode}
+            onError={setError}
+            loadError={settings.loadError}
+            path={settings.path}
+          />
+        ) : pendingVideo && tracks.length > 0 ? (
+          <TrackScreen
+            t={t}
+            videoPath={pendingVideo}
+            tracks={tracks}
+            busy={busy}
+            onTrack={(streamIndex) => openFromTrack(pendingVideo, streamIndex)}
+            onFile={() => void chooseSubtitleFile(pendingVideo)}
+          />
+        ) : session ? (
+          candidates === null ? (
+            <CriterionScreen
+              t={t}
+              terms={terms}
+              minSec={minSec}
+              maxSec={maxSec}
+              searching={searching}
+              onTerms={setTerms}
+              onMin={setMinSec}
+              onMax={setMaxSec}
+              onSearch={() => void runSearch()}
+            />
+          ) : (
+            <ResultsScreen
+              strip={
+                writtenOpen &&
+                results && <CutStrip t={t} results={results} onClose={() => setWrittenOpen(false)} />
+              }
+              bar={
+                <CriterionBar
                   t={t}
                   terms={terms}
                   minSec={minSec}
@@ -556,159 +201,88 @@ export default function App() {
                   onTerms={setTerms}
                   onMin={setMinSec}
                   onMax={setMaxSec}
-                  onSearch={runSearch}
+                  onSearch={() => void runSearch()}
                 />
-              </div>
-            </div>
-          )}
-        </aside>
-
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-          {settingsOpen ? (
-            <SettingsView
-              t={t}
-              appearance={appearance}
-              onAppearance={chooseAppearance}
-              mode={mode}
-              onMode={chooseMode}
-              onError={(err) => setError(errorMessage(err, lang))}
-              loadError={settingsLoadError}
-              path={settingsPath}
-            />
-          ) : pendingVideo && tracks.length > 0 ? (
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <TrackChooser
-                t={t}
-                videoPath={pendingVideo}
-                tracks={tracks}
-                busy={busy}
-                onTrack={(streamIndex) => openFromTrack(pendingVideo, streamIndex)}
-                onFile={() => void acceptSubtitleFile(pendingVideo)}
-              />
-            </div>
-          ) : session ? (
-            <>
-              <div className="shrink-0 pt-4">
-                <TimelineStrip
+              }
+              list={
+                candidates.length === 0 ? (
+                  <NoMatch t={t} />
+                ) : (
+                  <CandidateList
+                    t={t}
+                    candidates={listed}
+                    bounds={bounds}
+                    dropped={rejected}
+                    selectedId={activeId}
+                    reasons={ranking?.reasons ?? null}
+                    badge={resultBadge(mode, ranking !== null, t)}
+                    onSelect={setActiveId}
+                    onToggleKeep={search.toggleKeep}
+                    footer={
+                      <CutBar
+                        t={t}
+                        kept={visible.length}
+                        folder={cut.folder}
+                        cutting={cutting}
+                        progress={progress}
+                        systemMedia={session.mediaSource === 'systemPath'}
+                        onChooseFolder={() => void cut.chooseFolder()}
+                        onCut={runCut}
+                      />
+                    }
+                  />
+                )
+              }
+              detail={
+                selected && (
+                  <CandidateDetail
+                    t={t}
+                    candidate={selected}
+                    edges={edgesOf(selected, bounds)}
+                    lines={search.lines}
+                    preview={preview?.candidateId === selected.id ? preview : null}
+                    previewing={previewState.pendingId === selected.id}
+                    systemMedia={session.mediaSource === 'systemPath'}
+                    step={step}
+                    onStep={setStep}
+                    onPreview={() => void previewState.toggle(selected.id, edgesOf(selected, bounds))}
+                    onMove={(edge, direction) => moveEdge(selected, edge, direction)}
+                    onReset={() => {
+                      previewState.reset();
+                      search.resetEdges(selected.id);
+                    }}
+                    onListen={(cueIndex) => void playCue(cueIndex)}
+                  />
+                )
+              }
+              ruler={
+                <Ruler
                   t={t}
                   durationMs={session.durationMs}
-                  candidates={candidates ?? []}
+                  candidates={listed}
                   bounds={bounds}
-                  rejected={rejected}
-                  activeId={activeId}
-                  onActive={setActiveId}
+                  dropped={rejected}
+                  selectedId={activeId}
+                  onSelect={setActiveId}
                 />
-              </div>
-
-              {writtenOpen && results ? (
-                <WrittenFiles t={t} results={results} onBack={() => setWrittenOpen(false)} />
-              ) : (
-                <>
-                  <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3.5">
-                    {candidates === null ? (
-                      <Centered title={t.idleTitle} body={t.idleBody} />
-                    ) : candidates.length === 0 ? (
-                      <Centered title={t.noMatch} body={t.noMatchHint} />
-                    ) : (
-                      <>
-                        <div className="flex items-baseline justify-between gap-4 pb-3">
-                          <h2 className="flex items-baseline gap-2 text-[14.5px] text-text/90">
-                            {t.found(visible.length)}
-                            <span className="font-mono text-[12px] text-muted">
-                              {mode.mode === 'heuristic'
-                                ? t.heuristicBadge
-                                : ranking
-                                  ? t.rankedBy(modeLabel(mode))
-                                  : modeLabel(mode)}
-                            </span>
-                          </h2>
-                          <span className="font-mono text-[13.5px] tabular-nums text-muted">
-                            {timecode(keptDuration)}
-                          </span>
-                        </div>
-
-                        <ul className="space-y-2">
-                          {visible.map((candidate) => (
-                            <CandidateCard
-                              key={candidate.id}
-                              candidate={candidate}
-                              bounds={
-                                bounds[candidate.id] ?? {
-                                  startMs: candidate.startMs,
-                                  endMs: candidate.endMs,
-                                }
-                              }
-                              active={activeId === candidate.id}
-                              reason={ranking?.reasons[candidate.id] ?? null}
-                              preview={
-                                preview?.candidateId === candidate.id ? preview : null
-                              }
-                              previewing={previewingId === candidate.id}
-                              lang={lang}
-                              t={t}
-                              onBounds={(startMs, endMs) => {
-                                // The player would be showing the range the row
-                                // no longer names.
-                                previewSeq.current += 1;
-                                setPreview(null);
-                                setPreviewingId(null);
-                                setBounds((current) => ({
-                                  ...current,
-                                  [candidate.id]: { startMs, endMs },
-                                }));
-                              }}
-                              onReset={() =>
-                                setBounds((current) => {
-                                  const next = { ...current };
-                                  delete next[candidate.id];
-                                  return next;
-                                })
-                              }
-                              onReject={() => setRejected((current) => [...current, candidate.id])}
-                              onPlayCue={playCue}
-                              onActive={setActiveId}
-                              onPreview={() => void togglePreview(candidate)}
-                            />
-                          ))}
-                        </ul>
-                      </>
-                    )}
-                  </div>
-
-                  {visible.length > 0 && (
-                    <footer className="flex shrink-0 items-center justify-between gap-4 border-t border-line px-5 py-3.5">
-                      <button
-                        type="button"
-                        onClick={runCut}
-                        disabled={cutting}
-                        className="rounded-[6px] bg-text px-4 py-2.5 text-[15px] font-medium text-ink transition-transform active:translate-y-px disabled:opacity-40 disabled:active:translate-y-0"
-                      >
-                        {cutting ? t.cutting : t.cut}
-                      </button>
-                      <span className="font-mono text-[13.5px] tabular-nums text-muted">
-                        {progress ? `${progress.percent}%` : timecode(keptDuration)}
-                      </span>
-                    </footer>
-                  )}
-                </>
-              )}
-            </>
-          ) : (
-            <StartPane t={t} />
-          )}
-        </main>
-      </div>
+              }
+            />
+          )
+        ) : (
+          <StartScreen t={t} dropReady={dropReady} busy={busy} onPick={() => void pickVideo()} />
+        )}
+      </main>
 
       {plan && (
         <ConfirmDialog
           t={t}
           plan={plan}
-          onCancel={() => setPlan(null)}
-          onSend={() => void sendToModel()}
+          onCancel={rankingState.cancel}
+          onSend={sendToModel}
         />
       )}
 
-      {rankingBusy && (
+      {rankingState.busy && (
         <span className="pointer-events-none fixed bottom-4 left-1/2 -translate-x-1/2 rounded-[6px] border border-line bg-surface px-3 py-1.5 font-mono text-[12.5px] text-muted">
           {t.ranking}
         </span>
@@ -717,129 +291,4 @@ export default function App() {
   );
 }
 
-/** The rail's one line: which engine the next search will use. */
-function engineLabel(mode: Mode, t: (typeof copy)['tr']): string {
-  if (mode.mode === 'local') return `${t.modeLocal} · ${mode.model || mode.address}`;
-  if (mode.mode === 'cloud') return `${t.modeCloud} · ${mode.model}`;
-  return t.modeHeuristic;
-}
-
-/** The same line, widened for the tooltip when the rail has to truncate it. */
-function engineTitle(mode: Mode): string {
-  if (mode.mode === 'local') return `${mode.address}${mode.model ? ` · ${mode.model}` : ''}`;
-  if (mode.mode === 'cloud') return `${mode.provider} · ${mode.model}`;
-  return '';
-}
-
 /** The name the badge shows for a mode: the model, not the transport. */
-function modeLabel(mode: Mode): string {
-  if (mode.mode === 'local') return mode.model || mode.address;
-  if (mode.mode === 'cloud') return mode.model;
-  return '';
-}
-
-function RailSection({ children }: { children: ReactNode }) {
-  return <section className="flex flex-col gap-3 border-t border-line pt-4">{children}</section>;
-}
-
-function Centered({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="grid h-full min-h-[240px] place-items-center px-8">
-      <div className="flex max-w-[420px] flex-col gap-2 text-center">
-        <p className="text-[16px] leading-relaxed">{title}</p>
-        <p className="text-[14px] leading-relaxed text-muted">{body}</p>
-      </div>
-    </div>
-  );
-}
-
-/* First run: what the app is, and the three things the user will do. */
-function StartPane({ t }: { t: (typeof copy)['tr'] }) {
-  return (
-    <div className="grid min-h-0 flex-1 place-items-center overflow-y-auto px-8 py-10">
-      <div className="w-full max-w-[440px]">
-        <p className="text-[16px] leading-relaxed">{t.tagline}</p>
-
-        <ol className="mt-6 border-b border-line">
-          {t.startSteps.map((step, index) => (
-            <li key={step.title} className="flex gap-3.5 border-t border-line py-3">
-              <span className="pt-0.5 font-mono text-[12.5px] tabular-nums text-accent">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <span className="flex flex-col gap-1">
-                <span className="text-[15px]">{step.title}</span>
-                <span className="text-[14px] leading-relaxed text-muted">{step.body}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </div>
-  );
-}
-
-function WrittenFiles({
-  t,
-  results,
-  onBack,
-}: {
-  t: (typeof copy)['tr'];
-  results: CutResult[];
-  onBack: () => void;
-}) {
-  const ok = results.filter((result) => result.status === 'ok').length;
-  const failed = results.length - ok;
-
-  return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 items-baseline justify-between gap-4 border-b border-line px-5 py-2.5">
-        <SectionLabel>{t.written}</SectionLabel>
-        <button
-          type="button"
-          onClick={onBack}
-          className="text-[13.5px] text-muted underline decoration-line underline-offset-4 transition-colors hover:text-text hover:decoration-text"
-        >
-          {t.backToCandidates}
-        </button>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3.5">
-        <p className="text-[14px] text-muted">
-          {failed > 0
-            ? t.cutPartial(ok, failed)
-            : results.length === 0
-              ? t.cutNothing
-              : t.cutDone(results.length)}
-        </p>
-
-        {results.length > 0 && (
-          <p className="mt-1.5 flex gap-2 text-[13px] text-muted/75">
-            <span className="shrink-0">{t.writtenTo}</span>
-            <span className="truncate font-mono" title={folderOf(results[0].path)}>
-              {folderOf(results[0].path)}
-            </span>
-          </p>
-        )}
-
-        <ul className="mt-3 divide-y divide-line">
-          {results.map((result, position) => (
-            <li
-              key={`${result.path}-${position}`}
-              className="grid grid-cols-[1fr_auto] items-baseline gap-3 py-2.5"
-            >
-              <span
-                className="truncate font-mono text-[14px] text-text/90 selectable"
-                title={result.path}
-              >
-                {result.status === 'ok' ? fileName(result.path) : result.message}
-              </span>
-              <span className="font-mono text-[13.5px] tabular-nums text-muted">
-                {result.status === 'ok' ? timecode(result.durationMs) : t.failed}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}

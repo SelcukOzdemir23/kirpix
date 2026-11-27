@@ -70,7 +70,9 @@ Anything that can be computed is computed rather than predicted.
 ### VIII. Small, Runnable Slices
 
 Every feature ships as a slice that runs end to end on a real file. No
-scaffolding for unbuilt modes, no flags hiding half-features.
+scaffolding for unbuilt modes, no flags hiding half-features. A capability on
+the roadmap may be shown as an entry that cannot be chosen and names its
+roadmap number; no code path may sit behind it.
 
 A slice that cannot be demonstrated with a real recording is not done.
 
@@ -168,9 +170,17 @@ recordings and the threshold used to check it.
   records the outcome. Skipping the check is a governance failure, not a
   shortcut.
 
-**Version**: 1.2.0 | **Ratified**: 2026-11-17 | **Last Amended**: 2026-11-27
+**Version**: 1.3.0 | **Ratified**: 2026-11-17 | **Last Amended**: 2026-11-27
 
 ### Amendment log
+
+- **1.3.0** (2026-11-27), MINOR: article VIII allows a roadmap capability to
+  be shown as an entry that cannot be chosen, names its roadmap number, and has
+  no code behind it. *Reason*: feature 007 shows the four unbuilt criteria as
+  inactive cards, by the owner's choice, so the product says on its first
+  screen what it will do; read literally, the old wording forbade that. The
+  rule against hidden half-features is unchanged. *Effect on existing specs*:
+  none.
 
 - **1.2.0** (2026-11-27), MINOR: the bundled-FFmpeg rule becomes a release
   gate; a code-structure constraint is added; the workflow names every Spec Kit

@@ -27,6 +27,8 @@ export type Cue = {
   startMs: number;
   endMs: number;
   text: string;
+  /** Where the search terms matched, as [start, end) UTF-16 offsets into `text`. */
+  marks: [number, number][];
 };
 
 export type Candidate = {
@@ -107,7 +109,8 @@ export const api = {
   openFromTrack: (videoPath: string, streamIndex: number) =>
     invoke<SessionInfo>('open_from_track', { videoPath, streamIndex }),
 
-  sessionCues: (from: number, to: number) => invoke<Cue[]>('session_cues', { from, to }),
+  sessionCues: (from: number, to: number, terms?: string[]) =>
+    invoke<Cue[]>('session_cues', { from, to, terms }),
 
   searchTopic: (terms: string[], minMs: number, maxMs: number) =>
     invoke<Candidate[]>('search_topic', { terms, minMs, maxMs }),

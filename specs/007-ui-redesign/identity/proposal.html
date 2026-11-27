@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Kirpix kimlik önerisi</title>
+<style>
+@font-face{font-family:"AHN";font-weight:200 800;src:url(atkinson-hyperlegible-next-latin-wght-normal.woff2) format("woff2-variations");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"AHN";font-weight:200 800;src:url(atkinson-hyperlegible-next-latin-ext-wght-normal.woff2) format("woff2-variations");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+2020,U+20A0-20AB,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"AHM";font-weight:200 800;src:url(atkinson-hyperlegible-mono-latin-wght-normal.woff2) format("woff2-variations")}
+:root{
+  --ground:#F3F4F1;--surface:#FFFFFF;--ink:#1B1D1B;--quiet:#565C57;--rule:#D5D9D3;--edge:#7D847E;
+  --select:#2457A6;--select-fill:rgba(36,87,166,.09);--marker:#F5D547;--on-marker:#1B1D1B;--danger:#A1271E;
+  --sans:"AHN",system-ui,sans-serif;--mono:"AHM",ui-monospace,monospace;
+}
+html[data-theme="dark"]{
+  --ground:#1A1C1A;--surface:#232623;--ink:#ECEDE8;--quiet:#A8AEA8;--rule:#3A3E3A;--edge:#7A817A;
+  --select:#86A9E6;--select-fill:rgba(134,169,230,.12);--marker:#C9A92E;--on-marker:#1A1C1A;--danger:#F09A91;color-scheme:dark
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--ground);color:var(--ink);font:15px/1.45 var(--sans);display:flex;flex-direction:column;overflow:hidden}
+.tc{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.quiet{color:var(--quiet)}
+button{font:inherit;color:inherit}
+.btn{border:1px solid var(--edge);background:var(--surface);border-radius:6px;padding:5px 11px;font-size:14px;white-space:nowrap;cursor:default}
+.btn.primary{background:var(--ink);color:var(--surface);border-color:var(--ink);font-weight:650;padding:8px 16px;font-size:15px}
+.btn.link{border:0;background:none;padding:0;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+/* top bar */
+.top{display:flex;align-items:center;gap:16px;padding:10px 16px;border-bottom:1px solid var(--rule);background:var(--surface)}
+.word{font-weight:750;font-size:17px;letter-spacing:-.01em}
+.file{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+.facts{display:flex;gap:16px;font-size:13.5px;flex-wrap:nowrap;min-width:0;overflow:hidden}
+.facts>span{white-space:nowrap}
+.facts span b{font-weight:500;color:var(--quiet);margin-right:5px}
+.sp{flex:1}
+/* criterion bar */
+.bar{display:flex;align-items:center;gap:12px;padding:9px 16px;border-bottom:1px solid var(--rule)}
+.chip{display:inline-flex;align-items:center;gap:6px;border-left:3px solid var(--select);background:var(--select-fill);padding:4px 10px;border-radius:0 5px 5px 0;font-weight:650}
+.field{border:1px solid var(--edge);background:var(--surface);border-radius:6px;padding:5px 10px;min-width:200px}
+/* main */
+.main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);min-height:0}
+.list{border-right:1px solid var(--rule);display:flex;flex-direction:column;min-height:0;background:var(--surface)}
+.list h2{font-size:14px;font-weight:600;margin:0;padding:10px 16px 8px;color:var(--quiet)}
+.rows{flex:1;overflow:auto}
+.row{display:grid;grid-template-columns:20px auto 1fr;gap:4px 12px;align-items:start;padding:10px 16px 10px 13px;border-left:3px solid transparent;border-bottom:1px solid var(--rule)}
+.row.sel{border-left-color:var(--select);background:var(--select-fill)}
+.box{width:17px;height:17px;border:1.5px solid var(--edge);border-radius:4px;margin-top:2px;display:grid;place-items:center;font-size:12px;line-height:1}
+.box.on{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.range{font-size:15.5px}
+.dur{color:var(--quiet);font-size:14px;text-align:right}
+.why{grid-column:2/4;font-size:14px;color:var(--quiet)}
+.why em{font-style:normal;color:var(--ink);font-weight:600}
+.cutbar{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--rule)}
+.folder{font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* detail */
+.detail{display:flex;flex-direction:column;min-height:0;padding:12px 16px;gap:10px}
+.player{position:relative;aspect-ratio:16/9;width:min(100%,calc(var(--player-h)*16/9));flex:none;border-radius:6px;background:#0f110f;display:grid;place-items:center;overflow:hidden}
+.player .poster{position:absolute;inset:0;background:radial-gradient(120% 90% at 30% 35%,#3c4a44 0,#1c2320 55%,#0f110f 100%)}
+.player .btn{position:relative;background:rgba(255,255,255,.94);color:#1B1D1B;border-color:#fff}
+.edges{display:grid;grid-template-columns:auto auto auto 1fr;grid-template-rows:auto auto;gap:6px 10px;align-items:center;font-size:14px}
+.edges .step{grid-column:4;grid-row:1/3;justify-self:end}
+.seg{display:inline-flex;border:1px solid var(--edge);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:5px 10px;font-size:13.5px}
+.seg button+button{border-left:1px solid var(--edge)}
+.seg button.on{background:var(--ink);color:var(--surface);font-weight:600}
+.edges .lab{color:var(--quiet)}
+.edges .grp{display:flex;gap:6px;flex-wrap:nowrap}
+.edges .btn{width:30px;padding:3px 0;font-size:16px;line-height:1.2}
+.lines{flex:1;overflow:auto;border-top:1px solid var(--rule);padding-top:8px}
+.line{display:grid;grid-template-columns:58px 1fr;gap:10px;padding:4px 0;font-size:15px}
+.line .tc{color:var(--quiet);font-size:13.5px;padding-top:2px}
+mark{background:var(--marker);color:var(--on-marker);font-weight:650;border-radius:2px;padding:0 2px}
+/* ruler */
+.ruler{padding:8px 16px 10px;border-top:1px solid var(--rule);background:var(--surface)}
+.track{position:relative;height:22px;border-radius:4px;background:var(--ground);border:1px solid var(--rule)}
+.m{position:absolute;top:2px;bottom:2px;min-width:5px;background:var(--marker);border:1px solid var(--edge);border-radius:2px}
+.m.sel{outline:2px solid var(--select);outline-offset:1px}
+.m.off{background:transparent;border-style:dashed}
+.ticks{display:flex;justify-content:space-between;font-size:12px;color:var(--quiet);margin-top:3px}
+/* criterion screen */
+.crit{flex:1;padding:22px 24px;display:flex;flex-direction:column;gap:16px;overflow:auto}
+.crit h1{font-size:24px;letter-spacing:-.01em;margin:0}
+.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.card{border:1px solid var(--edge);background:var(--surface);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:4px;min-height:104px}
+.card b{font-size:16px}
+.card span{font-size:13.5px;color:var(--quiet);line-height:1.35}
+.card.on{border:2px solid var(--select);background:var(--select-fill);padding:11px}
+.card.later{border:1px dashed var(--edge);background:transparent}
+.card.later b{color:var(--quiet);font-weight:600}
+.card .when{margin-top:auto;font-size:12.5px;color:var(--quiet);display:flex;justify-content:space-between}
+.inputs{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:14px}
+.inputs label{display:flex;flex-direction:column;gap:4px;font-size:13.5px;color:var(--quiet)}
+.inputs .field{color:var(--ink);font-size:15px}
+.num{min-width:70px}
+</style>
+</head>
+<body>
+<script>
+const q=new URLSearchParams(location.search);
+if(q.get('theme')==='dark')document.documentElement.dataset.theme='dark';
+document.documentElement.style.setProperty('--player-h', (innerHeight<700? 150: 230)+'px');
+const state=q.get('state')||'results';
+const header=`<div class="top"><span class="word">Kirpix</span><span class="file">tr-tedx-kaygi.mkv</span>
+<span class="tc quiet">14:37</span><span class="quiet">Sezgisel</span>
+<span class="sp"></span><button class="btn">Altyazı hizası</button><button class="btn">Ayarlar</button><button class="btn link">English</button></div>`;
+const lines=[["3:34","Yaklaşık 2-3 dakika sonra o korku duygusu kendisini büyük bir <mark>endişe</mark>"],["3:39","duygusuna bırakıyor. O <mark>endişe</mark> ve <mark>kaygı</mark> ile birlikte kişi evine dönüyor hemen."],["3:44","Aslında işi gücü varken evine dönüyor."],["3:47","O gün eve kapanıyor. Şimdi bu bizim için bu ikincil"],["3:51","ortaya çıkan <mark>endişe</mark> duygusu biraz anlaşılmaz bir şey."],["3:54","‘Nereden çıktı bu?’ diye düşünebiliriz."],["3:56","Çünkü burada bir parça eksik."],["3:58","O anda o kişinin yürürken, o <mark>endişe</mark> ve <mark>kaygıyı</mark> hissederken,"]];
+const results=`${header}
+<div class="bar"><span class="chip">Konu</span><span class="field">kaygı, endişe</span><span class="quiet">8 ile 120 saniye arası</span><span class="sp"></span><button class="btn">Yeniden ara</button></div>
+<div class="main">
+ <div class="list"><h2>3 kesit bulundu</h2><div class="rows">
+  <div class="row sel"><span class="box on">✓</span><span class="range tc">3:34 – 4:16</span><span class="dur tc">0:42</span><span class="why"><em>kaygı</em> ve <em>endişe</em> geçiyor, 9 satırda</span></div>
+  <div class="row"><span class="box on">✓</span><span class="range tc">13:35 – 14:05</span><span class="dur tc">0:30</span><span class="why"><em>kaygı</em> ve <em>endişe</em> geçiyor, 6 satırda</span></div>
+  <div class="row"><span class="box"></span><span class="range tc">6:02 – 6:14</span><span class="dur tc">0:12</span><span class="why"><em>kaygı</em> geçiyor, 2 satırda</span></div>
+ </div>
+ <div class="cutbar"><span class="folder quiet">Klasör: ~/Videolar/kirpix</span><button class="btn link">Değiştir</button><span class="sp"></span><button class="btn primary">2 kesiti kes</button></div></div>
+ <div class="detail">
+  <div class="player"><div class="poster"></div><button class="btn">Önizle</button></div>
+  <div class="edges">
+   <span class="lab">Başlangıç</span><span class="tc">3:33,6</span><span class="grp"><button class="btn">−</button><button class="btn">+</button></span>
+   <span class="lab">Bitiş</span><span class="tc">4:16,6</span><span class="grp"><button class="btn">−</button><button class="btn">+</button></span>
+   <span class="step"><span class="seg"><button class="on">1 sn</button><button>1 satır</button></span></span>
+  </div>
+  <div class="lines">${lines.map(([t,x])=>`<div class="line"><span class="tc">${t}</span><span>${x}</span></div>`).join('')}</div>
+ </div>
+</div>
+<div class="ruler"><div class="track"><span class="m sel" style="left:24.4%;width:4.8%"></span><span class="m off" style="left:41.2%;width:1.4%"></span><span class="m" style="left:92.9%;width:3.4%"></span></div>
+<div class="ticks tc"><span>0:00</span><span>3:39</span><span>7:19</span><span>10:58</span><span>14:37</span></div></div>`;
+const crit=`${header}<div class="crit"><h1>Ne arıyorsun?</h1>
+<div class="cards">
+ <div class="card on"><b>Konu</b><span>Bu kelimelerin geçtiği yerler</span></div>
+ <div class="card later"><b>Süre</b><span>Toplam 5 dakika, en yoğun yerlerden</span><span class="when"><span>Henüz yok</span><span class="tc">009</span></span></div>
+ <div class="card later"><b>Akış</b><span>Başı ve sonu belli tek bölüm</span><span class="when"><span>Henüz yok</span><span class="tc">010</span></span></div>
+ <div class="card later"><b>Dikkat çeken açılış</b><span>İzleyeni ilk saniyede tutan yerler</span><span class="when"><span>Henüz yok</span><span class="tc">011</span></span></div>
+ <div class="card later"><b>Kendi cümlen</b><span>Ne aradığını bir cümleyle yaz</span><span class="when"><span>Henüz yok</span><span class="tc">012</span></span></div>
+</div>
+<div class="inputs"><label>Kelimeler, virgülle<span class="field" style="min-width:280px">kaygı, endişe</span></label><label>En kısa<span class="field num tc">8 sn</span></label><label>En uzun<span class="field num tc">120 sn</span></label><span class="sp"></span><button class="btn primary">Kesitleri bul</button></div>
+
+</div>`;
+document.body.innerHTML = state==='criterion'?crit:results;
+</script>
+</body>
+</html>
