@@ -455,6 +455,38 @@ mod tests {
         assert!(candidates[1].start_ms < candidates[2].start_ms);
     }
 
+    /// SC-003 of feature 001: parse and search together finish in under two
+    /// seconds on either evaluation recording. Measured on the larger file,
+    /// in a debug build, so a release build has more room than this asserts.
+    #[test]
+    fn parse_and_search_finish_in_under_two_seconds() {
+        use crate::subtitle::{decode, parse_cues};
+        use std::path::Path;
+        use std::time::{Duration, Instant};
+
+        let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../eval/fixtures/en-single-story.en.vtt");
+        if !fixture.is_file() {
+            crate::testing::skip("evaluation files are not present");
+            return;
+        }
+
+        let started = Instant::now();
+        let (text, _) = decode::read_file(&fixture).expect("fixture should decode");
+        let table = CueTable {
+            cues: parse_cues(&text),
+            encoding: "utf-8".to_string(),
+        };
+        let terms = vec!["books".to_string(), "story".to_string()];
+        find(&table, &terms, Bounds::default(), 1_112_280).expect("search should run");
+        let elapsed = started.elapsed();
+
+        assert!(
+            elapsed < Duration::from_secs(2),
+            "parse and search took {elapsed:?}"
+        );
+    }
+
     #[test]
     fn the_same_input_produces_the_same_answer() {
         use crate::subtitle::{decode, parse_cues};
