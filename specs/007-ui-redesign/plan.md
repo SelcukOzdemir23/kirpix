@@ -112,7 +112,7 @@ app/
 ├── screens.html                 # dev-only fixture page entry (R6)
 └── src/
     ├── main.tsx                 # applies appearance before first paint (006)
-    ├── App.tsx                  # composes hooks, picks the screen; < 150 lines
+    ├── App.tsx                  # composes hooks, picks the screen (292 lines; see below)
     ├── api.ts                   # backend calls and types (marks added)
     ├── styles.css               # tokens (R3), control kinds (R4)
     ├── theme.ts                 # unchanged
@@ -160,6 +160,14 @@ app/src-tauri/src/
 Removed: `components/CandidateCard.tsx`, `TimelineStrip.tsx`, `CriteriaForm.tsx`,
 `OffsetControls.tsx`, `SectionLabel.tsx`, `SettingsView.tsx` — each is replaced
 by a file above; logic moves, it is not rewritten.
+
+**App.tsx size** (recorded during convergence, T035): the plan expected under
+150 lines. It ends at 292: it composes seven hooks and passes their state to
+five screens, and the results screen's wiring is the largest part. That is
+within the constitution's 300-line rule and is composition only, with no state
+or backend call of its own beyond the step choice and the alignment toggle.
+Moving the results wiring into a component would only move the same props one
+level down; the next slice that adds to it should do that first.
 
 **Structure decision**: the existing single desktop project. Hooks are the
 seam between behaviour and rendering, so the behaviour of 001–006 moves into

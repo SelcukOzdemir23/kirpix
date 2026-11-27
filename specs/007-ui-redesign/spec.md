@@ -321,6 +321,14 @@ plays.
   (FR-025); the duplicate "change criterion" link is removed; inactive cards say
   "Henüz yok" with the roadmap number beside it.
 
+- Q (recorded during convergence): FR-014 lists the backend calls whose
+  triggers stay unchanged; does showing a candidate's lines beside its player
+  (FR-007) change one? → A: Yes, one, and FR-007 requires it. Before 007 the
+  lines were fetched when the user opened a card's lines; now they are fetched
+  when a candidate is selected, with the search terms for the marks. It is a
+  local call to the open session; nothing leaves the machine. No other request
+  changed (T034).
+
 ## Assumptions
 
 - **Layout C was chosen by the owner** on the research page of 2026-11-27, over
