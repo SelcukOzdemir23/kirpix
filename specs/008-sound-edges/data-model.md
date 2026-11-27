@@ -5,7 +5,7 @@
 | Field | Type | Rule |
 | --- | --- | --- |
 | `startMs` | u64 | start of the run of quiet windows |
-| `endMs` | u64 | end of the run; `endMs − startMs ≥ 150` |
+| `endMs` | u64 | end of the run; `endMs − startMs ≥ 200` |
 
 ## SoundProfile
 

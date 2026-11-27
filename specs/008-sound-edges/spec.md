@@ -20,7 +20,7 @@ cue starts when the subtitler decided, often a breath early or late. On the
 Turkish evaluation recording today, **none of the eight edges of the four
 topic candidates falls inside a pause** (measured 2026-11-27; research R2). A
 clip cut there starts or ends mid-word. One candidate sits in such dense
-speech that no pause of 0.15 s or more lies within 3 seconds of either edge;
+speech that no pause of 0.2 s or more lies within 3 seconds of either edge;
 that one will stay on its subtitle edges and say so.
 
 The product document promises a heuristic mode that looks at "silences, the
@@ -195,7 +195,7 @@ be read.
   FR-005).
 - Q (revision, after measuring with the full rule): the 1.5 s answer was given
   on an estimate of six placed edges that ignored two rules, an edge must not
-  enter a matched line and a pause must last at least 0.15 s. With them, 1.5 s
+  enter a matched line and a pause must last at least 0.15 s (0.2 s in the plan). With them, 1.5 s
   places four of eight; 2.0 s places six but moves two edges by about 1.8 s.
   Keep 1.5 s? → A: Yes. SC-001 is lowered to four of eight rather than tuning
   the detector to the evaluation recording (constitution X). See research R2.

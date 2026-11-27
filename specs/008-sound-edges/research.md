@@ -29,10 +29,11 @@ and AV1/Opus support to maintain).
 - *Threshold*: halfway, in dB, between the 10th percentile of the window levels
   and their median. On `tr-tedx-kaygi`: p10 −46.4 dB, median −29.0 dB,
   threshold −38 dB.
-- *Pause*: a run of windows below the threshold lasting at least 150 ms.
+- *Pause*: a run of windows below the threshold lasting at least 200 ms.
 - *Placed start*: inside the pause before the speech, `pause.end − min(150 ms,
   pause length / 2)`; *placed end*: `pause.start + min(150 ms, pause length /
-  2)`. So at least 75 ms of the pause stays inside the clip at each end.
+  2)`. So at least 100 ms of the pause stays inside the clip at each end,
+  which SC-005 checks in the cut file.
 - *Allowed*: the nearest such point within 1.5 s of the subtitle edge, that does
   not enter the first or last matched line (start ≤ first matched cue's start,
   end ≥ last matched cue's end), and keeps the clip within 001's bounds.
@@ -45,8 +46,10 @@ and AV1/Opus support to maintain).
 | 2.0 s | 6 / 8 | the four above, −1.60, +1.85 |
 | 3.0 s | 6 / 8 | same as 2.0 s |
 
-The first candidate (cues 59–70) has no pause of 150 ms or more within 3 s of
-either edge. Reaching six of eight at 1.5 s needed 100 ms "pauses" with a
+The table was measured with pauses of 150 ms or more; with 200 ms, the
+minimum the plan uses so that SC-005's 100 ms of quiet holds, 1.5 s places the
+same four edges with the same moves. The first candidate (cues 59–70) has no
+such pause within 3 s of either edge. Reaching six of eight at 1.5 s needed 100 ms "pauses" with a
 raised threshold: a 100 ms gap can be a stop consonant inside a word, and a
 setting chosen because it hits the target on the one recording it is tested
 on is the tuning article X forbids. The owner chose 1.5 s and four of eight
