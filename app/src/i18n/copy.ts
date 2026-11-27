@@ -101,7 +101,6 @@ const tr = {
   shortest: 'En kısa',
   longest: 'En uzun',
   seconds: 'sn',
-  boundsText: (min: number, max: number) => `${min} ile ${max} saniye arası`,
   searchAgain: 'Yeniden ara',
   clipsFound: (count: number) => `${count} kesit bulundu`,
   reasonLine: (terms: string[], lines: number) =>
@@ -253,7 +252,6 @@ const en: typeof tr = {
   shortest: 'Shortest',
   longest: 'Longest',
   seconds: 's',
-  boundsText: (min: number, max: number) => `between ${min} and ${max} seconds`,
   searchAgain: 'Search again',
   clipsFound: (count: number) => `${count} ${count === 1 ? 'clip' : 'clips'} found`,
   reasonLine: (terms: string[], lines: number) =>

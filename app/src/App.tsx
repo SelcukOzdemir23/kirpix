@@ -199,6 +199,8 @@ export default function App() {
                   maxSec={maxSec}
                   searching={searching}
                   onTerms={setTerms}
+                  onMin={setMinSec}
+                  onMax={setMaxSec}
                   onSearch={() => void runSearch()}
                 />
               }

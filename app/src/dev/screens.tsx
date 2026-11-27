@@ -50,6 +50,8 @@ function results(t: Text, options: { dropped?: number[]; cut?: boolean } = {}) {
           maxSec={120}
           searching={false}
           onTerms={noop}
+          onMin={noop}
+          onMax={noop}
           onSearch={noop}
         />
       }
@@ -115,7 +117,7 @@ export const states: Record<string, (t: Text) => ReactNode> = {
   'results-empty': (t) => (
     <ResultsScreen
       bar={
-        <CriterionBar t={t} terms="kaygısız" minSec={8} maxSec={120} searching={false} onTerms={noop} onSearch={noop} />
+        <CriterionBar t={t} terms="kaygısız" minSec={8} maxSec={120} searching={false} onTerms={noop} onMin={noop} onMax={noop} onSearch={noop} />
       }
       list={
         <div className="grid flex-1 place-items-center px-8 text-center">

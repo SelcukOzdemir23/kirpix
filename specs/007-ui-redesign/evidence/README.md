@@ -65,6 +65,7 @@ colour.
 | Language | English | Türkçe | quiet | permanent underline |
 | Criterion | Konu | Topic | state, not a control | leading bar and tint |
 | Words | (field) | (field) | input | bordered field |
+| Shortest, longest | En kısa, En uzun | Shortest, Longest | input | bordered field with its label |
 | Search again | Yeniden ara | Search again | secondary | bordered box |
 | Keep box | (checkbox) | (checkbox) | input | native checkbox, ticked or empty |
 | Candidate row | 3:34 – 4:16 … | 3:34 – 4:16 … | selectable row | leading bar and tint when selected |
@@ -90,7 +91,7 @@ of feature 003's complaint are now "Dosya değiştir" and the folder's
 | Drop a video, with or without a subtitle | 003 | the window, any state |
 | Choose a subtitle file | 001 | track screen, Dosyadan seç; asked after picking a video with no track |
 | Choose an embedded track | 002 | track screen |
-| Type words, set shortest and longest | 001 | criterion screen; words also in the criterion bar |
+| Type words, set shortest and longest | 001 | criterion screen; all three also in the criterion bar |
 | Search | 001 | criterion screen (primary); criterion bar, Yeniden ara |
 | Select a candidate | 007 | list row; ruler mark |
 | Keep or drop a candidate | 001 | list row box |

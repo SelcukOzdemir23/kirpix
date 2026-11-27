@@ -9,15 +9,21 @@ type Props = {
   maxSec: number;
   searching: boolean;
   onTerms: (value: string) => void;
+  onMin: (value: number) => void;
+  onMax: (value: number) => void;
   onSearch: () => void;
 };
 
+const NUMBER =
+  'w-[58px] rounded-[6px] border border-edge bg-surface px-2 py-1 font-mono text-[14px] focus-visible:border-accent';
+
 /**
  * The chosen criterion after a search, folded into one line (FR-005): its
- * name, the words, editable in place, and the bounds as text. Searching again
- * replaces the results without going back to the cards.
+ * name, the words and the length bounds, all editable in place. Searching
+ * again replaces the results without going back to the cards.
  */
-export default function CriterionBar({ t, terms, minSec, maxSec, searching, onTerms, onSearch }: Props) {
+export default function CriterionBar(props: Props) {
+  const { t, terms, minSec, maxSec, searching, onTerms, onSearch } = props;
   const empty = parseTerms(terms).length === 0;
   return (
     <form
@@ -34,9 +40,29 @@ export default function CriterionBar({ t, terms, minSec, maxSec, searching, onTe
         value={terms}
         onChange={(event) => onTerms(event.target.value)}
         aria-label={t.termsLabel}
-        className="w-[240px] min-w-0 rounded-[6px] border border-edge bg-surface px-2.5 py-1 text-[15px] focus-visible:border-accent"
+        className="w-[200px] min-w-0 flex-1 rounded-[6px] border border-edge bg-surface px-2.5 py-1 text-[15px] focus-visible:border-accent"
       />
-      <span className="min-w-0 truncate text-muted">{t.boundsText(minSec, maxSec)}</span>
+      <label className="flex shrink-0 items-center gap-1.5 text-[13.5px] text-muted">
+        {t.shortest}
+        <input
+          type="number"
+          min={1}
+          value={minSec}
+          onChange={(event) => props.onMin(Number(event.target.value))}
+          className={NUMBER}
+        />
+      </label>
+      <label className="flex shrink-0 items-center gap-1.5 text-[13.5px] text-muted">
+        {t.longest}
+        <input
+          type="number"
+          min={1}
+          value={maxSec}
+          onChange={(event) => props.onMax(Number(event.target.value))}
+          className={NUMBER}
+        />
+        {t.seconds}
+      </label>
       <span className="ml-auto shrink-0">
         <Button type="submit" disabled={empty || searching}>
           {searching ? t.searching : t.searchAgain}
