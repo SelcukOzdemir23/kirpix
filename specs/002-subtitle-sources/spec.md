@@ -156,6 +156,8 @@ when the cue says it is.
   since feature 001.
 - Offsets are not remembered between sessions. Persisting them belongs with the
   feature that introduces settings.
+  *Superseded (recorded 2026-11-27)*: 006 introduced settings and did not
+  take this. It is a small slice on the roadmap in `.specify/memory/product.md`.
 - Estimating the offset automatically from the audio is out of scope. This
   feature makes the adjustment possible and checkable; guessing it comes later,
   if at all.

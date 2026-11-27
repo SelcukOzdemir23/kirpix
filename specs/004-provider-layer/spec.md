@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-17
 
-**Status**: Done — M1, M2 and M3 merged; four checks need a person, named in `tasks.md`
+**Status**: Merged (#9, #10, #11). Open: T009p, four checks owed to a person.
 
 **Input**: Let the user point the application at a model they chose — on their
 machine or over the network — and let that model rank the candidates and say

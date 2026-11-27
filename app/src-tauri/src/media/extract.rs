@@ -64,7 +64,7 @@ mod tests {
         let mkv = eval("media/tr-tedx-kaygi.mkv");
         let sidecar = eval("fixtures/tr-tedx-kaygi.srt");
         if !mkv.is_file() || !sidecar.is_file() {
-            eprintln!("skipped: fixtures are not present");
+            crate::testing::skip("fixtures are not present");
             return;
         }
 
@@ -89,7 +89,7 @@ mod tests {
     fn an_ass_track_is_converted_to_text() {
         let mkv = eval("media/tr-tedx-kaygi.mkv");
         if !mkv.is_file() {
-            eprintln!("skipped: fixtures are not present");
+            crate::testing::skip("fixtures are not present");
             return;
         }
 
@@ -104,7 +104,7 @@ mod tests {
     fn a_stream_that_does_not_exist_is_named() {
         let mkv = eval("media/tr-tedx-kaygi.mkv");
         if !mkv.is_file() {
-            eprintln!("skipped: fixtures are not present");
+            crate::testing::skip("fixtures are not present");
             return;
         }
 

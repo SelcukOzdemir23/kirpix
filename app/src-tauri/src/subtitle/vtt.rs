@@ -146,7 +146,7 @@ mod tests {
             .join("../../eval/fixtures")
             .join(name);
         if !path.is_file() {
-            eprintln!("skipped: {} is not present", path.display());
+            crate::testing::skip(&format!("{} is not present", path.display()));
             return None;
         }
         let (text, _) = decode::read_file(&path).expect("fixture should decode");

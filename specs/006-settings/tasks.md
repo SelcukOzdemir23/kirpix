@@ -5,8 +5,8 @@
 **Rule**: one task, one commit, and the application still builds and runs after
 each.
 
-**Status**: not started. Every box is open; evidence is written when the task is
-done, never before.
+**Status**: implemented and merged (#13, squashed: the five tasks are one
+commit on `master`, `c84caa7`). T005p holds the checks owed to a person.
 
 ## Phase 1: The appearance
 
@@ -120,3 +120,14 @@ done, never before.
   with `Koyu` chosen; the real `settings.json` path on this machine; and that a
   model choice made in the window is the one that runs after closing and
   reopening it.
+  *Split (2026-11-27, constitution 1.2.0)*: this box records what the machine
+  proved. What a person owes is the open box below, so the record no longer
+  says "done" while checks are waiting.
+
+- [ ] **T005p** *Owed to a person, at a desktop.*
+  - [ ] with `Koyu` chosen, the first frame after a restart is dark (SC-002);
+  - [ ] the real `settings.json` path on this machine is the one the settings
+    screen names;
+  - [ ] a model chosen in the window is the one that runs after closing and
+    reopening it (SC-003).
+  *Depends on*: T005.

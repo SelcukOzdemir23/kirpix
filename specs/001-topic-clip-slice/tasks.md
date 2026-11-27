@@ -169,7 +169,9 @@ Paths are relative to `app/` unless stated.
 - [ ] **T015** Verification. The automated half is done and passing; the manual
   rows are not.
   *Done*: SC-001, the search on the Turkish recording overlaps a recorded range
-  by 100 percent; SC-004, two runs produce byte-identical candidates; and the
+  by 100 percent; SC-003, parse and search on the larger recording finish in
+  about 10 ms in a debug build, under the two-second limit (test added
+  2026-11-27, analysis finding E1); SC-004, two runs produce byte-identical candidates; and the
   duration half of SC-002, since a cut clip is measured at the length its card
   showed, within 250 ms.
   *Owed to a person with a desktop*: play one clip from each recording and
@@ -180,7 +182,10 @@ Paths are relative to `app/` unless stated.
   from the Turkish recording was played and starts and ends where its card
   said. Still owed: one clip from the English recording, the offline run, and
   the gold review.
-  This box stays open until those three are done, because a spec that says
+  *Added by the analysis of 2026-11-27*: SC-006 was never in this list. Also
+  owed: on each recording, one candidate the owner accepts without moving its
+  boundaries, one row per recording.
+  This box stays open until those four are done, because a spec that says
   "verified" while half of it has not been looked at is worse than one that
   says exactly what is left.
   *Depends on*: T008, T013

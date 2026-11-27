@@ -6,8 +6,7 @@
 each.
 
 **Status**: implemented and merged (#9, #10, #11). T001 to T009 are done;
-T005b is a later slice by decision. The checks that need a person are listed
-under T009.
+T005b is a later slice by decision. T009p holds the checks owed to a person.
 
 *Correction (housekeeping)*: T004 to T007 were implemented in `ec09733`
 (T004, T005) and `e013bc6` (T006, T007) and merged in #10, but their boxes
@@ -182,6 +181,8 @@ were left unticked. They are ticked now; their evidence was already written.
   the command layer's own tests. A live request needs a real window and a real
   server — T009 names it.
   *Depends on*: T004, T007.
+  *Superseded (recorded 2026-11-27)*: 006 moved the model section from the
+  rail to the settings view (006 FR-008); the rail shows one engine line.
 
 - [x] **T009** Verify against the evaluation set and record what a person must
   still check: heuristic mode with the network down on a real recording, and one
@@ -216,7 +217,21 @@ were left unticked. They are ticked now; their evidence was already written.
   request to a local server with a real model, confirming the picture of a
   request and that a bad key produces the auth sentence; and restarting the
   application to confirm a stored key survives.
+  *Split (2026-11-27, constitution 1.2.0)*: this box records what the machine
+  proved. What a person owes is the open box below, so the record no longer
+  says "done" while checks are waiting.
   *Depends on*: T008.
+
+- [ ] **T009p** *Owed to a person, at a desktop.* Each check is ticked here,
+  with the date, when it has been done:
+  - [ ] heuristic mode, whole flow, with the network interface down (SC-001);
+  - [ ] one live request to a local server with a real model: the confirmation
+    dialog shows the model, address, cue count and character count, `Vazgeç`
+    sends nothing, `Gönder` ranks;
+  - [ ] a wrong cloud key produces the authentication sentence and the key is
+    not on screen;
+  - [ ] a stored key is still there after closing and reopening the app.
+  *Depends on*: T009.
 
 ## Not in this slice
 

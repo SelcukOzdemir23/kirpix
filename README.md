@@ -24,7 +24,8 @@ site/          the project site (Astro, static, Turkish and English)
 app/           the desktop application (Tauri 2, Rust, React)
 specs/         one folder per feature, written before the code
 eval/          fixed evaluation recordings, fixtures and ground truth
-.specify/      Spec Kit templates, scripts and the constitution
+.specify/      Spec Kit: the constitution, the product document and roadmap
+               (memory/), analysis reports, templates and scripts
 scripts/       check.sh runs every check a pull request must pass
 AGENTS.md      how to work in this repository
 LICENSE        MIT

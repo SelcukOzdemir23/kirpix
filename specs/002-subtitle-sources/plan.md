@@ -66,6 +66,9 @@ Nothing here introduces a model, a network call, or a new process boundary.
 
 ## Project Structure
 
+*Superseded (recorded 2026-11-27)*: `TrackPicker.tsx` was built as
+`TrackChooser.tsx`.
+
 ```
 app/src-tauri/src/
   media/ffmpeg.rs        probe grows subtitle tracks; new extract_track()
