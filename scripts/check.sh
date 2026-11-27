@@ -42,7 +42,7 @@ if grep -qE "^test result: FAILED|^error" "$test_log"; then
   echo "rust tests failed" >&2
   exit 1
 fi
-skipped=$(grep -o "skipped: " "$test_log" | wc -l | tr -d ' ')
+skipped=$( (grep -o "skipped: " "$test_log" || true) | wc -l | tr -d ' ')
 ignored=$(grep -oE "[0-9]+ ignored" "$test_log" | awk '{n += $1} END {print n + 0}')
 if [ "$ignored" -gt 0 ]; then
   printf 'NOTE: %s tests ignored as known failures (cargo test -- --ignored lists them)\n' "$ignored"
